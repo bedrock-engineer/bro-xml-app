@@ -1,0 +1,90 @@
+{
+  "name": "bedrock-bro-webapp",
+  "description": "Web Application for viewing BRO (Basisregistratie Ondergrond) XML files",
+  "homepage": "https://github.com/bedrock-engineer",
+  "version": "1.0.0",
+  "author": {
+    "name": "Jules Blom",
+    "url": "https://bedrock.engineer",
+    "email": "jules.blom@bedrock.engineer"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bedrock-engineer/bro-xml-app.git"
+  },
+  "bugs": {
+    "url": "https://github.com/bedrock-engineer/bro-xml-app/issues",
+    "email": "jules.blom@bedrock.engineer"
+  },
+  "license": "Apache-2.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "react-router build",
+    "dev": "react-router dev",
+    "start": "react-router-serve ./build/server/index.js",
+    "typecheck": "react-router typegen && tsc",
+    "lint": "eslint app",
+    "format": "prettier -w app",
+    "knip": "knip"
+  },
+  "dependencies": {
+    "@bedrock-engineer/bro-xml": "file:../bro-parser-js",
+    "@observablehq/plot": "^0.6.17",
+    "@react-router/fs-routes": "^7.12.0",
+    "@react-router/node": "^7.12.0",
+    "@react-router/serve": "^7.12.0",
+    "d3-array": "^3.2.4",
+    "d3-dsv": "^3.0.1",
+    "d3-format": "^3.1.0",
+    "i18next": "^25.6.3",
+    "i18next-browser-languagedetector": "^8.2.0",
+    "i18next-fetch-backend": "^7.0.0",
+    "isbot": "^5.1.27",
+    "leaflet": "^1.9.4",
+    "lucide-react": "^0.554.0",
+    "proj4": "^2.20.2",
+    "react": "^19.2.4",
+    "react-aria-components": "^1.13.0",
+    "react-dom": "^19.2.4",
+    "react-i18next": "^16.3.5",
+    "react-router": "^7.12.0",
+    "remix-i18next": "^7.4.2",
+    "svg-crowbar": "^0.7.0"
+  },
+  "devDependencies": {
+    "@cloudflare/vite-plugin": "^1.15.2",
+    "@eslint/js": "^9.39.1",
+    "@react-router/dev": "^7.12.0",
+    "@tailwindcss/vite": "^4.1.17",
+    "@types/d3-array": "^3.2.1",
+    "@types/d3-dsv": "^3.0.7",
+    "@types/d3-format": "^3.0.4",
+    "@types/geojson": "^7946.0.16",
+    "@types/leaflet": "^1.9.21",
+    "@types/node": "^20",
+    "@types/proj4": "^2.5.6",
+    "@types/react": "^19.2.7",
+    "@types/react-dom": "^19.2.3",
+    "eslint": "^9.39.2",
+    "eslint-plugin-react-hooks": "^7.0.1",
+    "eslint-plugin-unicorn": "^62.0.0",
+    "knip": "^5.70.1",
+    "prettier": "^3.6.2",
+    "tailwindcss": "^4.1.4",
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.47.0",
+    "vite": "^7.3.1",
+    "vite-plugin-pwa": "^1.2.0",
+    "vite-tsconfig-paths": "^5.1.4",
+    "wrangler": "^4.61.1"
+  },
+  "prettier": {
+    "semi": true,
+    "trailingComma": "all",
+    "singleQuote": false,
+    "printWidth": 80,
+    "tabWidth": 2,
+    "endOfLine": "lf"
+  }
+}

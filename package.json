@@ -29,7 +29,7 @@
     "knip": "knip"
   },
   "dependencies": {
-    "@bedrock-engineer/bro-xml": "file:../bro-parser-js",
+    "@bedrock-engineer/bro-xml-parser": "^0.1.0",
     "@observablehq/plot": "^0.6.17",
     "@react-router/cloudflare": "^7.13.0",
     "@react-router/fs-routes": "^7.13.0",

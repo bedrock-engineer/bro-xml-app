@@ -1,4 +1,4 @@
-import type { Location } from "@bedrock-engineer/bro-xml";
+import type { Location } from "@bedrock-engineer/bro-xml-parser";
 
 /**
  * Format a Date to ISO date string (YYYY-MM-DD)

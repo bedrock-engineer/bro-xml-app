@@ -3,10 +3,10 @@ import type {
   BHRGTData,
   BROData,
   CPTData
-} from "@bedrock-engineer/bro-xml";
+} from "@bedrock-engineer/bro-xml-parser";
 
 // Re-export union types from the library
-export type { BROData, BROFileType } from "@bedrock-engineer/bro-xml";
+export type { BROData, BROFileType } from "@bedrock-engineer/bro-xml-parser";
 
 /**
  * Type guard for CPT data

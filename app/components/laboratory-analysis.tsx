@@ -1,7 +1,7 @@
 import type {
   BoreholeSampleAnalysis,
   InvestigatedInterval,
-} from "@bedrock-engineer/bro-xml";
+} from "@bedrock-engineer/bro-xml-parser";
 import { useState } from "react";
 import {
   Button,

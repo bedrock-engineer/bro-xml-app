@@ -1,4 +1,4 @@
-import type { Location } from "@bedrock-engineer/bro-xml";
+import type { Location } from "@bedrock-engineer/bro-xml-parser";
 import proj4 from "proj4";
 
 export interface WGS84Coords {

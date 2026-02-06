@@ -12,7 +12,7 @@ import {
   ListBoxItem,
 } from "react-aria-components";
 import { useTranslation } from "react-i18next";
-import type { CPTMeasurement } from "@bedrock-engineer/bro-xml";
+import type { CPTMeasurement } from "@bedrock-engineer/bro-xml-parser";
 import type { ChartColumn } from "~/util/chart-axes";
 import { createWatermarkMark } from "~/util/plot-config";
 import { Card, CardTitle } from "./card";

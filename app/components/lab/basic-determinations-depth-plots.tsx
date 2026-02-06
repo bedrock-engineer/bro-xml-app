@@ -1,4 +1,4 @@
-import type { InvestigatedInterval } from "@bedrock-engineer/bro-xml";
+import type { InvestigatedInterval } from "@bedrock-engineer/bro-xml-parser";
 import * as Plot from "@observablehq/plot";
 import { max } from "d3-array";
 import { useEffect, useRef } from "react";

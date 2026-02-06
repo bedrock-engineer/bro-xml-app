@@ -1,5 +1,5 @@
 import type { TFunction } from "i18next";
-import type { Location } from "@bedrock-engineer/bro-xml";
+import type { Location } from "@bedrock-engineer/bro-xml-parser";
 import type { HeaderItem } from "../types/header-types";
 import { formatDeliveredLocation, formatStandardizedLocation } from "./format";
 

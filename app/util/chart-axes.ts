@@ -4,7 +4,7 @@
  * Utilities for detecting chart axes and formatting column metadata for visualization.
  */
 
-import type { CPTData, CPTMeasurement } from "@bedrock-engineer/bro-xml";
+import type { CPTData, CPTMeasurement } from "@bedrock-engineer/bro-xml-parser";
 
 export interface ChartColumn {
   key: keyof CPTMeasurement;

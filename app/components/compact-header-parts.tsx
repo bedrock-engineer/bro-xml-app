@@ -1,4 +1,4 @@
-import type { Location } from "@bedrock-engineer/bro-xml";
+import type { Location } from "@bedrock-engineer/bro-xml-parser";
 import type { ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 import { getCoordSystemName, normalizeEpsg, toWgs84 } from "../util/coordinates";

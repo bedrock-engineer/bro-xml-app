@@ -6,8 +6,8 @@ import { useTranslation } from "react-i18next";
 import type {
   BHRGTLayer,
   BoreholeSampleAnalysis,
-} from "@bedrock-engineer/bro-xml";
-import { getSoilColor } from "@bedrock-engineer/bro-xml";
+} from "@bedrock-engineer/bro-xml-parser";
+import { getSoilColor } from "@bedrock-engineer/bro-xml-parser";
 import {
   LAB_TEST_CATEGORIES,
   getLabTestCategories,

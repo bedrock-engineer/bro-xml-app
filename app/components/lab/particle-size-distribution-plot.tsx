@@ -1,6 +1,6 @@
 import type {
   ParticleSizeDistributionDetermination
-} from "@bedrock-engineer/bro-xml";
+} from "@bedrock-engineer/bro-xml-parser";
 import * as Plot from "@observablehq/plot";
 import { useEffect, useRef } from "react";
 import { useTranslation } from "react-i18next";

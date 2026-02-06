@@ -1,6 +1,6 @@
 import type { TFunction } from "i18next";
 import { useTranslation } from "react-i18next";
-import type { BHRGTData } from "@bedrock-engineer/bro-xml";
+import type { BHRGTData } from "@bedrock-engineer/bro-xml-parser";
 import { getUniqueDeterminationTypes } from "../util/determination-types";
 import type { HeaderItem, HeaderSection } from "../types/header-types";
 import { formatDate } from "../util/format";

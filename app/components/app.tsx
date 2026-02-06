@@ -1,4 +1,4 @@
-import { BROParser, XMLAdapter } from "@bedrock-engineer/bro-xml";
+import { BROParser, XMLAdapter } from "@bedrock-engineer/bro-xml-parser";
 import type { TFunction } from "i18next";
 import {
   GithubIcon,

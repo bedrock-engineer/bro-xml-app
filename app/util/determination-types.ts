@@ -1,4 +1,4 @@
-import type { InvestigatedInterval } from "@bedrock-engineer/bro-xml";
+import type { InvestigatedInterval } from "@bedrock-engineer/bro-xml-parser";
 
 /**
  * Lab test category definitions for visualization

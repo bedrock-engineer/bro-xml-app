@@ -1,5 +1,5 @@
-import type { BHRGLayer } from "@bedrock-engineer/bro-xml";
-import { getSoilColor } from "@bedrock-engineer/bro-xml";
+import type { BHRGLayer } from "@bedrock-engineer/bro-xml-parser";
+import { getSoilColor } from "@bedrock-engineer/bro-xml-parser";
 import * as Plot from "@observablehq/plot";
 import { max, min } from "d3-array";
 import { useEffect, useRef } from "react";

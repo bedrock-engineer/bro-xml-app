@@ -1,4 +1,4 @@
-import type { ConsistencyLimitsDetermination } from "@bedrock-engineer/bro-xml";
+import type { ConsistencyLimitsDetermination } from "@bedrock-engineer/bro-xml-parser";
 import * as Plot from "@observablehq/plot";
 import { useRef, useEffect } from "react";
 import { useTranslation } from "react-i18next";

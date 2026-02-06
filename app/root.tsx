@@ -40,31 +40,9 @@ export const links: Route.LinksFunction = () => {
       href: "https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,100..700;1,100..700&family=IBM+Plex+Sans:ital,wght@0,100..700;1,100..700&display=swap",
       rel: "stylesheet",
     },
-    // Primary favicon
     { rel: "icon", href: "/favicon.ico", sizes: "32x32" },
-    // Light
-    { rel: "icon", href: "/favicon-light-512x512.png", sizes: "512x512" },
+    { rel: "icon", href: "/favicon-512x512.png", sizes: "512x512" },
     { rel: "icon", href: "/favicon.svg", type: "image/svg+xml" },
-    // Dark
-    {
-      rel: "icon",
-      href: "/favicon-dark.ico",
-      sizes: "32x32",
-      media: "(prefers-color-scheme: dark)",
-    },
-    {
-      rel: "icon",
-      href: "/favicon-dark.svg",
-      type: "image/svg+xml",
-      media: "(prefers-color-scheme: dark)",
-    },
-    {
-      rel: "icon",
-      href: "/favicon-dark-512x512.png",
-      type: "image/png",
-      sizes: "512x512",
-      media: "(prefers-color-scheme: dark)",
-    },
     // Other icons
     { rel: "apple-touch-icon", href: "/favicon-180x180.png" },
     {

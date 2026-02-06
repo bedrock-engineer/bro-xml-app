@@ -364,8 +364,8 @@ export default {
     feedbackAdditionalPlaceholder: "Andere feedback, feature requests, bugs...",
     feedbackSubmit: "Verstuur feedback",
     feedbackSubmitting: "Versturen...",
-    feedbackThankYou: "Bedankt!",
-    feedbackThankYouMessage: "We waarderen je feedback. Het helpt ons betere tools te bouwen voor geotechnische professionals.",
+    feedbackThankYou: "Bedankt",
+    feedbackThankYouMessage: "We waarderen je feedback.",
     cancel: "Annuleren",
 
     // Navigation

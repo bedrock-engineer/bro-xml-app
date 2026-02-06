@@ -13,8 +13,6 @@
 	},
 	/**
 	 * KV Namespace for storing feedback
-	 * Create with: wrangler kv namespace create FEEDBACK_KV
-	 * Then add the id below
 	 */
 	"kv_namespaces": [
 		{

@@ -365,7 +365,7 @@ export default {
     feedbackSubmit: "Submit feedback",
     feedbackSubmitting: "Submitting...",
     feedbackThankYou: "Thank you!",
-    feedbackThankYouMessage: "We appreciate your feedback. It helps us build better tools for geotechnical professionals.",
+    feedbackThankYouMessage: "We appreciate your feedback.",
     cancel: "Cancel",
 
     // Navigation

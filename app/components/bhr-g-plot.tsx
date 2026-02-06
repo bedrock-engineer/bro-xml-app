@@ -194,32 +194,6 @@ export function BHRGPlot({
   );
 }
 
-function formatLayerDescription(layer: BHRGLayer): string {
-  const parts: Array<string> = [];
-
-  if (layer.color) {
-    parts.push(layer.color);
-  }
-
-  if (layer.organicMatterContentClassNEN5104) {
-    parts.push(layer.organicMatterContentClassNEN5104);
-  }
-
-  if (layer.sandMedianClass) {
-    parts.push(layer.sandMedianClass);
-  }
-
-  if (layer.gravelContentClass) {
-    parts.push(layer.gravelContentClass);
-  }
-
-  if (layer.carbonateContentClass) {
-    parts.push(layer.carbonateContentClass);
-  }
-
-  return parts.join(", ");
-}
-
 function formatBHRGLayerTitle(layer: BHRGLayer): string {
   const parts = [
     `${layer.upperBoundary.toFixed(2)} – ${layer.lowerBoundary.toFixed(2)} m`,

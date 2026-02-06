@@ -226,13 +226,13 @@ function getBHRGSurveyContext(data: BHRGData, t: TFunction): Array<HeaderItem> {
 function getBHRGIntervalData(data: BHRGData, t: TFunction): Array<HeaderItem> {
   const items: Array<HeaderItem> = [];
 
-  if (data.bored_intervals && data.bored_intervals.length > 0) {
+  if (data.bored_intervals.length > 0) {
     items.push({
       label: t("boredIntervals"),
       value: data.bored_intervals.length,
     });
   }
-  if (data.sampled_intervals && data.sampled_intervals.length > 0) {
+  if (data.sampled_intervals.length > 0) {
     items.push({
       label: t("sampledIntervals"),
       value: data.sampled_intervals.length,

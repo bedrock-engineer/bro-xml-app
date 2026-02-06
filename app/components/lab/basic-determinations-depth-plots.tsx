@@ -236,7 +236,7 @@ function SummaryTable({ intervals, determinations }: SummaryTableProps) {
                     key={det.key}
                     className="py-2 px-2 text-right font-mono"
                   >
-                    {value != null ? value.toFixed(2) : "–"}
+                    {value == null ? "–" : value.toFixed(2)}
                   </td>
                 );
               })}

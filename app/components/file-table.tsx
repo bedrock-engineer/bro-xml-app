@@ -1,5 +1,4 @@
 import { ChevronDownIcon, ChevronUpIcon, XIcon } from "lucide-react";
-import type { QualityRegime } from "node_modules/@bedrock-engineer/bro-xml/dist/types";
 import { useMemo, useState } from "react";
 import type {
   FileDropItem,
@@ -35,6 +34,8 @@ function SortIndicator({ column, sortDescriptor }: SortIndicatorProps) {
     <Icon size={14} className={`inline ml-1 ${isActive ? "" : "opacity-0"}`} />
   );
 }
+
+type QualityRegime = 'IMBRO' | 'IMBRO/A';
 
 interface FileRow {
   id: string;
@@ -84,7 +85,7 @@ export function FileTable({
   }, [broData]);
 
   const sortedRows = useMemo(() => {
-    const sorted = [...rows].sort((a, b) => {
+    const sorted = [...rows].toSorted((a, b) => {
       const column = sortDescriptor.column as keyof FileRow;
       const aValue = a[column];
       const bValue = b[column];
@@ -124,8 +125,8 @@ export function FileTable({
     }
   };
 
-  const handleDrop = async (e: { items: ReadonlyArray<{ kind: string }> }) => {
-    const fileItems = e.items.filter(
+  const handleDrop = async (event: { items: ReadonlyArray<{ kind: string }> }) => {
+    const fileItems = event.items.filter(
       (item): item is FileDropItem => item.kind === "file",
     );
     const files = await Promise.all(fileItems.map((item) => item.getFile()));

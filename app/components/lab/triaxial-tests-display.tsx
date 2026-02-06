@@ -1,6 +1,6 @@
-import type { ShearStressChangeDuringLoadingDetermination, ShearStressAtSpecificStrain } from "@bedrock-engineer/bro-xml-parser";
+import type { ShearStressChangeDuringLoadingDetermination } from "@bedrock-engineer/bro-xml-parser";
 import * as Plot from "@observablehq/plot";
-import { useRef, useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { PlotDownloadButtons } from "../plot-download-buttons";
 
@@ -46,13 +46,13 @@ export function TriaxialTestsDisplay({
       let maxDeviator = 0;
       let sigma3 = loadStageData[0]?.cellPressure ?? 0;
 
-      loadStageData.forEach((point: ShearStressAtSpecificStrain) => {
+      for (const point of loadStageData) {
         if (point.deviatorStress != null &&
           point.deviatorStress > maxDeviator) {
           maxDeviator = point.deviatorStress;
           sigma3 = point.cellPressure;
         }
-      });
+      };
 
       if (maxDeviator === 0) {
         return null;
@@ -86,7 +86,7 @@ export function TriaxialTestsDisplay({
           continue;
         }
 
-        loadStageData.forEach((point: ShearStressAtSpecificStrain) => {
+        for (const point of loadStageData) {
           if (point.axialStrain != null && point.deviatorStress != null) {
             allData.push({
               strain: point.axialStrain,
@@ -95,7 +95,7 @@ export function TriaxialTestsDisplay({
               cellPressure: point.cellPressure,
             });
           }
-        });
+        }
       }
 
       if (allData.length === 0) {

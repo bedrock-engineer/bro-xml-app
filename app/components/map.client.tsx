@@ -113,15 +113,16 @@ export function BROMap({ broData, selectedFileName, onMarkerClick }: MapProps) {
 
       // Netherlands bounds with some padding
       const netherlandsBounds: [[number, number], [number, number]] = [
-        [50.5, 3.0],
+        [50.5, 3],
         [53.8, 7.5],
       ];
 
+      // eslint-disable-next-line unicorn/no-array-method-this-argument, unicorn/no-array-callback-reference
       const map = L.map(mapRef.current, {
         zoomControl: true,
         attributionControl: true,
         maxBounds: netherlandsBounds,
-        maxBoundsViscosity: 1.0,
+        maxBoundsViscosity: 1,
         minZoom: 7,
       });
 

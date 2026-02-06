@@ -47,7 +47,9 @@ export function CptPlots({
   const [selectedAxes, setSelectedAxes] = useState([initialXAxis.key]);
   const [selectedYAxis, setSelectedYAxis] = useState(initialYAxis.key);
 
-  const xAxisOptions = availableChartColumns.filter((col) => !isDepthChartColumn(col));
+  const xAxisOptions = availableChartColumns.filter(
+    (col) => !isDepthChartColumn(col),
+  );
 
   const currentYAxis =
     yAxisOptions.find((opt) => opt.key === selectedYAxis) ?? initialYAxis;

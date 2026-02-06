@@ -112,6 +112,6 @@ export function getDeterminationTypes(
 export function getUniqueDeterminationTypes(
   intervals: Array<InvestigatedInterval>
 ): Array<string> {
-  const allTypes = intervals.flatMap(getDeterminationTypes);
+  const allTypes = intervals.flatMap((interval) => getDeterminationTypes(interval));
   return [...new Set(allTypes)];
 }

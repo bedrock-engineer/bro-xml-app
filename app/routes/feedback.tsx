@@ -5,7 +5,7 @@ import type { Route } from "./+types/feedback";
 import { Card } from "../components/card";
 
 export const meta: Route.MetaFunction = ({ matches }) => {
-  const parentData = matches[0]?.loaderData as { locale?: string } | undefined;
+  const parentData = matches[0].loaderData as { locale?: string } | undefined;
   const locale = parentData?.locale ?? "nl";
   const title = locale === "nl" ? "Feedback - BRO XML Viewer" : "Feedback - BRO XML Viewer";
   const description =
@@ -61,7 +61,7 @@ export default function FeedbackPage() {
   const fetcher = useFetcher();
 
   // Check for success in URL
-  const isSuccess = typeof globalThis.window !== "undefined" && new URLSearchParams(globalThis.window.location.search).get("success") === "true";
+  const isSuccess = globalThis.window !== "undefined" && new URLSearchParams(globalThis.window.location.search).get("success") === "true";
 
   if (isSuccess) {
     return (

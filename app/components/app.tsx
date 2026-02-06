@@ -30,7 +30,7 @@ import { CompactCptHeader, DetailedCptHeaders } from "./cpt-header-items";
 import { CptPlots } from "./cpt-plot";
 import { DownloadGeoJSONButton } from "./download-geojson-button";
 import { FileTable } from "./file-table";
-import { InstallInstructions } from "./install-instructions.client";
+import { InstallInstructions } from "./install-instructions";
 import { LaboratoryAnalysis } from "./laboratory-analysis";
 
 function translateWarning(warning: string, t: TFunction): string {

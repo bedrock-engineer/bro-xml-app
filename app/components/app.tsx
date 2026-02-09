@@ -94,7 +94,9 @@ export function App() {
       "example_bhr_gt.xml",
       "example_bhr_g.xml",
       "example_bhr_gt_triaxial.xml",
-      "example_bhr_gt_atterberg.xml",
+      "example_bhr_gt_triaxial.xml",
+      "example_bhr_gt_vol_mass_density_solids.xml",
+      "example_bhr_gt_max_undrained_shear_strength.xml",
     ];
 
     const parser = new BROParser(new XMLAdapter());

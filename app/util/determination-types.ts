@@ -35,6 +35,16 @@ export const LAB_TEST_CATEGORIES = {
     color: "#0891b2", // cyan
     determinations: ["saturatedPermeabilityDetermination"],
   },
+  undrainedShearStrength: {
+    color: "#ea580c", // orange
+    determinations: ["maximumUndrainedShearStrengthDetermination"],
+  },
+  directShear: {
+    color: "#d946ef", // fuchsia
+    determinations: [
+      "shearStressChangeDuringHorizontalDeformationDetermination",
+    ],
+  },
 } as const;
 
 export type LabTestCategory = keyof typeof LAB_TEST_CATEGORIES;
@@ -53,6 +63,8 @@ const DETERMINATION_TYPES = {
   settlementCharacteristicsDetermination: "Settlement",
   saturatedPermeabilityDetermination: "Permeability",
   shearStressChangeDuringLoadingDetermination: "Triaxial",
+  maximumUndrainedShearStrengthDetermination: "Undrained Shear Strength",
+  shearStressChangeDuringHorizontalDeformationDetermination: "Direct Shear",
 } as const;
 
 // type DeterminationKey = keyof typeof DETERMINATION_TYPES;

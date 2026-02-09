@@ -61,6 +61,26 @@ export function BasicDeterminationsDepthPlots({
       unit: "%",
       ticks: 5,
     },
+    {
+      key: "volumetricMassDensityOfSolids",
+      getValue: (d) =>
+        d.volumetricMassDensityOfSolidsDetermination
+          ?.volumetricMassDensityOfSolids,
+      domain: [2, 3],
+      label: t("particleDensity"),
+      unit: "g/cm³",
+      ticks: 5,
+    },
+    {
+      key: "maximumUndrainedShearStrength",
+      getValue: (d) =>
+        d.maximumUndrainedShearStrengthDetermination
+          ?.maximumUndrainedShearStrength,
+      domain: [0, 200],
+      label: t("undrainedShearStrength"),
+      unit: "kPa",
+      ticks: 5,
+    },
   ];
 
   // Filter to only include determinations that have data

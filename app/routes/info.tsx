@@ -6,16 +6,14 @@ import { Card } from "../components/card";
 export const meta: Route.MetaFunction = ({ matches }) => {
   const parentData = matches[0].loaderData as { locale?: string } | undefined;
   const locale = parentData?.locale ?? "nl";
-  const title = locale === "nl" ? "Over - BRO XML Viewer" : "About - BRO XML Viewer";
+  const title =
+    locale === "nl" ? "Over - BRO XML Viewer" : "About - BRO XML Viewer";
   const description =
     locale === "nl"
       ? "Informatie over de Bedrock BRO XML Viewer"
       : "Information about the Bedrock BRO XML Viewer";
 
-  return [
-    { title },
-    { name: "description", content: description },
-  ];
+  return [{ title }, { name: "description", content: description }];
 };
 
 export default function InfoPage() {
@@ -28,8 +26,12 @@ export default function InfoPage() {
           style={{ maxWidth: "clamp(360px, 100%, 1800px)" }}
           className="mx-auto"
         >
-          <Link to="/" className="text-2xl flex gap-2 items-center hover:opacity-80">
-            <img src="/bedrock.svg" width={30} alt="Bedrock logo" /> {t("appTitle")}
+          <Link
+            to="/"
+            className="text-2xl flex gap-2 items-center hover:opacity-80"
+          >
+            <img src="/bedrock.svg" width={30} alt="Bedrock logo" />{" "}
+            {t("appTitle")}
           </Link>
         </div>
       </header>
@@ -40,14 +42,47 @@ export default function InfoPage() {
         <div className="space-y-8">
           <Card>
             <h2 className="text-xl font-medium mb-4">{t("whatIsBroViewer")}</h2>
-            <p className="text-gray-700 mb-4">{t("whatIsBroViewerDescription")}</p>
+            <p className="text-gray-700 mb-4">
+              {t("whatIsBroViewerDescription")}
+            </p>
             <ul className="list-disc list-inside space-y-2 text-gray-700">
               <li>{t("featureCpt")}</li>
               <li>{t("featureBhrGt")}</li>
               <li>{t("featureLab")}</li>
               <li>{t("featureBhrG")}</li>
             </ul>
-            <p className="text-gray-500 text-sm mt-4 italic">{t("otherBroTypesNote")}</p>
+            <p className="text-gray-500 text-sm mt-4 italic">
+              {t("otherBroTypesNote")}
+            </p>
+          </Card>
+
+          <Card>
+            <h2 className="text-xl font-medium mb-4">
+              Ondersteunde Geoetecnische Boormonsteranalyse tests
+            </h2>
+            <p>
+              De volgende tests zijn ondersteund.Heb je verzoeken of suggesties
+              hiervoor, bijvoorbeeld voor betere grafieken en tabellen. of beter
+              vertoon? Laat het ons weten via de{" "}
+              <Link to="/feedback" className="text-blue-500 hover:underline">
+                Feedback
+              </Link>
+              pagina.
+            </p>
+            <ul>
+              <li>basisparameter</li>
+              <li>korrelgrootteverdeling</li>
+              <li>maximaleSchuifsterkte</li>
+              <li>schuifspanningsverloopBelasting</li>
+              <li>zetting</li>
+              <li>consistentie</li>
+              <li>consistentieKorrelverdeling</li>
+              <li>schuifspanningsverloopHorVervorming</li>
+              <li>waterdoorlatendheid</li>
+              <li>schuifspanningsverloopBelastingPlus</li>
+              <li>schuifsterktePlus</li>
+              <li>schuifspanningsverloopHorVervormingPlus</li>
+            </ul>
           </Card>
 
           <Card>

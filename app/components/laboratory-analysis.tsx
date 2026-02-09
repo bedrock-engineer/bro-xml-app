@@ -19,6 +19,7 @@ import { ConsistencyLimitsDisplay } from "./lab/consistency-limits-display";
 import { ParticleSizeDistributionPlot } from "./lab/particle-size-distribution-plot";
 import { PermeabilityDisplay } from "./lab/permeability-display";
 import { SettlementCharacteristicsDisplay } from "./lab/settlement-characteristics-display";
+import { DirectShearDisplay } from "./lab/direct-shear-display";
 import { TriaxialTestsDisplay } from "./lab/triaxial-tests-display";
 
 interface LaboratoryAnalysisProps {
@@ -152,10 +153,8 @@ function IntervalDetails({
         </dl>
       </div>
 
-      {/* Basic determinations table */}
       <BasicDeterminationsTable interval={interval} />
 
-      {/* Particle size distribution */}
       {interval.particleSizeDistributionDetermination && (
         <ParticleSizeDistributionPlot
           data={interval.particleSizeDistributionDetermination}
@@ -163,7 +162,6 @@ function IntervalDetails({
         />
       )}
 
-      {/* Atterberg limits / Consistency limits */}
       {interval.consistencyLimitsDetermination && (
         <ConsistencyLimitsDisplay
           data={interval.consistencyLimitsDetermination}
@@ -193,6 +191,18 @@ function IntervalDetails({
           <TriaxialTestsDisplay
             tests={interval.shearStressChangeDuringLoadingDetermination}
             baseFilename={`${baseFilename}-triaxial-${intervalIndex}`}
+          />
+        )}
+
+      {/* Direct shear tests */}
+      {interval.shearStressChangeDuringHorizontalDeformationDetermination &&
+        interval.shearStressChangeDuringHorizontalDeformationDetermination
+          .length > 0 && (
+          <DirectShearDisplay
+            tests={
+              interval.shearStressChangeDuringHorizontalDeformationDetermination
+            }
+            baseFilename={`${baseFilename}-directshear-${intervalIndex}`}
           />
         )}
     </div>
@@ -249,6 +259,16 @@ function BasicDeterminationsTable({ interval }: BasicDeterminationsTableProps) {
     rows.push({
       label: t("particleDensity"),
       value: `${particleDensity.toFixed(3)} g/cm³`,
+    });
+  }
+
+  const undrainedShearStrength =
+    interval.maximumUndrainedShearStrengthDetermination
+      ?.maximumUndrainedShearStrength;
+  if (undrainedShearStrength != null) {
+    rows.push({
+      label: t("undrainedShearStrength"),
+      value: `${undrainedShearStrength.toFixed(1)} kPa`,
     });
   }
 

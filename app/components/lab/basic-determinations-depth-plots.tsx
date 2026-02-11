@@ -1,7 +1,7 @@
 import type { InvestigatedInterval } from "@bedrock-engineer/bro-xml-parser";
 import * as Plot from "@observablehq/plot";
 import { max } from "d3-array";
-import { useEffect, useRef } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { createWatermarkMark, depthYAxisConfig } from "../../util/plot-config";
 import { PlotDownloadButtons } from "../plot-download-buttons";
@@ -35,66 +35,73 @@ export function BasicDeterminationsDepthPlots({
   const containerRef = useRef<HTMLDivElement>(null);
   const plotId = "depth-profiles-combined";
 
-  const determinations: Array<DeterminationConfig> = [
-    {
-      key: "waterContent",
-      getValue: (d) => d.waterContentDetermination?.waterContent,
-      domain: [0, 100],
-      label: t("waterContent"),
-      unit: "%",
-      ticks: 5,
-    },
-    {
-      key: "volumetricMassDensity",
-      getValue: (d) =>
-        d.volumetricMassDensityDetermination?.volumetricMassDensity,
-      domain: [1, 2.5],
-      label: t("bulkDensity"),
-      unit: "g/cm³",
-      ticks: 5,
-    },
-    {
-      key: "organicMatterContent",
-      getValue: (d) =>
-        d.organicMatterContentDetermination?.organicMatterContent,
-      domain: [0, 100],
-      label: t("organicMatterContent"),
-      unit: "%",
-      ticks: 5,
-    },
-    {
-      key: "carbonateContent",
-      getValue: (d) => d.carbonateContentDetermination?.carbonateContent,
-      domain: [0, 50],
-      label: t("carbonateContent"),
-      unit: "%",
-      ticks: 5,
-    },
-    {
-      key: "volumetricMassDensityOfSolids",
-      getValue: (d) =>
-        d.volumetricMassDensityOfSolidsDetermination
-          ?.volumetricMassDensityOfSolids,
-      domain: [2, 3],
-      label: t("particleDensity"),
-      unit: "g/cm³",
-      ticks: 5,
-    },
-    {
-      key: "maximumUndrainedShearStrength",
-      getValue: (d) =>
-        d.maximumUndrainedShearStrengthDetermination
-          ?.maximumUndrainedShearStrength,
-      domain: [0, 200],
-      label: t("undrainedShearStrength"),
-      unit: "kPa",
-      ticks: 5,
-    },
-  ];
+  const determinations: Array<DeterminationConfig> = useMemo(
+    () => [
+      {
+        key: "waterContent",
+        getValue: (d) => d.waterContentDetermination?.waterContent,
+        domain: [0, 100],
+        label: t("waterContent"),
+        unit: "%",
+        ticks: 5,
+      },
+      {
+        key: "volumetricMassDensity",
+        getValue: (d) =>
+          d.volumetricMassDensityDetermination?.volumetricMassDensity,
+        domain: [1, 2.5],
+        label: t("bulkDensity"),
+        unit: "g/cm³",
+        ticks: 5,
+      },
+      {
+        key: "organicMatterContent",
+        getValue: (d) =>
+          d.organicMatterContentDetermination?.organicMatterContent,
+        domain: [0, 100],
+        label: t("organicMatterContent"),
+        unit: "%",
+        ticks: 5,
+      },
+      {
+        key: "carbonateContent",
+        getValue: (d) => d.carbonateContentDetermination?.carbonateContent,
+        domain: [0, 50],
+        label: t("carbonateContent"),
+        unit: "%",
+        ticks: 5,
+      },
+      {
+        key: "volumetricMassDensityOfSolids",
+        getValue: (d) =>
+          d.volumetricMassDensityOfSolidsDetermination
+            ?.volumetricMassDensityOfSolids,
+        domain: [2, 3],
+        label: t("particleDensity"),
+        unit: "g/cm³",
+        ticks: 5,
+      },
+      {
+        key: "maximumUndrainedShearStrength",
+        getValue: (d) =>
+          d.maximumUndrainedShearStrengthDetermination
+            ?.maximumUndrainedShearStrength,
+        domain: [0, 200],
+        label: t("undrainedShearStrength"),
+        unit: "kPa",
+        ticks: 5,
+      },
+    ],
+    [t],
+  );
 
   // Filter to only include determinations that have data
-  const availableDeterminations = determinations.filter((det) =>
-    intervals.some((interval) => det.getValue(interval) != null),
+  const availableDeterminations = useMemo(
+    () =>
+      determinations.filter((det) =>
+        intervals.some((interval) => det.getValue(interval) != null),
+      ),
+    [determinations, intervals],
   );
 
   // Calculate max depth for y-axis
@@ -106,8 +113,7 @@ export function BasicDeterminationsDepthPlots({
     }
 
     const count = availableDeterminations.length;
-    const totalWidth =
-      FIRST_COL_WIDTH + (count - 1) * OTHER_COL_WIDTH;
+    const totalWidth = FIRST_COL_WIDTH + (count - 1) * OTHER_COL_WIDTH;
 
     // Create parent SVG
     const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
@@ -132,13 +138,9 @@ export function BasicDeterminationsDepthPlots({
       }
 
       // Auto-extend domain if any data exceeds configured max
-      const maxValue = Math.max(
-        ...dataPoints.map((d) => det.getValue(d) ?? 0),
-      );
+      const maxValue = Math.max(...dataPoints.map((d) => det.getValue(d) ?? 0));
       const xDomain: [number, number] =
-        maxValue > det.domain[1]
-          ? [det.domain[0], maxValue * 1.1]
-          : det.domain;
+        maxValue > det.domain[1] ? [det.domain[0], maxValue * 1.1] : det.domain;
 
       const childPlot = Plot.plot({
         width: colWidth,
@@ -173,6 +175,7 @@ export function BasicDeterminationsDepthPlots({
             },
             tip: true,
           }),
+          createWatermarkMark(t("madeWithBedrockBroViewer")),
         ],
       });
 
@@ -181,7 +184,7 @@ export function BasicDeterminationsDepthPlots({
       childSvg.setAttribute("x", String(xOffset));
       childSvg.setAttribute("y", "0");
       childSvg.removeAttribute("viewBox");
-      svg.appendChild(childSvg);
+      svg.append(childSvg);
 
       xOffset += colWidth;
     }
@@ -191,8 +194,7 @@ export function BasicDeterminationsDepthPlots({
     return () => {
       svg.remove();
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [intervals, maxDepth, availableDeterminations.length, t]);
+  }, [intervals, maxDepth, t, availableDeterminations]);
 
   if (availableDeterminations.length === 0) {
     return null;
@@ -202,13 +204,11 @@ export function BasicDeterminationsDepthPlots({
     <div className="border border-gray-200 rounded p-4">
       <h4 className="font-medium mb-3">{t("depthProfiles")}</h4>
 
-      {/* Summary table */}
       <SummaryTable
         intervals={intervals}
         determinations={availableDeterminations}
       />
 
-      {/* Depth plots — nested SVGs for single-image export */}
       <div className="mt-4 overflow-x-auto">
         <div id={plotId} className="flex justify-center" ref={containerRef} />
         <PlotDownloadButtons
@@ -261,15 +261,13 @@ function SummaryTable({ intervals, determinations }: SummaryTableProps) {
           {intervalsWithData.map((interval, index) => (
             <tr key={index} className="border-b border-gray-100">
               <td className="py-2 px-2 font-mono text-gray-700">
-                {interval.beginDepth.toFixed(2)} – {interval.endDepth.toFixed(2)}
+                {interval.beginDepth.toFixed(2)} –{" "}
+                {interval.endDepth.toFixed(2)}
               </td>
               {determinations.map((det) => {
                 const value = det.getValue(interval);
                 return (
-                  <td
-                    key={det.key}
-                    className="py-2 px-2 text-right font-mono"
-                  >
+                  <td key={det.key} className="py-2 px-2 text-right font-mono">
                     {value == null ? "–" : value.toFixed(2)}
                   </td>
                 );

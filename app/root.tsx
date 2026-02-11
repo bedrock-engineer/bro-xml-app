@@ -40,6 +40,10 @@ export const links: Route.LinksFunction = () => {
       href: "https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,100..700;1,100..700&family=IBM+Plex+Sans:ital,wght@0,100..700;1,100..700&display=swap",
       rel: "stylesheet",
     },
+    {
+      href: "https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Condensed:wght@400;500&display=swap",
+      rel: "stylesheet",
+    },
     { rel: "icon", href: "/favicon.ico", sizes: "32x32" },
     { rel: "icon", href: "/favicon-512x512.png", sizes: "512x512" },
     { rel: "icon", href: "/favicon.svg", type: "image/svg+xml" },
@@ -99,7 +103,10 @@ export function Layout({ children, loaderData }: LayoutProps) {
           name="apple-mobile-web-app-status-bar-style"
           content="black-translucent"
         />
-        <meta name="apple-mobile-web-app-title" content="Bedrock BRO/XML viewer" />
+        <meta
+          name="apple-mobile-web-app-title"
+          content="Bedrock BRO/XML viewer"
+        />
         <Meta />
         <Links />
         <script

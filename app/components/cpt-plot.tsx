@@ -220,7 +220,7 @@ function CptPlot({
           x: xAxis.key,
           y: yAxis.key,
           filter: (d: CPTMeasurement) =>
-            d[xAxis.key] !== null && d[yAxis.key] !== undefined,
+            d[xAxis.key] != null && d[yAxis.key] != null,
         }),
         Plot.crosshair(data, {
           x: xAxis.key,

@@ -474,9 +474,8 @@ function Header() {
         className=" mx-auto flex justify-between items-center"
       >
         <h1
-          className="text-2xl flex gap-2 items-center"
-          // TODO!
-          // style={{ fontFamily: "IBM Plex Sans Condensed" }}
+          className="text-3xl flex gap-2 items-center"
+          style={{ fontFamily: "var(--font-condensed)" }}
         >
           <img src="bedrock.svg" width={30} /> {t("appTitle")}
         </h1>
@@ -509,15 +508,19 @@ function Footer() {
         <div className="grid md:grid-cols-2 gap-8 mb-8">
           <div className="space-y-3">
             <h3 className="font-semibold text-gray-700 mb-3">{t("about")}</h3>
+
             <p className="text-sm">{t("appDescription")}</p>
+
             <p className="text-sm">
               {t("privacyNote")} {t("offlineNote")}{" "}
             </p>
+
             <p>
               <Suspense fallback="Checking...">
                 <InstallInstructions />
               </Suspense>
             </p>
+
             <a
               className="hover:underline flex gap-1 items-center text-lg mt-2"
               href="https://bedrock.engineer"
@@ -530,6 +533,7 @@ function Footer() {
               />
               Bedrock.engineer
             </a>
+
             <a
               className="text-blue-400 hover:underline flex gap-1 items-center text-sm mt-2"
               href="https://gef.bedrock.engineer"

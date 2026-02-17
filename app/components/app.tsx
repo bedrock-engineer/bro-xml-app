@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 import { Suspense, useState, useTransition } from "react";
 import { Button, FileTrigger } from "react-aria-components";
+import { ErrorBoundary } from "react-error-boundary";
 import { useTranslation } from "react-i18next";
 import { Link, useFetcher } from "react-router";
 import {
@@ -24,14 +25,15 @@ import { CompactBHRGHeader, DetailedBHRGHeaders } from "./bhr-g-header-items";
 import { BHRGPlot } from "./bhr-g-plot";
 import { CompactBHRGTHeader, DetailedBoreHeaders } from "./bhr-gt-header-items";
 import { BHRGTPlot } from "./bhr-gt-plot";
-import { BROMap } from "./map.client";
 import { Card } from "./card";
 import { CompactCptHeader, DetailedCptHeaders } from "./cpt-header-items";
 import { CptPlots } from "./cpt-plot";
+import { DissipationTestPlots } from "./dissipation-test-plot";
 import { DownloadGeoJSONButton } from "./download-geojson-button";
 import { FileTable } from "./file-table";
 import { InstallInstructions } from "./install-instructions";
 import { LaboratoryAnalysis } from "./laboratory-analysis";
+import { BROMap } from "./map.client";
 
 function translateWarning(warning: string, t: TFunction): string {
   const parts = warning.split(":");
@@ -321,19 +323,27 @@ export function App() {
                   : t("location")}
               </h2>
 
-              <Suspense
+              <ErrorBoundary
                 fallback={
                   <div className="w-full h-96 rounded-sm border border-gray-300 bg-gray-100 flex items-center justify-center">
-                    <span className="text-gray-500">{t("loadingMap")}</span>
+                    <span className="text-gray-500">{t("mapError")}</span>
                   </div>
                 }
               >
-                <BROMap
-                  broData={broData}
-                  selectedFileName={selectedFileName}
-                  onMarkerClick={setSelectedFileName}
-                />
-              </Suspense>
+                <Suspense
+                  fallback={
+                    <div className="w-full h-96 rounded-sm border border-gray-300 bg-gray-100 flex items-center justify-center">
+                      <span className="text-gray-500">{t("loadingMap")}</span>
+                    </div>
+                  }
+                >
+                  <BROMap
+                    broData={broData}
+                    selectedFileName={selectedFileName}
+                    onMarkerClick={setSelectedFileName}
+                  />
+                </Suspense>
+              </ErrorBoundary>
 
               <DownloadGeoJSONButton broData={broData} />
             </div>
@@ -372,6 +382,13 @@ export function App() {
                     yAxis={chartAxes.yAxis}
                     availableChartColumns={chartAxes.availableColumns}
                     yAxisOptions={chartAxes.yAxisOptions}
+                    baseFilename={selectedFileName.replace(/\.xml$/i, "")}
+                  />
+                )}
+
+                {selectedFile.dissipation_tests?.length > 0 && (
+                  <DissipationTestPlots
+                    tests={selectedFile.dissipation_tests}
                     baseFilename={selectedFileName.replace(/\.xml$/i, "")}
                   />
                 )}

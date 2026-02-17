@@ -29,7 +29,7 @@
     "knip": "knip"
   },
   "dependencies": {
-    "@bedrock-engineer/bro-xml-parser": "^0.1.1",
+    "@bedrock-engineer/bro-xml-parser": "^0.1.4",
     "@observablehq/plot": "^0.6.17",
     "@react-router/cloudflare": "^7.13.0",
     "@react-router/fs-routes": "^7.13.0",
@@ -48,6 +48,7 @@
     "react": "^19.2.4",
     "react-aria-components": "^1.15.1",
     "react-dom": "^19.2.4",
+    "react-error-boundary": "^6.1.1",
     "react-i18next": "^16.5.4",
     "react-router": "^7.12.0",
     "remix-i18next": "^7.4.2",

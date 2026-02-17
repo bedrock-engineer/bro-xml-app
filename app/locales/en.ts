@@ -84,6 +84,14 @@ export default {
     stopCriterion: "Stop Criterion",
     predrilledDepth: "Predrilled Depth",
     dissipationTest: "Dissipation Test",
+    dissipationTests: "Dissipation Tests",
+    dissipationTestAtDepth: "Dissipation Test at {{depth}} m",
+    elapsedTimeSeconds: "Elapsed Time (s)",
+    timeScale: "Time scale",
+    scaleLinear: "Linear",
+    scaleLog: "Log",
+    scaleSqrt: "√t",
+    porePressure: "Pore Pressure",
     description: "Description",
     cptType: "CPT Type",
     coneSurfaceArea: "Cone Surface Area",
@@ -309,6 +317,7 @@ export default {
 
     // Map
     loadingMap: "Loading map...",
+    mapError: "Could not load the map",
     noValidLocations: "No valid locations to display",
     noLocationData: "No BRO files with location data",
     unknownCoordinateSystem: "Unknown",

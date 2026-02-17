@@ -104,8 +104,13 @@ export function BROMap({ broData, selectedFileName, onMarkerClick }: MapProps) {
     // Create or update map
     if (!mapInstanceRef.current) {
       // Calculate bounds
-      const lats = locations.map((l) => l.lat);
-      const lngs = locations.map((l) => l.lon);
+      const lats = locations.map((l) => l.lat).filter((n) => Number.isFinite(n));
+      const lngs = locations.map((l) => l.lon).filter((n) => Number.isFinite(n));
+
+      if (lats.length === 0 || lngs.length === 0) {
+        return;
+      }
+
       const bounds: [[number, number], [number, number]] = [
         [Math.min(...lats), Math.min(...lngs)],
         [Math.max(...lats), Math.max(...lngs)],

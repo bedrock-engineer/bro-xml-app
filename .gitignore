@@ -1,5 +1,6 @@
 .DS_Store
 /node_modules/
+/dist
 
 # React Router
 /.react-router/
@@ -10,7 +11,6 @@ TODO.md
 # Claude Code
 .claude/
 CLAUDE.md
-
 # Cloudflare
 .mf
 .wrangler

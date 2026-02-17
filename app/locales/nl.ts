@@ -83,6 +83,14 @@ export default {
     stopCriterion: "Stopcriterium",
     predrilledDepth: "Voorboordiepte",
     dissipationTest: "Dissipatieproef",
+    dissipationTests: "Dissipatieproeven",
+    dissipationTestAtDepth: "Dissipatieproef op {{depth}} m",
+    elapsedTimeSeconds: "Verstreken tijd (s)",
+    timeScale: "Tijdschaal",
+    scaleLinear: "Lineair",
+    scaleLog: "Log",
+    scaleSqrt: "√t",
+    porePressure: "Waterspanning",
     description: "Beschrijving",
     cptType: "CPT Type",
     coneSurfaceArea: "Conusoppervlak",
@@ -308,6 +316,7 @@ export default {
 
     // Map
     loadingMap: "Kaart laden...",
+    mapError: "Kon de kaart niet laden",
     noValidLocations: "Geen geldige locaties om weer te geven",
     noLocationData: "Geen BRO-bestanden met locatiegegevens",
     unknownCoordinateSystem: "Onbekend",

@@ -92,10 +92,6 @@ export function Layout({ children, loaderData }: LayoutProps) {
           name="description"
           content="View and visualize BRO (Basisregistratie Ondergrond) XML files in your browser. Analyze CPT, BHR-GT and BHR-G data instantly."
         />
-        <meta
-          name="keywords"
-          content="BRO, Basisregistratie Ondergrond, BRO/XML viewer, BRO XML, sondering, sondeergegevens, CPT, cone penetration test, grondonderzoek, boringen, boorprofielen, geotechniek, geotechnical engineering, BHR-GT, BHR-G, geotechnische boring, geologische boring, sondeerdata, grondmechanica, funderingsonderzoek, geotechnisch rapport, online BRO/XML viewer, Nederlandse geotechniek, civil engineering Nederland, geotechnisch adviesbureau, laboratoriumanalyse"
-        />
         <meta name="format-detection" content="telephone=no" />
         <meta name="theme-color" content="#5d7a5a" />
         <meta name="mobile-web-app-capable" content="yes" />
@@ -116,7 +112,7 @@ export function Layout({ children, loaderData }: LayoutProps) {
               "@context": "https://schema.org",
               "@type": "WebApplication",
               name: "Bedrock.engineer BRO/XML viewer",
-              alternateName: "BRO/XML viewer",
+              alternateName: "Bedrock BRO/XML viewer",
               url: "https://bro.bedrock.engineer",
               description:
                 "Free online BRO XML viewer for geotechnical engineers. View, analyze and export CPT, BHR-GT and BHR-G data from Basisregistratie Ondergrond.",

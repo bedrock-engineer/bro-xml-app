@@ -1,6 +1,6 @@
 {
   "name": "Bedrock BRO XML Viewer - CPT & Borehole Visualization",
-  "short_name": "BRO/XML viewer",
+  "short_name": "Bedrock BRO/XML viewer",
   "description": "Free online BRO XML viewer for geotechnical engineers. View CPT, BHR-GT and BHR-G data from the Dutch Basisregistratie Ondergrond.",
   "start_url": "/",
   "display": "standalone",

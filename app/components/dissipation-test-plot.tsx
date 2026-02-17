@@ -1,11 +1,11 @@
+import type {
+  DissipationMeasurement,
+  DissipationTest,
+} from "@bedrock-engineer/bro-xml-parser";
 import * as Plot from "@observablehq/plot";
 import { useEffect, useRef, useState } from "react";
 import { Label, Radio, RadioGroup } from "react-aria-components";
 import { useTranslation } from "react-i18next";
-import type {
-  DissipationTest,
-  DissipationMeasurement,
-} from "@bedrock-engineer/bro-xml-parser";
 import { createWatermarkMark } from "~/util/plot-config";
 import { Card, CardTitle } from "./card";
 import { PlotDownloadButtons } from "./plot-download-buttons";
@@ -93,7 +93,7 @@ function getXScaleConfig(scale: TimeScale, label: string): Plot.ScaleOptions {
 function DissipationPlot({ plotId, test }: DissipationPlotProps) {
   const { t } = useTranslation();
   const containerRef = useRef<HTMLDivElement>(null);
-  const [timeScale, setTimeScale] = useState<TimeScale>("sqrt");
+  const [timeScale, setTimeScale] = useState<TimeScale>("log");
 
   useEffect(() => {
     if (containerRef.current === null || test.measurements.length === 0) {

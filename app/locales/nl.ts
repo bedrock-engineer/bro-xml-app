@@ -1,7 +1,7 @@
 export default {
   translation: {
     // App title and description
-    appTitle: "Bedrock.engineer BRO/XML viewer",
+    appTitle: "Bedrock.engineer Geotechniek BRO/XML viewer",
     appDescription:
       "Bekijk en analyseer BRO (Basisregistratie Ondergrond) XML bestanden voor CPT, BHR-GT en BHR-G gegevens in je browser.",
     privacyNote: "Je gegevens verlaten nooit je browser.",

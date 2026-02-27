@@ -12,16 +12,16 @@ const metaDataTranslations = {
       "BRO XML Viewer - Free CPT & Bore Data Visualization Tool | Bedrock.engineer",
     description:
       "Free online BRO XML viewer for geotechnical engineers. View, analyze and export CPT, BHR-GT and BHR-G data from Basisregistratie Ondergrond. Works directly in your browser.",
-    siteName: "Bedrock.engineer BRO/XML viewer",
-    imageAlt: "Bedrock.engineer BRO/XML viewer - Geotechnical data visualization",
+    siteName: "Bedrock.engineer Geotechnical BRO/XML viewer",
+    imageAlt: "Bedrock.engineer Geotechnical BRO/XML viewer - Geotechnical data visualization",
   },
   nl: {
     title:
       "BRO XML Viewer - Gratis Sondering & Boring Visualisatie | Bedrock.engineer",
     description:
       "Gratis online BRO XML viewer voor geotechnisch ingenieurs. Bekijk, analyseer, en exporteer CPT, BHR-GT en BHR-G gegevens van de Basisregistratie Ondergrond. Werkt direct in je browser zonder installatie.",
-    siteName: "Bedrock.engineer BRO/XML viewer",
-    imageAlt: "Bedrock.engineer BRO/XML viewer - Geotechnische data visualisatie",
+    siteName: "Bedrock.engineer geotechniek BRO/XML viewer",
+    imageAlt: "Bedrock.engineer geotechniek BRO/XML viewer - Geotechnische data visualisatie",
   },
 };
 
@@ -50,7 +50,7 @@ export function meta({ matches }: Route.MetaArgs) {
     { title: metadata.title },
     { name: "description", content: metadata.description },
     { name: "robots", content: "index, follow" },
-    { name: "application-name", content: "Bedrock.engineer BRO/XML viewer" },
+    { name: "application-name", content: "Bedrock.engineer Geotechnical BRO/XML viewer" },
     // Language alternates
     { tagName: "link", rel: "alternate", hrefLang: "nl", href: siteUrl },
     { tagName: "link", rel: "alternate", hrefLang: "en", href: siteUrl },

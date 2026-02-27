@@ -101,7 +101,7 @@ export function Layout({ children, loaderData }: LayoutProps) {
         />
         <meta
           name="apple-mobile-web-app-title"
-          content="Bedrock BRO/XML viewer"
+          content="Bedrock Geotechnical BRO/XML viewer"
         />
         <Meta />
         <Links />
@@ -111,8 +111,8 @@ export function Layout({ children, loaderData }: LayoutProps) {
             __html: JSON.stringify({
               "@context": "https://schema.org",
               "@type": "WebApplication",
-              name: "Bedrock.engineer BRO/XML viewer",
-              alternateName: "Bedrock BRO/XML viewer",
+              name: "Bedrock.engineer Geotechnical BRO/XML viewer",
+              alternateName: "Bedrock Geotechnical BRO/XML viewer",
               url: "https://bro.bedrock.engineer",
               description:
                 "Free online BRO XML viewer for geotechnical engineers. View, analyze and export CPT, BHR-GT and BHR-G data from Basisregistratie Ondergrond.",

@@ -1,6 +1,6 @@
-# Bedrock BRO/XML Viewer
+# Bedrock Geotechnical BRO/XML Viewer
 
-Free, open-source web application for viewing and visualizing BRO/XML files.
+Free, open-source web application for viewing and visualizing geotechnical BRO/XML files.
 
 
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)

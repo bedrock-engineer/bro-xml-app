@@ -452,6 +452,7 @@ function MarketingMessage() {
 
         <ul className="list-disc list-inside space-y-1 ">
           <li>{t("customWebApps")}</li>
+          <li>{t("broXmlPdfReports")}</li>
           <li>{t("bimCadIntegrations")}</li>
           <li>{t("pythonAutomation")}</li>
         </ul>

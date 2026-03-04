@@ -342,8 +342,12 @@ export default {
 
     // Empty state CTA
     freeToolByBedrock: "Free tool by Bedrock.engineer. We build:",
-    customWebApps: "Custom web apps for geotechnical workflows",
-    pythonAutomation: "Geotechnical workflow automation using Python",
+    customWebApps:
+      "Custom web apps for BRO/XML data processing and visualization",
+    broXmlPdfReports:
+      "Automated PDF report generation from BRO XML (CPT soundings and boreholes)",
+    pythonAutomation:
+      "Python scripts for automated BRO data extraction, analysis and reporting",
     bimCadIntegrations:
       "Geotechnical data integration into BIM software like Civil3D, Revit, Rhino3D, and Grasshopper",
     emptyStateContact: "Interested?",

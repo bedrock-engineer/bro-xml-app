@@ -70,14 +70,12 @@ export function Layout({ children, loaderData }: LayoutProps) {
     <html lang={locale}>
       <head>
         {process.env.NODE_ENV === "production" && (
-          <>
-            <script
-              id="counterscale-script"
-              data-site-id="broxml-app"
-              src="https://counterscale.jhngevaert.workers.dev.workers.dev/tracker.js"
-              defer
-            ></script>
-          </>
+          <script
+            id="counterscale-script"
+            data-site-id="broxml-app"
+            src="https://counterscale.jhngevaert.workers.dev/tracker.js"
+            defer
+          ></script>
         )}
         <meta charSet="utf-8" />
         <meta name="author" content="Jules Blom @ Bedrock.engineer" />

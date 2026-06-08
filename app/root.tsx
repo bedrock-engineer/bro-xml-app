@@ -73,7 +73,7 @@ export function Layout({ children, loaderData }: LayoutProps) {
           <script
             id="counterscale-script"
             data-site-id="broxml-app"
-            src="https://counterscale.jhngevaert.workers.dev/tracker.js"
+            src="https://counterscale.bedrock-engineer.workers.dev/tracker.js"
             defer
           ></script>
         )}

@@ -2,27 +2,26 @@
 
 Free, open-source web application for viewing and visualizing geotechnical BRO/XML files.
 
-
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
 
 **Live Demo:** [bro.bedrock.engineer](https://bro.bedrock.engineer)
 
 ## About
 
-<img src="/public/bedrock.svg" width="300px" alt="Bedrock Logo" />
+<img src="https://bedrock.engineer/Bedrock_TextRight.png" width="300px" alt="Bedrock Logo" />
 
-This is a free web application by [Bedrock](https://bedrock.engineer) that provides a fast, modern interface for viewing and analyzing BRO/XML files directly in your browser.
-It also let's you download data from the BRO/XML files as CSV or JSON, and the locations of multiple files as GeoJSON.
+This is a free web application by [Bedrock.engineer](https://bedrock.engineer) that provides a fast, modern interface for viewing and analyzing geotechnical BRO/XML files directly in your browser.
+It also let's you download data from the BRO/XML files as CSV or JSON, and the locations of multiple files as a GeoJSON.
 
 ### Supported BRO Types
 
-- BHR-G
-- BHR-GT + BHR-GT-BMA
-- CPT
+- BHR-G (Geological boreholes)
+- BHR-GT + BHR-GT-BMA (Geotechnical boreholes and geotechnical lab samples)
+- CPT (Cone Penetration tests)
 
 ## Technology Stack
 
-- **Parser** Bedrock BRO/XML parser
+- **Parser**: [Bedrock.engineer BRO/XML parser](https://github.com/orgs/bedrock-engineer/repositories?type=all)
 - **Framework**: [React Router v7](https://reactrouter.com/) with Server-Side Rendering
 - **Build Tool**: [Vite](https://vite.dev/)
 - **Language**: TypeScript (strict mode)
@@ -52,17 +51,6 @@ npm run dev
 
 The app will be available at `http://localhost:5173`
 
-### Development Commands
-
-```bash
-npm run dev        # Start development server with HMR
-npm run build      # Create production build
-npm run start      # Start production server
-npm run typecheck  # Run TypeScript type checking
-npm run lint       # Run ESLint
-npm run format     # Format code with Prettier
-```
-
 ## Deployment
 
 This application can be deployed to various platforms. See the [React Router docs on deploying](https://reactrouter.com/start/framework/deploying).
@@ -83,7 +71,7 @@ This project is licensed under the Apache License 2.0 - see the [LICENSE](LICENS
 
 ## Support
 
-- **Issues**: Report bugs or request features via [GitHub Issues](https://github.com/bedrock-engineer/bro-xml-app/issues) 
+- **Issues**: Report bugs or request features via [GitHub Issues](https://github.com/bedrock-engineer/bro-xml-app/issues)
 - **Live App**: Try it at [bro.bedrock.engineer](https://bro.bedrock.engineer)
 
-[Bedrock](https://bedrock.engineer)
+By [Bedrock.engineer](https://bedrock.engineer)

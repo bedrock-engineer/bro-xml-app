@@ -1,87 +1,68 @@
-import * as Plot from "@observablehq/plot";
-import { max, min } from "d3-array";
-import { scaleBand } from "d3-scale";
-import { useEffect, useMemo, useRef } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { ToggleButton, ToggleButtonGroup } from "react-aria-components";
 import type {
   BHRGTLayer,
   BoreholeSampleAnalysis,
 } from "@bedrock-engineer/bro-xml-parser";
-import { getSoilColor } from "@bedrock-engineer/bro-xml-parser";
 import {
   LAB_TEST_CATEGORIES,
   getLabTestCategories,
-  type LabTestCategory,
 } from "../util/determination-types";
-import {
-  PLOT_MARGINS,
-  depthYAxisConfig,
-  hiddenXAxisConfig,
-  createWatermarkMark,
-  filterLayersByPixelHeight,
-} from "../util/plot-config";
 import { Card, CardTitle } from "./card";
 import { LegendItem } from "./legend-item";
+import {
+  BhrgtDetailsTable,
+  DETAILS_HEADER_HEIGHT,
+} from "./bhr-gt-details-table";
 import { PlotDownloadButtons } from "./plot-download-buttons";
+import {
+  buildBhrgtPlot,
+  CATEGORY_ORDER,
+  type SampleLine,
+  type TranslateFunction,
+} from "./bhr-gt-plot-render";
+import {
+  collectSoilLegend,
+  patternMarkup,
+  type SoilLegendEntry,
+} from "../util/bro-lithology";
 
 const id = "boreplot";
-
-/** Default color when layer has no BRO color specified */
-const DEFAULT_LAYER_COLOR = "#b0b0b0";
-
-/**
- * Get hex color for a bore layer
- * Uses the BRO color field if available, otherwise falls back to default
- */
-function getLayerColor(layer: BHRGTLayer): string {
-  if (layer.color) {
-    return getSoilColor(layer.color, DEFAULT_LAYER_COLOR);
-  }
-  return DEFAULT_LAYER_COLOR;
-}
-
-// Derived from LAB_TEST_CATEGORIES to ensure they stay in sync
-const CATEGORY_ORDER = Object.keys(
-  LAB_TEST_CATEGORIES,
-) as Array<LabTestCategory>;
-
-/** Band scale for positioning sample indicator columns by category */
-const sampleCategoryScale = scaleBand<LabTestCategory>()
-  .domain(CATEGORY_ORDER)
-  .range([1.01, 1.01 + CATEGORY_ORDER.length * 0.053])
-  .paddingInner(0.06)
-  .paddingOuter(0);
-
-interface SampleLine {
-  beginDepth: number;
-  endDepth: number;
-  category: LabTestCategory;
-  intervalIndex: number;
-}
 
 interface BhrgtPlotProps {
   layers: Array<BHRGTLayer>;
   baseFilename: string;
   analysis?: BoreholeSampleAnalysis;
+  /** Groundwater depth during drilling (m below surface) */
+  groundwaterLevel?: number | null;
+  /** Surface elevation (m NAP), enables the m-NAP depth-axis toggle. */
+  surfaceNap?: number | null;
   width?: number;
   height?: number;
 }
 
 export function BHRGTPlot({
   layers,
-  width = 350,
+  width = 300,
   height = 800,
   baseFilename,
   analysis,
+  groundwaterLevel,
+  surfaceNap,
 }: BhrgtPlotProps) {
   const { t } = useTranslation();
+  const [napMode, setNapMode] = useState(false);
 
   // Build sample lines from analysis data
   const sampleLines: Array<SampleLine> = useMemo(() => {
     const sampleLines: Array<SampleLine> = [];
 
     if (analysis?.investigatedIntervals) {
-      for (const [intervalIndex, interval] of analysis.investigatedIntervals.entries()) {
+      for (const [
+        intervalIndex,
+        interval,
+      ] of analysis.investigatedIntervals.entries()) {
         const categories = getLabTestCategories(interval);
         for (const category of categories) {
           sampleLines.push({
@@ -100,112 +81,119 @@ export function BHRGTPlot({
   const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (containerRef.current === null || layers.length === 0) {
+    if (containerRef.current === null) {
       return;
     }
 
-    // Calculate the depth range
-    const minDepth = min(layers.map((l) => l.upperBoundary)) ?? 0;
-    const maxDepth = max(layers.map((l) => l.lowerBoundary)) ?? 0;
-    const plotHeight = height - PLOT_MARGINS.top - PLOT_MARGINS.bottom - 20;
-
-    const layersWithLabels = filterLayersByPixelHeight(
+    const plot = buildBhrgtPlot({
       layers,
-      plotHeight,
-      minDepth,
-      maxDepth,
-    );
-
-    const plot = Plot.plot({
-      style: {
-        overflow: "visible",
-        backgroundColor: "white",
-      },
+      sampleLines,
+      groundwaterLevel,
+      surfaceNap,
+      napMode,
       width,
       height,
-      marginLeft: PLOT_MARGINS.left,
-      marginRight: PLOT_MARGINS.right,
-      marginBottom: PLOT_MARGINS.bottom,
-      x: hiddenXAxisConfig,
-      y: depthYAxisConfig,
-      marks: [
-        // Soil layer rectangles
-        Plot.rect(layers, {
-          x1: 0,
-          x2: 1,
-          y1: "upperBoundary",
-          y2: "lowerBoundary",
-          fill: (d: BHRGTLayer) => getLayerColor(d),
-          stroke: "white",
-          strokeWidth: 0.5,
-          title: (d: BHRGTLayer) =>
-            formatBHRGTLayerTitle(d, t as TranslateFunction),
-          tip: true,
-        }),
-        // Soil name labels for layers tall enough in pixels
-        Plot.text(layersWithLabels, {
-          x: 0.5,
-          y: (d: BHRGTLayer) =>
-            d.upperBoundary + (d.lowerBoundary - d.upperBoundary) / 2,
-          text: (d: BHRGTLayer) => {
-            // Truncate long names
-            const name = d.geotechnicalSoilName;
-            return name.length > 15 ? name.slice(0, 12) + "..." : name;
-          },
-          fill: "black",
-          fontSize: 9,
-          textAnchor: "middle",
-        }),
-        // Additional details displayed to the right of rectangles
-        // Plot.text(layers, {
-        //   x: 1,
-        //   y: (d: BHRGTLayer) =>
-        //     d.upperBoundary + (d.lowerBoundary - d.upperBoundary) / 2,
-        //   text: (d: BHRGTLayer) => formatLayerDetails(d),
-        //   fill: "black",
-        //   fontSize: 9,
-        //   textAnchor: "start",
-        //   // dx: sampleLines.length > 0 ? 55 : 5,
-        //   dx: 5,
-        // }),
-        // Sample interval lines showing lab test locations
-        ...(sampleLines.length > 0
-          ? [
-              Plot.rect(sampleLines, {
-                x1: (d: SampleLine) => sampleCategoryScale(d.category) ?? 1.01,
-                x2: (d: SampleLine) =>
-                  (sampleCategoryScale(d.category) ?? 1.01) +
-                  sampleCategoryScale.bandwidth(),
-                y1: "beginDepth",
-                y2: "endDepth",
-                fill: (d: SampleLine) => LAB_TEST_CATEGORIES[d.category].color,
-                stroke: "white",
-                strokeWidth: 0.5,
-                title: (d: SampleLine) =>
-                  `${t(`labTestType.${d.category}`)}\n${d.beginDepth.toFixed(2)} – ${d.endDepth.toFixed(2)} m`,
-                tip: true,
-              }),
-            ]
-          : []),
-        Plot.frame(),
-        createWatermarkMark(t("madeWithBedrockBroViewer")),
-      ],
+      t: t as TranslateFunction,
     });
+    if (plot === null) {
+      return;
+    }
 
     containerRef.current.append(plot);
 
     return () => {
       plot.remove();
     };
-  }, [layers, width, height, t, sampleLines]);
+  }, [
+    layers,
+    width,
+    height,
+    t,
+    sampleLines,
+    groundwaterLevel,
+    surfaceNap,
+    napMode,
+  ]);
+
+  const canShowNap = surfaceNap != null;
+
+  // Legend entries reflect only the soils actually present in this borehole.
+  const legendSoils = collectSoilLegend(layers);
 
   return (
     <Card>
-      <CardTitle>{t("boreLog")}</CardTitle>
-
-      <div className="flex justify-center">
-        <div id={id} ref={containerRef}></div>
+      <div className="flex items-center justify-between gap-2">
+        <CardTitle>{t("boreLog")}</CardTitle>
+        {canShowNap && (
+          <ToggleButtonGroup
+            aria-label={t("verticalReference")}
+            selectionMode="single"
+            disallowEmptySelection
+            selectedKeys={[napMode ? "nap" : "mv"]}
+            onSelectionChange={(keys) => {
+              setNapMode(keys.has("nap"));
+            }}
+            className="inline-flex overflow-hidden rounded border border-gray-300 text-xs"
+          >
+            <ToggleButton
+              id="mv"
+              className="cursor-pointer px-2 py-0.5 text-gray-600 transition-colors data-[selected]:bg-gray-700 data-[selected]:text-white hover:bg-gray-50 data-[selected]:hover:bg-gray-700"
+            >
+              m -mv
+            </ToggleButton>
+            <ToggleButton
+              id="nap"
+              className="cursor-pointer border-l border-gray-300 px-2 py-0.5 text-gray-600 transition-colors data-[selected]:bg-gray-700 data-[selected]:text-white hover:bg-gray-50 data-[selected]:hover:bg-gray-700"
+            >
+              m NAP
+            </ToggleButton>
+          </ToggleButtonGroup>
+        )}
       </div>
+
+      <div className="flex flex-wrap items-start justify-center gap-2">
+        {/* Spacer matches the table's header band so the chart's flush plot
+            frame lines up with the table body on the same depths. */}
+        <div className="flex flex-col">
+          <div
+            className="flex items-end px-1 pb-0.5 text-[10px] font-semibold text-gray-500"
+            style={{ height: DETAILS_HEADER_HEIGHT }}
+          >
+            {napMode ? "m NAP" : "m -mv"}
+          </div>
+          
+          <div id={id} ref={containerRef}></div>
+        </div>
+
+        <BhrgtDetailsTable
+          layers={layers}
+          height={height}
+          surfaceNap={surfaceNap}
+          napMode={napMode}
+        />
+      </div>
+
+      {/* Soil type legend */}
+      {legendSoils.length > 0 && (
+        <div className="mt-4">
+          <h4 className="text-sm font-medium text-gray-700 mb-2">
+            {t("soilTypes")}
+          </h4>
+          <div className="flex flex-wrap gap-3 text-xs">
+            {legendSoils.map((soil) => (
+              <SoilLegendItem
+                key={soil.key}
+                entry={soil}
+                label={
+                  soil.i18nKey
+                    ? (t as TranslateFunction)(soil.i18nKey)
+                    : (soil.rawLabel ?? "")
+                }
+              />
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Lab test sample legend */}
       {sampleLines.length > 0 && (
@@ -232,87 +220,34 @@ export function BHRGTPlot({
   );
 }
 
-type TranslateFunction = (key: string) => string;
-
-function formatBHRGTLayerTitle(layer: BHRGTLayer, t: TranslateFunction): string {
-  const parts = [
-    `${layer.upperBoundary.toFixed(2)} – ${layer.lowerBoundary.toFixed(2)} m`,
-    layer.geotechnicalSoilName,
-  ];
-
-  if (layer.color) {
-    parts.push(`${t("layerColor")}: ${layer.color}`);
-  }
-
-  if (layer.organicMatterContentClass) {
-    parts.push(`${t("organicMatter")}: ${layer.organicMatterContentClass}`);
-  }
-
-  if (layer.carbonateContentClass) {
-    parts.push(`${t("carbonateContentClass")}: ${layer.carbonateContentClass}`);
-  }
-
-  if (layer.sandMedianClass) {
-    parts.push(`${t("sandMedian")}: ${layer.sandMedianClass}`);
-  }
-
-  if (layer.tertiaryConstituent) {
-    parts.push(`${t("tertiaryConstituent")}: ${layer.tertiaryConstituent}`);
-  }
-
-  if (
-    layer.dispersedInhomogeneity !== null &&
-    layer.dispersedInhomogeneity !== undefined
-  ) {
-    parts.push(
-      `${t("dispersedInhomogeneity")}: ${layer.dispersedInhomogeneity ? t("yes") : t("no")}`,
-    );
-  }
-
-  if (layer.fineSoilConsistency) {
-    parts.push(`${t("fineSoilConsistency")}: ${layer.fineSoilConsistency}`);
-  }
-
-  if (layer.organicSoilConsistency) {
-    parts.push(
-      `${t("organicSoilConsistency")}: ${layer.organicSoilConsistency}`,
-    );
-  }
-
-  if (layer.organicSoilTexture) {
-    parts.push(`${t("organicSoilTexture")}: ${layer.organicSoilTexture}`);
-  }
-
-  if (layer.peatTensileStrength) {
-    parts.push(`${t("peatTensileStrength")}: ${layer.peatTensileStrength}`);
-  }
-
-  if (layer.grainshape) {
-    if (layer.grainshape.angularity) {
-      parts.push(`${t("angularity")}: ${layer.grainshape.angularity}`);
-    }
-    if (layer.grainshape.sphericity) {
-      parts.push(`${t("sphericity")}: ${layer.grainshape.sphericity}`);
-    }
-  }
-
-  if (layer.anthropogenic !== null && layer.anthropogenic !== undefined) {
-    parts.push(
-      `${t("anthropogenic")}: ${layer.anthropogenic ? t("yes") : t("no")}`,
-    );
-  }
-
-  if (layer.bedded !== null && layer.bedded !== undefined) {
-    parts.push(`${t("bedded")}: ${layer.bedded ? t("yes") : t("no")}`);
-  }
-
-  if (layer.mixed !== null && layer.mixed !== undefined) {
-    parts.push(`${t("mixed")}: ${layer.mixed ? t("yes") : t("no")}`);
-  }
-
-  if (layer.mottled !== null && layer.mottled !== undefined) {
-    parts.push(`${t("mottled")}: ${layer.mottled ? t("yes") : t("no")}`);
-  }
-
-  return parts.join("\n");
+// Soil legend swatch: solid colour with the soil's hatch overlaid, mirroring
+// the bands in the plot so colour + texture stay in sync.
+function SoilLegendItem({
+  entry,
+  label,
+}: {
+  entry: SoilLegendEntry;
+  label: string;
+}) {
+  const patternId = `legend-hatch-${entry.key}`;
+  const hatch = entry.hatchSoil
+    ? patternMarkup(entry.hatchSoil, patternId)
+    : "";
+  return (
+    <div className="flex items-center gap-1">
+      <svg
+        width="16"
+        height="16"
+        className="border border-gray-300 block flex-shrink-0"
+        aria-hidden="true"
+      >
+        {hatch && <defs dangerouslySetInnerHTML={{ __html: hatch }} />}
+        <rect width="16" height="16" fill={entry.color} />
+        {hatch && (
+          <rect width="16" height="16" fill={`url(#${patternId})`} />
+        )}
+      </svg>
+      <span className="text-gray-600">{label}</span>
+    </div>
+  );
 }

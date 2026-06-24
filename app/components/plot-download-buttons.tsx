@@ -9,27 +9,41 @@ import {
 } from "react-aria-components";
 import { useTranslation } from "react-i18next";
 import { ChevronDownIcon, DownloadIcon } from "lucide-react";
-import { useState } from "react";
+import { type RefObject, useState } from "react";
 
 type DownloadFormat = "svg" | "png";
 
 interface PlotDownloadButtonsProps {
-  plotId: string;
   filename: string;
+  /** Container holding the rendered `<svg>`. Preferred over `plotId`. */
+  containerRef?: RefObject<HTMLElement | null>;
+  /** DOM `id` of the container element. Legacy alternative to `containerRef`. */
+  plotId?: string;
 }
 
 export function PlotDownloadButtons({
+  containerRef,
   plotId,
   filename,
 }: PlotDownloadButtonsProps) {
   const { t } = useTranslation();
   const [selectedFormat, setSelectedFormat] = useState<DownloadFormat>("svg");
 
+  function getPlotSvg(): SVGSVGElement | null {
+    if (containerRef?.current) {
+      return containerRef.current.querySelector<SVGSVGElement>("svg");
+    }
+    if (plotId) {
+      return document.querySelector<SVGSVGElement>(`#${plotId} svg`);
+    }
+    return null;
+  }
+
   function download(format: DownloadFormat) {
-    const plotElement = document.querySelector<SVGSVGElement>(`#${plotId} svg`);
+    const plotElement = getPlotSvg();
 
     if (!plotElement) {
-      console.error(`Could not find SVG element in #${plotId}`);
+      console.error("Could not find SVG element to download");
       return;
     }
 

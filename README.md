@@ -8,7 +8,9 @@ Free, open-source web application for viewing and visualizing geotechnical BRO/X
 
 ## About
 
+<a href="https://bedrock.engineer">
 <img src="https://bedrock.engineer/Bedrock_TextRight.png" width="300px" alt="Bedrock Logo" />
+</a>
 
 This is a free web application by [Bedrock.engineer](https://bedrock.engineer) that provides a fast, modern interface for viewing and analyzing geotechnical BRO/XML files directly in your browser.
 It also let's you download data from the BRO/XML files as CSV or JSON, and the locations of multiple files as a GeoJSON.

@@ -58,18 +58,18 @@ export default function InfoPage() {
 
           <Card>
             <h2 className="text-xl font-medium mb-4">
-              Ondersteunde Geoetecnische Boormonsteranalyse tests
+              Ondersteunde Geoetechnische Boormonsteranalyse tests
             </h2>
             <p>
-              De volgende tests zijn ondersteund.Heb je verzoeken of suggesties
-              hiervoor, bijvoorbeeld voor betere grafieken en tabellen. of beter
-              vertoon? Laat het ons weten via de{" "}
+              De volgende lab tests zijn ondersteund. Heb je verzoeken of suggesties
+              hiervoor, bijvoorbeeld voor betere grafieken of tabellen? Laat het
+              ons weten via de{" "}
               <Link to="/feedback" className="text-blue-500 hover:underline">
                 Feedback
               </Link>
               pagina.
             </p>
-            <ul>
+            <ul className="list-disc list-inside space-y-2 text-gray-700">
               <li>basisparameter</li>
               <li>korrelgrootteverdeling</li>
               <li>maximaleSchuifsterkte</li>

@@ -39,7 +39,7 @@
     "lucide-react": "^0.554.0",
     "proj4": "^2.20.2",
     "react": "^19.2.7",
-    "react-aria-components": "^1.15.1",
+    "react-aria-components": "^1.19.0",
     "react-dom": "^19.2.7",
     "react-error-boundary": "^6.1.1",
     "react-i18next": "^16.5.4",
@@ -48,7 +48,7 @@
     "svg-crowbar": "^0.7.0"
   },
   "devDependencies": {
-    "@cloudflare/vite-plugin": "^1.40.2",
+    "@cloudflare/vite-plugin": "^1.42.2",
     "@eslint/js": "^9.39.1",
     "@react-router/dev": "^7.17.0",
     "@tailwindcss/vite": "^4.3.1",
@@ -60,17 +60,17 @@
     "@types/react": "^19.2.13",
     "@types/react-dom": "^19.2.3",
     "eslint": "^9.39.2",
-    "eslint-plugin-react-hooks": "^7.0.1",
+    "eslint-plugin-react-hooks": "^7.1.1",
     "eslint-plugin-unicorn": "^62.0.0",
     "knip": "^5.70.1",
     "prettier": "^3.8.1",
     "tailwindcss": "^4.3.1",
     "typescript": "^5.9.3",
     "typescript-eslint": "^8.54.0",
-    "vite": "^8.0.16",
+    "vite": "^8.1.0",
     "vite-plugin-pwa": "^1.3.0",
     "vite-tsconfig-paths": "^5.1.4",
-    "wrangler": "^4.100.0"
+    "wrangler": "^4.104.0"
   },
   "prettier": {
     "semi": true,

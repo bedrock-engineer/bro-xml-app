@@ -407,6 +407,8 @@ export function App() {
                   layers={selectedFile.data}
                   baseFilename={selectedFileName.replace(/\.xml$/i, "")}
                   analysis={selectedFile.analysis}
+                  groundwaterLevel={selectedFile.groundwater_level}
+                  surfaceNap={selectedFile.delivered_vertical_position_offset}
                 />
                 {selectedFile.analysis && (
                   <LaboratoryAnalysis

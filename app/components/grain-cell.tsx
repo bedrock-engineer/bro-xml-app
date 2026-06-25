@@ -1,7 +1,8 @@
-import { type GrainSizeRange, SAND_MEDIAN_BREAKS } from "~/util/grain-size";
-import { SAND_MEDIAN_TICKS, SAND_MEDIAN_DOMAIN } from "../util/grain-size";
-import { GRAIN_COL } from "./bhr-gt-details-table";
 import { scaleLog } from "d3-scale";
+import { type GrainSizeRange, SAND_MEDIAN_BREAKS } from "~/util/grain-size";
+import { SAND_MEDIAN_DOMAIN, SAND_MEDIAN_TICKS } from "../util/grain-size";
+
+const GRAIN_COL = 120;
 
 const GRAIN_PAD = 16;
 
@@ -62,7 +63,7 @@ export function GrainAxis({
       <text x={4} y={9} fontSize={9} fontWeight={600} fill="#6b7280">
         {label}
       </text>
-      
+
       {SAND_MEDIAN_TICKS.map((tick, index) => (
         <text
           key={tick}
@@ -87,6 +88,6 @@ function tickAnchor(index: number, count: number): "start" | "middle" | "end" {
   if (index === count - 1) {
     return "end";
   }
-  
+
   return "middle";
 }

@@ -16,6 +16,20 @@ import { GrainAxis, GrainCell } from "./grain-cell";
  *  above its (flush) plot frame so the bodies line up on the same depths. */
 export const DETAILS_HEADER_HEIGHT = 30;
 
+/** Minimum row height for the uniform "rows" layout (fits the stacked
+ *  upper/lower depth labels plus padding). */
+const ROW_MIN_HEIGHT = 28;
+
+/**
+ * Body layout:
+ * - "scaled": rows positioned + sized on the chart's depth scale so they line
+ *   up with the SVG bands (thin layers collapse to a few px).
+ * - "rows": uniform-height rows in normal flow, decoupled from the chart, so
+ *   thin/intermittent layers stay legible. The depth column then shows the full
+ *   upper–lower interval since row height no longer encodes thickness.
+ */
+export type DetailsTableLayout = "scaled" | "rows";
+
 interface BhrgtDetailsTableProps {
   layers: Array<BHRGTLayer>;
   /** Must match the height passed to buildBhrgtPlot so rows align with the SVG. */
@@ -24,6 +38,8 @@ interface BhrgtDetailsTableProps {
   surfaceNap?: number | null;
   /** Show depths as m NAP elevation rather than m below surface. */
   napMode?: boolean;
+  /** Body layout: depth-scaled (aligned to chart) or uniform rows. */
+  layout?: DetailsTableLayout;
 }
 
 // Fixed left columns (depth + soil name) followed by one column per present
@@ -57,6 +73,7 @@ export function BhrgtDetailsTable({
   height,
   surfaceNap,
   napMode,
+  layout = "scaled",
 }: BhrgtDetailsTableProps) {
   const { t } = useTranslation();
   const translate = t as TranslateFunction;
@@ -140,40 +157,29 @@ export function BhrgtDetailsTable({
         )}
       </div>
 
-      {/* Depth-aligned body. */}
-      <div className="relative" style={{ height }} role="rowgroup">
-        <div
-          aria-hidden
-          className="pointer-events-none absolute inset-0 grid divide-x divide-gray-200"
-          style={{ gridTemplateColumns }}
-        >
-          <div />
-          
-          <div />
-          {columns.map((key) => (
-            <div key={key} />
-          ))}
-        </div>
-
-        {rows.map(({ layer, byKey }) => {
-          const top = toPixel(layer.upperBoundary);
-          const rowHeight = toPixel(layer.lowerBoundary) - top;
-          return (
+      {layout === "rows" ? (
+        /* Uniform-row body: normal flow, decoupled from the chart. Each row
+           shows its full upper–lower interval so thin layers stay legible. */
+        <div role="rowgroup">
+          {rows.map(({ layer, byKey }) => (
             <div
               key={`${layer.upperBoundary}-${layer.lowerBoundary}`}
-              className="absolute inset-x-0 grid items-center overflow-hidden border-t border-gray-200 text-[11px] leading-tight"
-              style={{ top, height: rowHeight, gridTemplateColumns }}
+              className="grid items-stretch divide-x divide-gray-200 border-t border-gray-200 text-[11px] leading-tight"
+              style={{ gridTemplateColumns, minHeight: ROW_MIN_HEIGHT }}
               role="row"
             >
               <span
-                className="px-1 font-mono text-[10px] text-gray-400"
+                className="flex flex-col justify-center px-1 font-mono text-[10px] text-gray-400"
                 role="cell"
               >
-                {formatDepth(layer.upperBoundary)}
+                <span>{formatDepth(layer.upperBoundary)}</span>
+                <span className="text-gray-300">
+                  {formatDepth(layer.lowerBoundary)}
+                </span>
               </span>
 
               <span
-                className="truncate px-1 font-medium text-gray-700"
+                className="flex items-center truncate px-1 font-medium text-gray-700"
                 title={layer.geotechnicalSoilName}
                 role="cell"
               >
@@ -184,9 +190,9 @@ export function BhrgtDetailsTable({
                 const value = byKey.get(key);
 
                 return key === GRAIN_KEY ? (
-                  <div key={key} role="cell">
+                  <div key={key} className="flex items-center" role="cell">
                     <GrainCell
-                      height={rowHeight}
+                      height={ROW_MIN_HEIGHT}
                       range={sandMedianRange(value)}
                       label={value}
                     />
@@ -194,7 +200,7 @@ export function BhrgtDetailsTable({
                 ) : (
                   <span
                     key={key}
-                    className="truncate px-1 text-gray-600"
+                    className="flex items-center truncate px-1 text-gray-600"
                     title={value}
                     role="cell"
                   >
@@ -203,9 +209,76 @@ export function BhrgtDetailsTable({
                 );
               })}
             </div>
-          );
-        })}
-      </div>
+          ))}
+        </div>
+      ) : (
+        /* Depth-aligned body: rows positioned + sized on the chart's y scale. */
+        <div className="relative" style={{ height }} role="rowgroup">
+          <div
+            aria-hidden
+            className="pointer-events-none absolute inset-0 grid divide-x divide-gray-200"
+            style={{ gridTemplateColumns }}
+          >
+            <div />
+
+            <div />
+            {columns.map((key) => (
+              <div key={key} />
+            ))}
+          </div>
+
+          {rows.map(({ layer, byKey }) => {
+            const top = toPixel(layer.upperBoundary);
+            const rowHeight = toPixel(layer.lowerBoundary) - top;
+            return (
+              <div
+                key={`${layer.upperBoundary}-${layer.lowerBoundary}`}
+                className="absolute inset-x-0 grid items-center overflow-hidden border-t border-gray-200 text-[11px] leading-tight"
+                style={{ top, height: rowHeight, gridTemplateColumns }}
+                role="row"
+              >
+                <span
+                  className="px-1 font-mono text-[10px] text-gray-400"
+                  role="cell"
+                >
+                  {formatDepth(layer.upperBoundary)}
+                </span>
+
+                <span
+                  className="truncate px-1 font-medium text-gray-700"
+                  title={layer.geotechnicalSoilName}
+                  role="cell"
+                >
+                  {layer.geotechnicalSoilName}
+                </span>
+
+                {columns.map((key) => {
+                  const value = byKey.get(key);
+
+                  return key === GRAIN_KEY ? (
+                    <div key={key} role="cell">
+                      <GrainCell
+                        height={rowHeight}
+                        range={sandMedianRange(value)}
+                        label={value}
+                      />
+                    </div>
+                  ) : (
+                    <span
+                      key={key}
+                      className="truncate px-1 text-gray-600"
+                      title={value}
+                      role="cell"
+                    >
+                      {value ?? ""}
+                    </span>
+                  );
+                })}
+              </div>
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 }

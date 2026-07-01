@@ -14,6 +14,7 @@ import { LegendItem } from "./legend-item";
 import {
   BhrgtDetailsTable,
   DETAILS_HEADER_HEIGHT,
+  type DetailsTableLayout,
 } from "./bhr-gt-details-table";
 import { PlotDownloadButtons } from "./plot-download-buttons";
 import {
@@ -53,6 +54,7 @@ export function BHRGTPlot({
 }: BhrgtPlotProps) {
   const { t } = useTranslation();
   const [napMode, setNapMode] = useState(false);
+  const [tableLayout, setTableLayout] = useState<DetailsTableLayout>("scaled");
 
   // Build sample lines from analysis data
   const sampleLines: Array<SampleLine> = useMemo(() => {
@@ -124,31 +126,56 @@ export function BHRGTPlot({
     <Card>
       <div className="flex items-center justify-between gap-2">
         <CardTitle>{t("boreLog")}</CardTitle>
-        {canShowNap && (
+        <div className="flex items-center gap-2">
           <ToggleButtonGroup
-            aria-label={t("verticalReference")}
+            aria-label={t("tableLayout")}
             selectionMode="single"
             disallowEmptySelection
-            selectedKeys={[napMode ? "nap" : "mv"]}
+            selectedKeys={[tableLayout]}
             onSelectionChange={(keys) => {
-              setNapMode(keys.has("nap"));
+              setTableLayout(keys.has("rows") ? "rows" : "scaled");
             }}
             className="inline-flex overflow-hidden rounded border border-gray-300 text-xs"
           >
             <ToggleButton
-              id="mv"
+              id="scaled"
               className="cursor-pointer px-2 py-0.5 text-gray-600 transition-colors data-[selected]:bg-gray-700 data-[selected]:text-white hover:bg-gray-50 data-[selected]:hover:bg-gray-700"
             >
-              m -mv
+              {t("tableLayoutScaled")}
             </ToggleButton>
             <ToggleButton
-              id="nap"
+              id="rows"
               className="cursor-pointer border-l border-gray-300 px-2 py-0.5 text-gray-600 transition-colors data-[selected]:bg-gray-700 data-[selected]:text-white hover:bg-gray-50 data-[selected]:hover:bg-gray-700"
             >
-              m NAP
+              {t("tableLayoutRows")}
             </ToggleButton>
           </ToggleButtonGroup>
-        )}
+          {canShowNap && (
+            <ToggleButtonGroup
+              aria-label={t("verticalReference")}
+              selectionMode="single"
+              disallowEmptySelection
+              selectedKeys={[napMode ? "nap" : "mv"]}
+              onSelectionChange={(keys) => {
+                setNapMode(keys.has("nap"));
+              }}
+              className="inline-flex overflow-hidden rounded border border-gray-300 text-xs"
+            >
+              <ToggleButton
+                id="mv"
+                className="cursor-pointer px-2 py-0.5 text-gray-600 transition-colors data-[selected]:bg-gray-700 data-[selected]:text-white hover:bg-gray-50 data-[selected]:hover:bg-gray-700"
+              >
+                m -mv
+              </ToggleButton>
+              <ToggleButton
+                id="nap"
+                className="cursor-pointer border-l border-gray-300 px-2 py-0.5 text-gray-600 transition-colors data-[selected]:bg-gray-700 data-[selected]:text-white hover:bg-gray-50 data-[selected]:hover:bg-gray-700"
+              >
+                m NAP
+              </ToggleButton>
+            </ToggleButtonGroup>
+          )}
+        </div>
       </div>
 
       <div className="flex flex-wrap items-start justify-center gap-2">
@@ -170,6 +197,7 @@ export function BHRGTPlot({
           height={height}
           surfaceNap={surfaceNap}
           napMode={napMode}
+          layout={tableLayout}
         />
       </div>
 

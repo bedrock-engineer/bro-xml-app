@@ -3,7 +3,6 @@ import { cloudflare } from "@cloudflare/vite-plugin";
 import tailwindcss from "@tailwindcss/vite";
 import { defineConfig } from "vite";
 import { VitePWA } from "vite-plugin-pwa";
-import tsconfigPaths from "vite-tsconfig-paths";
 
 export default defineConfig({
   build: {
@@ -13,7 +12,6 @@ export default defineConfig({
     cloudflare({ viteEnvironment: { name: "ssr" } }),
     tailwindcss(),
     reactRouter(),
-    tsconfigPaths(),
     VitePWA({
       registerType: "autoUpdate",
       outDir: "build/client",
@@ -73,12 +71,10 @@ export default defineConfig({
     }),
   ],
   assetsInclude: ["**/*.wasm"],
+  resolve: {
+    tsconfigPaths: true,
+  },
   optimizeDeps: {
     exclude: ["@bedrock-engineer/gef-parser"],
-    esbuildOptions: {
-      supported: {
-        "top-level-await": true,
-      },
-    },
   },
 });

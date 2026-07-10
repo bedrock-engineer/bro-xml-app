@@ -1,28 +1,30 @@
+import type { CPTMeasurement } from "@bedrock-engineer/bro-xml-parser";
 import * as Plot from "@observablehq/plot";
 import { useEffect, useRef, useState } from "react";
 import {
+  Button,
   Checkbox,
   CheckboxGroup,
   Label,
-  Select,
-  SelectValue,
-  Button,
-  Popover,
   ListBox,
   ListBoxItem,
+  Popover,
+  Select,
+  SelectValue,
+  ToggleButton,
 } from "react-aria-components";
 import { useTranslation } from "react-i18next";
-import type { CPTMeasurement } from "@bedrock-engineer/bro-xml-parser";
 import type { ChartColumn } from "~/util/chart-axes";
 import { createWatermarkMark } from "~/util/plot-config";
 import { Card, CardTitle } from "./card";
+import { ClassicCptPlot } from "./classic-cpt-plot";
 import { PlotDownloadButtons } from "./plot-download-buttons";
 
 function isDepthChartColumn(col: ChartColumn): boolean {
   return col.key === "penetrationLength" || col.key === "depth";
 }
 
-interface CptPlotProps {
+interface CptPlotsProps {
   data: Array<CPTMeasurement>;
   xAxis: ChartColumn;
   yAxis: ChartColumn;
@@ -42,10 +44,11 @@ export function CptPlots({
   width = 300,
   height = 800,
   baseFilename,
-}: CptPlotProps) {
+}: CptPlotsProps) {
   const { t } = useTranslation();
   const [selectedAxes, setSelectedAxes] = useState([initialXAxis.key]);
   const [selectedYAxis, setSelectedYAxis] = useState(initialYAxis.key);
+  const [showClassic, setShowClassic] = useState(false);
 
   const xAxisOptions = availableChartColumns.filter(
     (col) => !isDepthChartColumn(col),
@@ -133,44 +136,64 @@ export function CptPlots({
             </div>
           )}
         </div>
+
+        <ToggleButton
+          isSelected={showClassic}
+          onChange={setShowClassic}
+          className="px-3 py-2 bg-white border border-gray-300 rounded-sm text-sm text-gray-700 hover:bg-gray-50 selected:bg-blue-600 selected:text-white selected:border-blue-600"
+        >
+          {showClassic ? t("showColumnCharts") : t("showClassicCptChart")}
+        </ToggleButton>
       </div>
 
-      <div className="flex justify-center flex-wrap">
-        {selectedAxes.map((k) => {
-          const xAxis = xAxisOptions.find((c) => c.key === k);
+      {showClassic ? (
+        <div className="flex justify-center flex-wrap">
+          <ClassicCptPlot
+            data={data}
+            yAxis={currentYAxis}
+            availableChartColumns={xAxisOptions}
+            height={height}
+            baseFilename={baseFilename}
+          />
+        </div>
+      ) : (
+        <div className="flex justify-center flex-wrap">
+          {selectedAxes.map((k) => {
+            const xAxis = xAxisOptions.find((c) => c.key === k);
 
-          if (!xAxis) {
-            return null;
-          }
+            if (!xAxis) {
+              return null;
+            }
 
-          const plotId = `cpt-plot-${k}`;
-          return (
-            <div
-              key={`${k}-${selectedYAxis}`}
-              className="flex flex-col flex-wrap items-center"
-            >
-              <CptPlot
-                plotId={plotId}
-                data={data}
-                height={height}
-                width={width}
-                yAxis={currentYAxis}
-                xAxis={xAxis}
-                reverseY={true}
-              />
-              <PlotDownloadButtons
-                plotId={plotId}
-                filename={`${baseFilename}-${xAxis.name}`}
-              />
-            </div>
-          );
-        })}
-      </div>
+            const plotId = `cpt-plot-${k}`;
+            return (
+              <div
+                key={`${k}-${selectedYAxis}`}
+                className="flex flex-col flex-wrap items-center"
+              >
+                <CptPlot
+                  plotId={plotId}
+                  data={data}
+                  height={height}
+                  width={width}
+                  yAxis={currentYAxis}
+                  xAxis={xAxis}
+                  reverseY={true}
+                />
+                <PlotDownloadButtons
+                  plotId={plotId}
+                  filename={`${baseFilename}-${xAxis.name}`}
+                />
+              </div>
+            );
+          })}
+        </div>
+      )}
     </Card>
   );
 }
 
-interface CptPlotInternalProps {
+interface CptPlotProps {
   data: Array<CPTMeasurement>;
   xAxis: ChartColumn;
   yAxis: ChartColumn;
@@ -188,7 +211,7 @@ function CptPlot({
   data,
   reverseY = true,
   plotId,
-}: CptPlotInternalProps) {
+}: CptPlotProps) {
   const { t } = useTranslation();
   const containerRef = useRef<HTMLDivElement>(null);
 

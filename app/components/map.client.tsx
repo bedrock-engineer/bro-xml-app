@@ -44,7 +44,7 @@ function getMarkerColor(fileType: BROFileType): string {
  * Extract location from BRO data
  */
 function extractLocation(filename: string, data: BROData): LocationInfo | null {
-  const location = data.standardized_location ?? data.delivered_location;
+  const location = data.standardizedLocation ?? data.deliveredLocation;
 
   if (!location) {
     return null;
@@ -72,7 +72,7 @@ function extractLocation(filename: string, data: BROData): LocationInfo | null {
     lat,
     lon,
     fileType: data.meta.dataType,
-    broId: data.bro_id,
+    broId: data.broId,
     epsg: location.epsg,
     x: location.x,
     y: location.y,

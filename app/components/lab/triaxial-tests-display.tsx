@@ -76,7 +76,7 @@ export function TriaxialTestsDisplay({
           {/* Legend */}
           <div className="flex flex-wrap gap-4 justify-center text-sm mb-4">
             {testsWithData.map((test, index) => {
-              const cellPressure = test.loadStage?.shearStressChangeDuringLoading?.[0]
+              const cellPressure = test.loadStage?.shearStressChangeDuringLoading[0]
                 ?.cellPressure;
               return (
                 <div key={index} className="flex items-center gap-2">

@@ -1,7 +1,7 @@
 import * as Plot from "@observablehq/plot";
 import { max, min } from "d3-array";
 import { scaleBand } from "d3-scale";
-import type { BHRGTLayer } from "@bedrock-engineer/bro-xml-parser";
+import type { BHRGTLayer, Grainshape } from "@bedrock-engineer/bro-xml-parser";
 import {
   LAB_TEST_CATEGORIES,
   type LabTestCategory,
@@ -124,7 +124,10 @@ export function buildBhrgtPlot({
     color: { type: "identity" },
     x: hiddenXAxisConfig,
     // Shares its domain + range with the HTML details table's d3 scale.
-    y: { ...depthYScaleOptions(height, minDepth, maxDepth, BHRGT_MARGIN_TOP), tickFormat },
+    y: {
+      ...depthYScaleOptions(height, minDepth, maxDepth, BHRGT_MARGIN_TOP),
+      tickFormat,
+    },
     marks: [
       // Soil composition bands: main soil + admixtures, widths proportional to
       // the BRO admixture grades (e.g. sterkZandigeKlei ≈ half sand).
@@ -266,7 +269,14 @@ export const LAYER_ATTRIBUTE_KEYS = [
   "bedded",
   "mixed",
   "mottled",
-] as const;
+  "roughness",
+] as const satisfies Array<
+  | keyof BHRGTLayer
+  | keyof Grainshape
+  | "layerColor"
+  | "sandMedian"
+  | "organicMatter"
+>;
 
 // Codelist values that carry no information for the reader (negatives /
 // unknowns). Dropped from both the tooltip and the details table so rows
@@ -298,6 +308,7 @@ export function getLayerAttributes(
       attributes.push({ key, label: t(key), value });
     }
   };
+  
   const pushFlag = (key: string, value: boolean | null | undefined): void => {
     if (value === true) {
       attributes.push({ key, label: t(key), value: t("yes") });
@@ -315,6 +326,7 @@ export function getLayerAttributes(
   pushString("peatTensileStrength", layer.peatTensileStrength);
   pushString("angularity", layer.grainshape?.angularity);
   pushString("sphericity", layer.grainshape?.sphericity);
+  pushString("roughness", layer.grainshape?.roughness);
   pushFlag("dispersedInhomogeneity", layer.dispersedInhomogeneity);
   pushFlag("anthropogenic", layer.anthropogenic);
   pushFlag("bedded", layer.bedded);
@@ -331,7 +343,9 @@ function formatBHRGTLayerTitle(
   const parts = [
     `${layer.upperBoundary.toFixed(2)} – ${layer.lowerBoundary.toFixed(2)} m`,
     layer.geotechnicalSoilName,
-    ...getLayerAttributes(layer, t).map(({ label, value }) => `${label}: ${value}`),
+    ...getLayerAttributes(layer, t).map(
+      ({ label, value }) => `${label}: ${value}`,
+    ),
   ];
 
   return parts.join("\n");

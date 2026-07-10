@@ -26,16 +26,16 @@ interface CompactBHRGHeaderProps {
 
 export function CompactBHRGHeader({ filename, data }: CompactBHRGHeaderProps) {
   const { t } = useTranslation();
-  const location = data.delivered_location ?? data.standardized_location;
+  const location = data.deliveredLocation ?? data.standardizedLocation;
 
   return (
-    <CompactHeaderWrapper testId={data.bro_id}>
+    <CompactHeaderWrapper testId={data.broId}>
       {/* Left column - Basic info */}
       <HeaderColumn>
         <FilenameRow filename={filename} />
-        <BroIdRow broId={data.bro_id} />
-        <QualityRegimeRow qualityRegime={data.quality_regime} />
-        <ReportDateRow date={data.research_report_date} />
+        <BroIdRow broId={data.broId} />
+        <QualityRegimeRow qualityRegime={data.qualityRegime} />
+        <ReportDateRow date={data.researchReportDate} />
         <HeaderRow label={t("dataType")} value={t("geologicalBorehole")} />
       </HeaderColumn>
 
@@ -43,13 +43,13 @@ export function CompactBHRGHeader({ filename, data }: CompactBHRGHeaderProps) {
       <HeaderColumn>
         <LocationDisplay location={location} />
         <SurfaceLevelRow
-          offset={data.delivered_vertical_position_offset}
-          datum={data.delivered_vertical_position_datum}
+          offset={data.deliveredVerticalPositionOffset}
+          datum={data.deliveredVerticalPositionDatum}
         />
-        <DepthRow label={t("finalBoreDepth")} depth={data.final_bore_depth} />
+        <DepthRow label={t("finalBoreDepth")} depth={data.finalBoreDepth} />
         <HeaderRow
           label={t("classificationStandard")}
-          value={data.description_procedure}
+          value={data.descriptionProcedure}
         />
       </HeaderColumn>
     </CompactHeaderWrapper>
@@ -59,41 +59,41 @@ export function CompactBHRGHeader({ filename, data }: CompactBHRGHeaderProps) {
 function getBHRGSurveyInfo(data: BHRGData, t: TFunction): Array<HeaderItem> {
   const items: Array<HeaderItem> = [];
 
-  if (data.description_procedure) {
+  if (data.descriptionProcedure) {
     items.push({
       label: t("descriptionProcedure"),
-      value: data.description_procedure,
+      value: data.descriptionProcedure,
     });
   }
-  if (data.final_bore_depth !== null) {
+  if (data.finalBoreDepth !== null) {
     items.push({
       label: t("finalBoreDepth"),
-      value: `${data.final_bore_depth.toFixed(2)} m`,
+      value: `${data.finalBoreDepth.toFixed(2)} m`,
     });
   }
-  if (data.final_sample_depth !== null) {
+  if (data.finalSampleDepth !== null) {
     items.push({
       label: t("finalSampleDepth"),
-      value: `${data.final_sample_depth.toFixed(2)} m`,
+      value: `${data.finalSampleDepth.toFixed(2)} m`,
     });
   }
-  if (data.bore_rock_reached !== null) {
+  if (data.boreRockReached !== null) {
     items.push({
       label: t("rockReached"),
-      value: data.bore_rock_reached ? t("yes") : t("no"),
+      value: data.boreRockReached ? t("yes") : t("no"),
     });
   }
-  if (data.bore_hole_completed !== null) {
+  if (data.boreHoleCompleted !== null) {
     items.push({
       label: t("boreholeCompleted"),
-      value: data.bore_hole_completed,
+      value: data.boreHoleCompleted,
     });
   }
-  if (data.stop_criterion) {
-    items.push({ label: t("stopCriterion"), value: data.stop_criterion });
+  if (data.stopCriterion) {
+    items.push({ label: t("stopCriterion"), value: data.stopCriterion });
   }
-  if (data.nitg_code) {
-    items.push({ label: t("nitgCode"), value: data.nitg_code });
+  if (data.nitgCode) {
+    items.push({ label: t("nitgCode"), value: data.nitgCode });
   }
 
   return items;
@@ -102,34 +102,34 @@ function getBHRGSurveyInfo(data: BHRGData, t: TFunction): Array<HeaderItem> {
 function getBHRGBoringInfo(data: BHRGData, t: TFunction): Array<HeaderItem> {
   const items: Array<HeaderItem> = [];
 
-  if (data.boring_start_date) {
+  if (data.boringStartDate) {
     items.push({
       label: t("boringStartDate"),
-      value: formatDate(data.boring_start_date),
+      value: formatDate(data.boringStartDate),
     });
   }
-  if (data.boring_end_date) {
+  if (data.boringEndDate) {
     items.push({
       label: t("boringEndDate"),
-      value: formatDate(data.boring_end_date),
+      value: formatDate(data.boringEndDate),
     });
   }
-  if (data.boring_procedure) {
-    items.push({ label: t("boringProcedure"), value: data.boring_procedure });
+  if (data.boringProcedure) {
+    items.push({ label: t("boringProcedure"), value: data.boringProcedure });
   }
-  if (data.boring_technique) {
-    items.push({ label: t("boringTechnique"), value: data.boring_technique });
+  if (data.boringTechnique) {
+    items.push({ label: t("boringTechnique"), value: data.boringTechnique });
   }
-  if (data.trajectory_excavated !== null) {
+  if (data.trajectoryExcavated !== null) {
     items.push({
       label: t("trajectoryExcavated"),
-      value: data.trajectory_excavated ? t("yes") : t("no"),
+      value: data.trajectoryExcavated ? t("yes") : t("no"),
     });
   }
-  if (data.subsurface_contaminated !== null) {
+  if (data.subsurfaceContaminated !== null) {
     items.push({
       label: t("subsurfaceContaminated"),
-      value: data.subsurface_contaminated ? t("yes") : t("no"),
+      value: data.subsurfaceContaminated ? t("yes") : t("no"),
     });
   }
 
@@ -139,22 +139,22 @@ function getBHRGBoringInfo(data: BHRGData, t: TFunction): Array<HeaderItem> {
 function getBHRGSamplingInfo(data: BHRGData, t: TFunction): Array<HeaderItem> {
   const items: Array<HeaderItem> = [];
 
-  if (data.sampling_procedure) {
+  if (data.samplingProcedure) {
     items.push({
       label: t("samplingProcedure"),
-      value: data.sampling_procedure,
+      value: data.samplingProcedure,
     });
   }
-  if (data.sampling_method) {
-    items.push({ label: t("samplingMethod"), value: data.sampling_method });
+  if (data.samplingMethod) {
+    items.push({ label: t("samplingMethod"), value: data.samplingMethod });
   }
-  if (data.sampling_quality) {
-    items.push({ label: t("samplingQuality"), value: data.sampling_quality });
+  if (data.samplingQuality) {
+    items.push({ label: t("samplingQuality"), value: data.samplingQuality });
   }
-  if (data.continuously_sampled !== null) {
+  if (data.continuouslySampled !== null) {
     items.push({
       label: t("continuouslySampled"),
-      value: data.continuously_sampled ? t("yes") : t("no"),
+      value: data.continuouslySampled ? t("yes") : t("no"),
     });
   }
 
@@ -167,38 +167,38 @@ function getBHRGDescriptionInfo(
 ): Array<HeaderItem> {
   const items: Array<HeaderItem> = [];
 
-  if (data.description_quality) {
+  if (data.descriptionQuality) {
     items.push({
       label: t("descriptionQuality"),
-      value: data.description_quality,
+      value: data.descriptionQuality,
     });
   }
-  if (data.described_samples_quality) {
+  if (data.describedSamplesQuality) {
     items.push({
       label: t("describedSamplesQuality"),
-      value: data.described_samples_quality,
+      value: data.describedSamplesQuality,
     });
   }
-  if (data.description_location) {
+  if (data.descriptionLocation) {
     items.push({
       label: t("descriptionLocation"),
-      value: data.description_location,
+      value: data.descriptionLocation,
     });
   }
-  if (data.description_report_date) {
+  if (data.descriptionReportDate) {
     items.push({
       label: t("descriptionReportDate"),
-      value: formatDate(data.description_report_date),
+      value: formatDate(data.descriptionReportDate),
     });
   }
-  if (data.described_material) {
+  if (data.describedMaterial) {
     items.push({
       label: t("describedMaterial"),
-      value: data.described_material,
+      value: data.describedMaterial,
     });
   }
-  if (data.sample_moistness) {
-    items.push({ label: t("sampleMoistness"), value: data.sample_moistness });
+  if (data.sampleMoistness) {
+    items.push({ label: t("sampleMoistness"), value: data.sampleMoistness });
   }
 
   return items;
@@ -207,17 +207,17 @@ function getBHRGDescriptionInfo(
 function getBHRGSurveyContext(data: BHRGData, t: TFunction): Array<HeaderItem> {
   const items: Array<HeaderItem> = [];
 
-  if (data.delivery_context) {
-    items.push({ label: t("deliveryContext"), value: data.delivery_context });
+  if (data.deliveryContext) {
+    items.push({ label: t("deliveryContext"), value: data.deliveryContext });
   }
-  if (data.survey_purpose) {
-    items.push({ label: t("surveyPurpose"), value: data.survey_purpose });
+  if (data.surveyPurpose) {
+    items.push({ label: t("surveyPurpose"), value: data.surveyPurpose });
   }
   if (data.discipline) {
     items.push({ label: t("discipline"), value: data.discipline });
   }
-  if (data.survey_procedure) {
-    items.push({ label: t("surveyProcedure"), value: data.survey_procedure });
+  if (data.surveyProcedure) {
+    items.push({ label: t("surveyProcedure"), value: data.surveyProcedure });
   }
 
   return items;
@@ -226,16 +226,16 @@ function getBHRGSurveyContext(data: BHRGData, t: TFunction): Array<HeaderItem> {
 function getBHRGIntervalData(data: BHRGData, t: TFunction): Array<HeaderItem> {
   const items: Array<HeaderItem> = [];
 
-  if (data.bored_intervals.length > 0) {
+  if (data.boredIntervals.length > 0) {
     items.push({
       label: t("boredIntervals"),
-      value: data.bored_intervals.length,
+      value: data.boredIntervals.length,
     });
   }
-  if (data.sampled_intervals.length > 0) {
+  if (data.sampledIntervals.length > 0) {
     items.push({
       label: t("sampledIntervals"),
-      value: data.sampled_intervals.length,
+      value: data.sampledIntervals.length,
     });
   }
 
@@ -248,8 +248,8 @@ function getBHRGRegistrationInfo(
 ): Array<HeaderItem> {
   const items: Array<HeaderItem> = [];
 
-  if (data.registration_history) {
-    const history = data.registration_history;
+  if (data.registrationHistory) {
+    const history = data.registrationHistory;
     if (history.registrationStatus) {
       items.push({
         label: t("registrationStatus"),
@@ -282,8 +282,8 @@ function getBHRGRegistrationInfo(
     }
   }
 
-  if (data.report_history) {
-    const report = data.report_history;
+  if (data.reportHistory) {
+    const report = data.reportHistory;
     if (report.reportStartDate) {
       items.push({
         label: t("reportStartDate"),

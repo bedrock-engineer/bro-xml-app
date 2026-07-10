@@ -4,11 +4,11 @@ import type { HeaderItem } from "../types/header-types";
 import { formatDeliveredLocation, formatStandardizedLocation } from "./format";
 
 interface LocationData {
-  delivered_location?: Location | null;
-  standardized_location?: Location | null;
-  delivered_vertical_position_offset: number | null;
-  delivered_vertical_position_datum?: string | null;
-  delivered_vertical_position_reference_point?: string | null;
+  deliveredLocation?: Location | null;
+  standardizedLocation?: Location | null;
+  deliveredVerticalPositionOffset: number | null;
+  deliveredVerticalPositionDatum?: string | null;
+  deliveredVerticalPositionReferencePoint?: string | null;
 }
 
 /**
@@ -20,38 +20,38 @@ export function getLocationItems(
 ): Array<HeaderItem> {
   const items: Array<HeaderItem> = [];
 
-  if (data.delivered_location) {
+  if (data.deliveredLocation) {
     items.push({
       label: t("deliveredLocation"),
-      value: formatDeliveredLocation(data.delivered_location),
+      value: formatDeliveredLocation(data.deliveredLocation),
     });
   }
 
-  if (data.standardized_location) {
+  if (data.standardizedLocation) {
     items.push({
       label: t("standardizedLocation"),
-      value: formatStandardizedLocation(data.standardized_location),
+      value: formatStandardizedLocation(data.standardizedLocation),
     });
   }
 
-  if (data.delivered_vertical_position_offset !== null) {
+  if (data.deliveredVerticalPositionOffset !== null) {
     items.push({
       label: t("verticalOffset"),
-      value: `${data.delivered_vertical_position_offset.toFixed(2)} m`,
+      value: `${data.deliveredVerticalPositionOffset.toFixed(2)} m`,
     });
   }
 
-  if (data.delivered_vertical_position_datum) {
+  if (data.deliveredVerticalPositionDatum) {
     items.push({
       label: t("verticalDatum"),
-      value: data.delivered_vertical_position_datum.toLocaleUpperCase(),
+      value: data.deliveredVerticalPositionDatum.toLocaleUpperCase(),
     });
   }
 
-  if (data.delivered_vertical_position_reference_point) {
+  if (data.deliveredVerticalPositionReferencePoint) {
     items.push({
       label: t("referencePoint"),
-      value: data.delivered_vertical_position_reference_point,
+      value: data.deliveredVerticalPositionReferencePoint,
     });
   }
 

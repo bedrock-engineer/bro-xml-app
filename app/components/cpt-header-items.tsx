@@ -27,28 +27,28 @@ interface CompactCptHeaderProps {
 
 export function CompactCptHeader({ filename, data }: CompactCptHeaderProps) {
   const { t } = useTranslation();
-  const location = data.delivered_location ?? data.standardized_location;
+  const location = data.deliveredLocation ?? data.standardizedLocation;
 
   return (
-    <CompactHeaderWrapper testId={data.bro_id}>
+    <CompactHeaderWrapper testId={data.broId}>
       {/* Left column - Basic info */}
       <HeaderColumn>
         <FilenameRow filename={filename} />
-        <BroIdRow broId={data.bro_id} />
-        <QualityRegimeRow qualityRegime={data.quality_regime} />
-        <ReportDateRow date={data.research_report_date} />
+        <BroIdRow broId={data.broId} />
+        <QualityRegimeRow qualityRegime={data.qualityRegime} />
+        <ReportDateRow date={data.researchReportDate} />
       </HeaderColumn>
 
       {/* Right column - Location and test info */}
       <HeaderColumn>
         <LocationDisplay location={location} />
         <SurfaceLevelRow
-          offset={data.delivered_vertical_position_offset}
-          datum={data.delivered_vertical_position_datum}
+          offset={data.deliveredVerticalPositionOffset}
+          datum={data.deliveredVerticalPositionDatum}
         />
-        <DepthRow label={t("finalDepth")} depth={data.final_depth} />
-        <WaterLevelRow level={data.groundwater_level} />
-        <HeaderRow label={t("qualityClass")} value={data.quality_class} />
+        <DepthRow label={t("finalDepth")} depth={data.finalDepth} />
+        <WaterLevelRow level={data.groundwaterLevel} />
+        <HeaderRow label={t("qualityClass")} value={data.qualityClass} />
       </HeaderColumn>
     </CompactHeaderWrapper>
   );
@@ -57,40 +57,40 @@ export function CompactCptHeader({ filename, data }: CompactCptHeaderProps) {
 function getCptSurveyInfo(data: CPTData, t: TFunction): Array<HeaderItem> {
   const items: Array<HeaderItem> = [];
 
-  if (data.cpt_standard) {
-    items.push({ label: t("cptStandard"), value: data.cpt_standard });
+  if (data.cptStandard) {
+    items.push({ label: t("cptStandard"), value: data.cptStandard });
   }
-  if (data.cpt_method) {
-    items.push({ label: t("cptMethod"), value: data.cpt_method });
+  if (data.cptMethod) {
+    items.push({ label: t("cptMethod"), value: data.cptMethod });
   }
-  if (data.quality_class !== null) {
-    items.push({ label: t("qualityClass"), value: data.quality_class });
+  if (data.qualityClass !== null) {
+    items.push({ label: t("qualityClass"), value: data.qualityClass });
   }
-  if (data.predrilled_depth !== null) {
+  if (data.predrilledDepth !== null) {
     items.push({
       label: t("predrilledDepth"),
-      value: `${data.predrilled_depth.toFixed(2)} m`,
+      value: `${data.predrilledDepth.toFixed(2)} m`,
     });
   }
-  if (data.final_depth !== null) {
+  if (data.finalDepth !== null) {
     items.push({
       label: t("finalDepth"),
-      value: `${data.final_depth.toFixed(2)} m`,
+      value: `${data.finalDepth.toFixed(2)} m`,
     });
   }
-  if (data.groundwater_level !== null) {
+  if (data.groundwaterLevel !== null) {
     items.push({
       label: t("waterLevel"),
-      value: `${data.groundwater_level.toFixed(2)} m`,
+      value: `${data.groundwaterLevel.toFixed(2)} m`,
     });
   }
-  if (data.stop_criterion) {
-    items.push({ label: t("stopCriterion"), value: data.stop_criterion });
+  if (data.stopCriterion) {
+    items.push({ label: t("stopCriterion"), value: data.stopCriterion });
   }
-  if (data.dissipationtest_performed !== null) {
+  if (data.dissipationtestPerformed !== null) {
     items.push({
       label: t("dissipationTest"),
-      value: data.dissipationtest_performed ? t("yes") : t("no"),
+      value: data.dissipationtestPerformed ? t("yes") : t("no"),
     });
   }
 
@@ -104,46 +104,46 @@ function getCptLocationInfo(data: CPTData, t: TFunction): Array<HeaderItem> {
 function getCptEquipmentInfo(data: CPTData, t: TFunction): Array<HeaderItem> {
   const items: Array<HeaderItem> = [];
 
-  if (data.cpt_description) {
-    items.push({ label: t("description"), value: data.cpt_description });
+  if (data.cptDescription) {
+    items.push({ label: t("description"), value: data.cptDescription });
   }
-  if (data.cpt_type) {
-    items.push({ label: t("cptType"), value: data.cpt_type });
+  if (data.cptType) {
+    items.push({ label: t("cptType"), value: data.cptType });
   }
-  if (data.cone_surface_area !== null) {
+  if (data.coneSurfaceArea !== null) {
     items.push({
       label: t("coneSurfaceArea"),
-      value: `${data.cone_surface_area} mm²`,
+      value: `${data.coneSurfaceArea} mm²`,
     });
   }
-  if (data.cone_diameter !== null) {
+  if (data.coneDiameter !== null) {
     items.push({
       label: t("coneDiameter"),
-      value: `${data.cone_diameter} mm`,
+      value: `${data.coneDiameter} mm`,
     });
   }
-  if (data.cone_surface_quotient !== null) {
+  if (data.coneSurfaceQuotient !== null) {
     items.push({
       label: t("coneSurfaceQuotient"),
-      value: data.cone_surface_quotient.toFixed(3),
+      value: data.coneSurfaceQuotient.toFixed(3),
     });
   }
-  if (data.cone_to_friction_sleeve_distance !== null) {
+  if (data.coneToFrictionSleeveDistance !== null) {
     items.push({
       label: t("coneToFrictionSleeveDistance"),
-      value: `${data.cone_to_friction_sleeve_distance} mm`,
+      value: `${data.coneToFrictionSleeveDistance} mm`,
     });
   }
-  if (data.cone_to_friction_sleeve_surface_area !== null) {
+  if (data.coneToFrictionSleeveSurfaceArea !== null) {
     items.push({
       label: t("frictionSleeveSurfaceArea"),
-      value: `${data.cone_to_friction_sleeve_surface_area} mm²`,
+      value: `${data.coneToFrictionSleeveSurfaceArea} mm²`,
     });
   }
-  if (data.cone_to_friction_sleeve_surface_quotient !== null) {
+  if (data.coneToFrictionSleeveSurfaceQuotient !== null) {
     items.push({
       label: t("frictionSleeveSurfaceQuotient"),
-      value: data.cone_to_friction_sleeve_surface_quotient.toFixed(3),
+      value: data.coneToFrictionSleeveSurfaceQuotient.toFixed(3),
     });
   }
 
@@ -162,82 +162,82 @@ function getZeroLoadMeasurements(
     unit: string;
   }> = [
     {
-      key: "zlm_cone_resistance_before",
+      key: "zlmConeResistanceBefore",
       label: t("coneResistanceBefore"),
       unit: "MPa",
     },
     {
-      key: "zlm_cone_resistance_after",
+      key: "zlmConeResistanceAfter",
       label: t("coneResistanceAfter"),
       unit: "MPa",
     },
     {
-      key: "zlm_local_friction_before",
+      key: "zlmLocalFrictionBefore",
       label: t("localFrictionBefore"),
       unit: "MPa",
     },
     {
-      key: "zlm_local_friction_after",
+      key: "zlmLocalFrictionAfter",
       label: t("localFrictionAfter"),
       unit: "MPa",
     },
     {
-      key: "zlm_pore_pressure_u1_before",
+      key: "zlmPorePressureU1Before",
       label: t("porePressureU1Before"),
       unit: "MPa",
     },
     {
-      key: "zlm_pore_pressure_u1_after",
+      key: "zlmPorePressureU1After",
       label: t("porePressureU1After"),
       unit: "MPa",
     },
     {
-      key: "zlm_pore_pressure_u2_before",
+      key: "zlmPorePressureU2Before",
       label: t("porePressureU2Before"),
       unit: "MPa",
     },
     {
-      key: "zlm_pore_pressure_u2_after",
+      key: "zlmPorePressureU2After",
       label: t("porePressureU2After"),
       unit: "MPa",
     },
     {
-      key: "zlm_pore_pressure_u3_before",
+      key: "zlmPorePressureU3Before",
       label: t("porePressureU3Before"),
       unit: "MPa",
     },
     {
-      key: "zlm_pore_pressure_u3_after",
+      key: "zlmPorePressureU3After",
       label: t("porePressureU3After"),
       unit: "MPa",
     },
     {
-      key: "zlm_inclination_ew_before",
+      key: "zlmInclinationEwBefore",
       label: t("inclinationEWBefore"),
       unit: "°",
     },
     {
-      key: "zlm_inclination_ew_after",
+      key: "zlmInclinationEwAfter",
       label: t("inclinationEWAfter"),
       unit: "°",
     },
     {
-      key: "zlm_inclination_ns_before",
+      key: "zlmInclinationNsBefore",
       label: t("inclinationNSBefore"),
       unit: "°",
     },
     {
-      key: "zlm_inclination_ns_after",
+      key: "zlmInclinationNsAfter",
       label: t("inclinationNSAfter"),
       unit: "°",
     },
     {
-      key: "zlm_inclination_resultant_before",
+      key: "zlmInclinationResultantBefore",
       label: t("inclinationResultantBefore"),
       unit: "°",
     },
     {
-      key: "zlm_inclination_resultant_after",
+      key: "zlmInclinationResultantAfter",
       label: t("inclinationResultantAfter"),
       unit: "°",
     },
@@ -259,28 +259,28 @@ function getZeroLoadMeasurements(
 function getProcessingInfo(data: CPTData, t: TFunction): Array<HeaderItem> {
   const items: Array<HeaderItem> = [];
 
-  if (data.final_processing_date) {
+  if (data.finalProcessingDate) {
     items.push({
       label: t("finalProcessingDate"),
-      value: formatDate(data.final_processing_date),
+      value: formatDate(data.finalProcessingDate),
     });
   }
-  if (data.signal_processing_performed !== null) {
+  if (data.signalProcessingPerformed !== null) {
     items.push({
       label: t("signalProcessingPerformed"),
-      value: data.signal_processing_performed ? t("yes") : t("no"),
+      value: data.signalProcessingPerformed ? t("yes") : t("no"),
     });
   }
-  if (data.interruption_processing_performed !== null) {
+  if (data.interruptionProcessingPerformed !== null) {
     items.push({
       label: t("interruptionProcessingPerformed"),
-      value: data.interruption_processing_performed ? t("yes") : t("no"),
+      value: data.interruptionProcessingPerformed ? t("yes") : t("no"),
     });
   }
-  if (data.expert_correction_performed !== null) {
+  if (data.expertCorrectionPerformed !== null) {
     items.push({
       label: t("expertCorrectionPerformed"),
-      value: data.expert_correction_performed ? t("yes") : t("no"),
+      value: data.expertCorrectionPerformed ? t("yes") : t("no"),
     });
   }
 

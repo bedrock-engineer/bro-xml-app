@@ -34,8 +34,8 @@ export function isBHRGData(data: BROData): data is BHRGData {
  */
 export function getFinalDepth(data: BROData): number | null {
   if (isCPTData(data)) {
-    return data.final_depth;
+    return data.finalDepth;
   }
-  // Both BHRGTData and BHRGData have final_bore_depth
-  return data.final_bore_depth;
+  // Both BHRGTData and BHRGData have finalBoreDepth
+  return data.finalBoreDepth;
 }

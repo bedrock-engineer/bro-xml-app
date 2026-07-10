@@ -28,27 +28,27 @@ interface CompactBHRGTHeaderProps {
 
 export function CompactBHRGTHeader({ filename, data }: CompactBHRGTHeaderProps) {
   const { t } = useTranslation();
-  const location = data.delivered_location ?? data.standardized_location;
+  const location = data.deliveredLocation ?? data.standardizedLocation;
 
   return (
-    <CompactHeaderWrapper testId={data.bro_id}>
+    <CompactHeaderWrapper testId={data.broId}>
       {/* Left column - Basic info */}
       <HeaderColumn>
         <FilenameRow filename={filename} />
-        <BroIdRow broId={data.bro_id} />
-        <QualityRegimeRow qualityRegime={data.quality_regime} />
-        <ReportDateRow date={data.research_report_date} />
+        <BroIdRow broId={data.broId} />
+        <QualityRegimeRow qualityRegime={data.qualityRegime} />
+        <ReportDateRow date={data.researchReportDate} />
       </HeaderColumn>
 
       {/* Right column - Location and bore info */}
       <HeaderColumn>
         <LocationDisplay location={location} />
         <SurfaceLevelRow
-          offset={data.delivered_vertical_position_offset}
-          datum={data.delivered_vertical_position_datum}
+          offset={data.deliveredVerticalPositionOffset}
+          datum={data.deliveredVerticalPositionDatum}
         />
-        <DepthRow label={t("finalBoreDepth")} depth={data.final_bore_depth} />
-        <WaterLevelRow level={data.groundwater_level} />
+        <DepthRow label={t("finalBoreDepth")} depth={data.finalBoreDepth} />
+        <WaterLevelRow level={data.groundwaterLevel} />
         {data.analysis && (
           <HeaderRow label={t("laboratoryAnalysis")} value={t("available")} />
         )}
@@ -60,44 +60,44 @@ export function CompactBHRGTHeader({ filename, data }: CompactBHRGTHeaderProps) 
 function getBHRGTSurveyInfo(data: BHRGTData, t: TFunction): Array<HeaderItem> {
   const items: Array<HeaderItem> = [];
 
-  if (data.description_procedure) {
+  if (data.descriptionProcedure) {
     items.push({
       label: t("descriptionProcedure"),
-      value: data.description_procedure,
+      value: data.descriptionProcedure,
     });
   }
-  if (data.final_bore_depth !== null) {
+  if (data.finalBoreDepth !== null) {
     items.push({
       label: t("finalBoreDepth"),
-      value: `${data.final_bore_depth.toFixed(2)} m`,
+      value: `${data.finalBoreDepth.toFixed(2)} m`,
     });
   }
-  if (data.final_sample_depth !== null) {
+  if (data.finalSampleDepth !== null) {
     items.push({
       label: t("finalSampleDepth"),
-      value: `${data.final_sample_depth.toFixed(2)} m`,
+      value: `${data.finalSampleDepth.toFixed(2)} m`,
     });
   }
-  if (data.groundwater_level !== null) {
+  if (data.groundwaterLevel !== null) {
     items.push({
       label: t("waterLevel"),
-      value: `${data.groundwater_level.toFixed(2)} m`,
+      value: `${data.groundwaterLevel.toFixed(2)} m`,
     });
   }
-  if (data.bore_rock_reached !== null) {
+  if (data.boreRockReached !== null) {
     items.push({
       label: t("rockReached"),
-      value: data.bore_rock_reached ? t("yes") : t("no"),
+      value: data.boreRockReached ? t("yes") : t("no"),
     });
   }
-  if (data.bore_hole_completed !== null) {
+  if (data.boreHoleCompleted !== null) {
     items.push({
       label: t("boreholeCompleted"),
-      value: data.bore_hole_completed ? t("yes") : t("no"),
+      value: data.boreHoleCompleted ? t("yes") : t("no"),
     });
   }
-  if (data.stop_criterion) {
-    items.push({ label: t("stopCriterion"), value: data.stop_criterion });
+  if (data.stopCriterion) {
+    items.push({ label: t("stopCriterion"), value: data.stopCriterion });
   }
 
   return items;
@@ -106,34 +106,34 @@ function getBHRGTSurveyInfo(data: BHRGTData, t: TFunction): Array<HeaderItem> {
 function getBHRGTInfo(data: BHRGTData, t: TFunction): Array<HeaderItem> {
   const items: Array<HeaderItem> = [];
 
-  if (data.boring_start_date) {
+  if (data.boringStartDate) {
     items.push({
       label: t("boringStartDate"),
-      value: formatDate(data.boring_start_date),
+      value: formatDate(data.boringStartDate),
     });
   }
-  if (data.boring_end_date) {
+  if (data.boringEndDate) {
     items.push({
       label: t("boringEndDate"),
-      value: formatDate(data.boring_end_date),
+      value: formatDate(data.boringEndDate),
     });
   }
-  if (data.boring_procedure) {
-    items.push({ label: t("boringProcedure"), value: data.boring_procedure });
+  if (data.boringProcedure) {
+    items.push({ label: t("boringProcedure"), value: data.boringProcedure });
   }
-  if (data.boring_technique) {
-    items.push({ label: t("boringTechnique"), value: data.boring_technique });
+  if (data.boringTechnique) {
+    items.push({ label: t("boringTechnique"), value: data.boringTechnique });
   }
-  if (data.trajectory_excavated !== null) {
+  if (data.trajectoryExcavated !== null) {
     items.push({
       label: t("trajectoryExcavated"),
-      value: data.trajectory_excavated ? t("yes") : t("no"),
+      value: data.trajectoryExcavated ? t("yes") : t("no"),
     });
   }
-  if (data.subsurface_contaminated !== null) {
+  if (data.subsurfaceContaminated !== null) {
     items.push({
       label: t("subsurfaceContaminated"),
-      value: data.subsurface_contaminated ? t("yes") : t("no"),
+      value: data.subsurfaceContaminated ? t("yes") : t("no"),
     });
   }
 
@@ -143,91 +143,91 @@ function getBHRGTInfo(data: BHRGTData, t: TFunction): Array<HeaderItem> {
 function getSamplingInfo(data: BHRGTData, t: TFunction): Array<HeaderItem> {
   const items: Array<HeaderItem> = [];
 
-  if (data.sampler_type) {
-    items.push({ label: t("samplerType"), value: data.sampler_type });
+  if (data.samplerType) {
+    items.push({ label: t("samplerType"), value: data.samplerType });
   }
-  if (data.sampling_procedure) {
+  if (data.samplingProcedure) {
     items.push({
       label: t("samplingProcedure"),
-      value: data.sampling_procedure,
+      value: data.samplingProcedure,
     });
   }
-  if (data.sampling_method) {
-    items.push({ label: t("samplingMethod"), value: data.sampling_method });
+  if (data.samplingMethod) {
+    items.push({ label: t("samplingMethod"), value: data.samplingMethod });
   }
-  if (data.sampling_quality) {
-    items.push({ label: t("samplingQuality"), value: data.sampling_quality });
+  if (data.samplingQuality) {
+    items.push({ label: t("samplingQuality"), value: data.samplingQuality });
   }
-  if (data.orientated_sampled !== null) {
+  if (data.orientatedSampled !== null) {
     items.push({
       label: t("orientatedSampled"),
-      value: data.orientated_sampled ? t("yes") : t("no"),
+      value: data.orientatedSampled ? t("yes") : t("no"),
     });
   }
-  if (data.continuously_sampled !== null) {
+  if (data.continuouslySampled !== null) {
     items.push({
       label: t("continuouslySampled"),
-      value: data.continuously_sampled ? t("yes") : t("no"),
+      value: data.continuouslySampled ? t("yes") : t("no"),
     });
   }
-  if (data.sample_container_diameter !== null) {
+  if (data.sampleContainerDiameter !== null) {
     items.push({
       label: t("sampleContainerDiameter"),
-      value: `${data.sample_container_diameter} mm`,
+      value: `${data.sampleContainerDiameter} mm`,
     });
   }
-  if (data.sample_container_length !== null) {
+  if (data.sampleContainerLength !== null) {
     items.push({
       label: t("sampleContainerLength"),
-      value: `${data.sample_container_length} mm`,
+      value: `${data.sampleContainerLength} mm`,
     });
   }
-  if (data.piston_present !== null) {
+  if (data.pistonPresent !== null) {
     items.push({
       label: t("pistonPresent"),
-      value: data.piston_present ? t("yes") : t("no"),
+      value: data.pistonPresent ? t("yes") : t("no"),
     });
   }
-  if (data.core_catcher_present !== null) {
+  if (data.coreCatcherPresent !== null) {
     items.push({
       label: t("coreCatcherPresent"),
-      value: data.core_catcher_present ? t("yes") : t("no"),
+      value: data.coreCatcherPresent ? t("yes") : t("no"),
     });
   }
-  if (data.stocking_used !== null) {
+  if (data.stockingUsed !== null) {
     items.push({
       label: t("stockingUsed"),
-      value: data.stocking_used ? t("yes") : t("no"),
+      value: data.stockingUsed ? t("yes") : t("no"),
     });
   }
-  if (data.lubrication_fluid_used !== null) {
+  if (data.lubricationFluidUsed !== null) {
     items.push({
       label: t("lubricationFluidUsed"),
-      value: data.lubrication_fluid_used ? t("yes") : t("no"),
+      value: data.lubricationFluidUsed ? t("yes") : t("no"),
     });
   }
-  if (data.right_angled_cutting_shoe !== null) {
+  if (data.rightAngledCuttingShoe !== null) {
     items.push({
       label: t("rightAngledCuttingShoe"),
-      value: data.right_angled_cutting_shoe ? t("yes") : t("no"),
+      value: data.rightAngledCuttingShoe ? t("yes") : t("no"),
     });
   }
-  if (data.cutting_shoe_inside_diameter !== null) {
+  if (data.cuttingShoeInsideDiameter !== null) {
     items.push({
       label: t("cuttingShoeInsideDiameter"),
-      value: `${data.cutting_shoe_inside_diameter} mm`,
+      value: `${data.cuttingShoeInsideDiameter} mm`,
     });
   }
-  if (data.cutting_shoe_outside_diameter !== null) {
+  if (data.cuttingShoeOutsideDiameter !== null) {
     items.push({
       label: t("cuttingShoeOutsideDiameter"),
-      value: `${data.cutting_shoe_outside_diameter} mm`,
+      value: `${data.cuttingShoeOutsideDiameter} mm`,
     });
   }
-  if (data.taper_angle !== null) {
+  if (data.taperAngle !== null) {
     items.push({
       label: t("taperAngle"),
-      value: `${data.taper_angle}°`,
+      value: `${data.taperAngle}°`,
     });
   }
 
@@ -237,37 +237,37 @@ function getSamplingInfo(data: BHRGTData, t: TFunction): Array<HeaderItem> {
 function getDescriptionInfo(data: BHRGTData, t: TFunction): Array<HeaderItem> {
   const items: Array<HeaderItem> = [];
 
-  if (data.description_quality) {
+  if (data.descriptionQuality) {
     items.push({
       label: t("descriptionQuality"),
-      value: data.description_quality,
+      value: data.descriptionQuality,
     });
   }
-  if (data.description_location) {
+  if (data.descriptionLocation) {
     items.push({
       label: t("descriptionLocation"),
-      value: data.description_location,
+      value: data.descriptionLocation,
     });
   }
-  if (data.description_report_date) {
+  if (data.descriptionReportDate) {
     items.push({
       label: t("descriptionReportDate"),
-      value: formatDate(data.description_report_date),
+      value: formatDate(data.descriptionReportDate),
     });
   }
-  if (data.described_material) {
+  if (data.describedMaterial) {
     items.push({
       label: t("describedMaterial"),
-      value: data.described_material,
+      value: data.describedMaterial,
     });
   }
-  if (data.sample_moistness) {
-    items.push({ label: t("sampleMoistness"), value: data.sample_moistness });
+  if (data.sampleMoistness) {
+    items.push({ label: t("sampleMoistness"), value: data.sampleMoistness });
   }
-  if (data.borehole_log_checked !== null) {
+  if (data.boreholeLogChecked !== null) {
     items.push({
       label: t("boreholeLogChecked"),
-      value: data.borehole_log_checked ? t("yes") : t("no"),
+      value: data.boreholeLogChecked ? t("yes") : t("no"),
     });
   }
 
@@ -277,22 +277,22 @@ function getDescriptionInfo(data: BHRGTData, t: TFunction): Array<HeaderItem> {
 function getSurveyContext(data: BHRGTData, t: TFunction): Array<HeaderItem> {
   const items: Array<HeaderItem> = [];
 
-  if (data.delivery_context) {
-    items.push({ label: t("deliveryContext"), value: data.delivery_context });
+  if (data.deliveryContext) {
+    items.push({ label: t("deliveryContext"), value: data.deliveryContext });
   }
-  if (data.survey_purpose) {
-    items.push({ label: t("surveyPurpose"), value: data.survey_purpose });
+  if (data.surveyPurpose) {
+    items.push({ label: t("surveyPurpose"), value: data.surveyPurpose });
   }
   if (data.discipline) {
     items.push({ label: t("discipline"), value: data.discipline });
   }
-  if (data.survey_procedure) {
-    items.push({ label: t("surveyProcedure"), value: data.survey_procedure });
+  if (data.surveyProcedure) {
+    items.push({ label: t("surveyProcedure"), value: data.surveyProcedure });
   }
-  if (data.site_characteristic_determined !== null) {
+  if (data.siteCharacteristicDetermined !== null) {
     items.push({
       label: t("siteCharacteristicDetermined"),
-      value: data.site_characteristic_determined ? t("yes") : t("no"),
+      value: data.siteCharacteristicDetermined ? t("yes") : t("no"),
     });
   }
 
@@ -302,28 +302,28 @@ function getSurveyContext(data: BHRGTData, t: TFunction): Array<HeaderItem> {
 function getIntervalData(data: BHRGTData, t: TFunction): Array<HeaderItem> {
   const items: Array<HeaderItem> = [];
 
-  if (data.bored_intervals.length > 0) {
+  if (data.boredIntervals.length > 0) {
     items.push({
       label: t("boredIntervals"),
-      value: data.bored_intervals.length,
+      value: data.boredIntervals.length,
     });
   }
-  if (data.sampled_intervals.length > 0) {
+  if (data.sampledIntervals.length > 0) {
     items.push({
       label: t("sampledIntervals"),
-      value: data.sampled_intervals.length,
+      value: data.sampledIntervals.length,
     });
   }
-  if (data.completed_intervals.length > 0) {
+  if (data.completedIntervals.length > 0) {
     items.push({
       label: t("completedIntervals"),
-      value: data.completed_intervals.length,
+      value: data.completedIntervals.length,
     });
   }
-  if (data.not_described_intervals.length > 0) {
+  if (data.notDescribedIntervals.length > 0) {
     items.push({
       label: t("notDescribedIntervals"),
-      value: data.not_described_intervals.length,
+      value: data.notDescribedIntervals.length,
     });
   }
 
@@ -333,8 +333,8 @@ function getIntervalData(data: BHRGTData, t: TFunction): Array<HeaderItem> {
 function getRegistrationInfo(data: BHRGTData, t: TFunction): Array<HeaderItem> {
   const items: Array<HeaderItem> = [];
 
-  if (data.registration_history) {
-    const history = data.registration_history;
+  if (data.registrationHistory) {
+    const history = data.registrationHistory;
     if (history.registrationStatus) {
       items.push({
         label: t("registrationStatus"),
@@ -367,8 +367,8 @@ function getRegistrationInfo(data: BHRGTData, t: TFunction): Array<HeaderItem> {
     }
   }
 
-  if (data.report_history) {
-    const report = data.report_history;
+  if (data.reportHistory) {
+    const report = data.reportHistory;
     if (report.reportStartDate) {
       items.push({
         label: t("reportStartDate"),

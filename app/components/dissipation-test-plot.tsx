@@ -108,13 +108,12 @@ function DissipationPlot({ plotId, test }: DissipationPlotProps) {
     const longData = test.measurements.flatMap((m) =>
       excludeZero && m.elapsedTime <= 0
         ? []
-        : availableSeries
-            .filter((series) => m[series.key] != null)
-            .map((series) => ({
-              elapsedTime: m.elapsedTime,
-              pressure: m[series.key] as number,
-              series: series.label,
-            })),
+        : availableSeries.flatMap((series) => {
+            const pressure = m[series.key];
+            return pressure == null
+              ? []
+              : [{ elapsedTime: m.elapsedTime, pressure, series: series.label }];
+          }),
     );
 
     const useColor = availableSeries.length > 1;

@@ -82,6 +82,8 @@ export default {
     cptMethod: "CPT Methode",
     stopCriterion: "Stopcriterium",
     predrilledDepth: "Voorboordiepte",
+    preExcavation: "Voorontgraving",
+    preExcavationDescription: "Materiaal verwijderd vóór het sonderen",
     dissipationTest: "Dissipatieproef",
     dissipationTests: "Dissipatieproeven",
     dissipationTestAtDepth: "Dissipatieproef op {{depth}} m",

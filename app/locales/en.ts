@@ -83,6 +83,9 @@ export default {
     cptMethod: "CPT Method",
     stopCriterion: "Stop Criterion",
     predrilledDepth: "Predrilled Depth",
+    preExcavation: "Pre-excavation",
+    preExcavationDescription:
+      "Material removed before cone penetration testing",
     dissipationTest: "Dissipation Test",
     dissipationTests: "Dissipation Tests",
     dissipationTestAtDepth: "Dissipation Test at {{depth}} m",

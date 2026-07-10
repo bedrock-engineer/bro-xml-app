@@ -6,15 +6,15 @@ import { downloadFile } from "./download";
  * Convert BRO data to JSON export format
  */
 function convertBroDataToJson(broData: BROData): Record<string, unknown> {
-  const location = broData.standardized_location ?? broData.delivered_location;
+  const location = broData.standardizedLocation ?? broData.deliveredLocation;
 
   // Build base structure
   const json: Record<string, unknown> = {
-    broId: broData.bro_id,
-    qualityRegime: broData.quality_regime,
+    broId: broData.broId,
+    qualityRegime: broData.qualityRegime,
     dataType: broData.meta.dataType,
     schemaVersion: broData.meta.schemaVersion,
-    reportDate: broData.research_report_date?.toISOString().split("T")[0] ?? null,
+    reportDate: broData.researchReportDate?.toISOString().split("T")[0] ?? null,
     metadata: {
       location: location
         ? {
@@ -23,17 +23,17 @@ function convertBroDataToJson(broData: BROData): Record<string, unknown> {
             y: location.y,
           }
         : null,
-      standardizedLocation: broData.standardized_location
+      standardizedLocation: broData.standardizedLocation
         ? {
-            epsg: broData.standardized_location.epsg,
-            x: broData.standardized_location.x,
-            y: broData.standardized_location.y,
+            epsg: broData.standardizedLocation.epsg,
+            x: broData.standardizedLocation.x,
+            y: broData.standardizedLocation.y,
           }
         : null,
       verticalPosition: {
-        offset: broData.delivered_vertical_position_offset,
-        datum: broData.delivered_vertical_position_datum,
-        referencePoint: broData.delivered_vertical_position_reference_point,
+        offset: broData.deliveredVerticalPositionOffset,
+        datum: broData.deliveredVerticalPositionDatum,
+        referencePoint: broData.deliveredVerticalPositionReferencePoint,
       },
     },
   };
@@ -41,42 +41,51 @@ function convertBroDataToJson(broData: BROData): Record<string, unknown> {
   if (isCPTData(broData)) {
     // CPT-specific fields
     json.cptMetadata = {
-      cptStandard: broData.cpt_standard,
-      qualityClass: broData.quality_class,
-      predrilledDepth: broData.predrilled_depth,
-      finalDepth: broData.final_depth,
-      groundwaterLevel: broData.groundwater_level,
-      dissipationtestPerformed: broData.dissipationtest_performed,
+      cptStandard: broData.cptStandard,
+      qualityClass: broData.qualityClass,
+      predrilledDepth: broData.predrilledDepth,
+      finalDepth: broData.finalDepth,
+      groundwaterLevel: broData.groundwaterLevel,
+      dissipationtestPerformed: broData.dissipationtestPerformed,
       equipment: {
-        description: broData.cpt_description,
-        type: broData.cpt_type,
-        coneSurfaceArea: broData.cone_surface_area,
-        coneDiameter: broData.cone_diameter,
-        coneSurfaceQuotient: broData.cone_surface_quotient,
-        coneToFrictionSleeveDistance: broData.cone_to_friction_sleeve_distance,
-        frictionSleeveSurfaceArea: broData.cone_to_friction_sleeve_surface_area,
-        frictionSleeveSurfaceQuotient: broData.cone_to_friction_sleeve_surface_quotient,
+        description: broData.cptDescription,
+        type: broData.cptType,
+        coneSurfaceArea: broData.coneSurfaceArea,
+        coneDiameter: broData.coneDiameter,
+        coneSurfaceQuotient: broData.coneSurfaceQuotient,
+        coneToFrictionSleeveDistance: broData.coneToFrictionSleeveDistance,
+        frictionSleeveSurfaceArea: broData.coneToFrictionSleeveSurfaceArea,
+        frictionSleeveSurfaceQuotient: broData.coneToFrictionSleeveSurfaceQuotient,
       },
       zeroLoadMeasurements: {
-        coneResistanceBefore: broData.zlm_cone_resistance_before,
-        coneResistanceAfter: broData.zlm_cone_resistance_after,
-        localFrictionBefore: broData.zlm_local_friction_before,
-        localFrictionAfter: broData.zlm_local_friction_after,
-        inclinationResultantBefore: broData.zlm_inclination_resultant_before,
-        inclinationResultantAfter: broData.zlm_inclination_resultant_after,
+        coneResistanceBefore: broData.zlmConeResistanceBefore,
+        coneResistanceAfter: broData.zlmConeResistanceAfter,
+        localFrictionBefore: broData.zlmLocalFrictionBefore,
+        localFrictionAfter: broData.zlmLocalFrictionAfter,
+        inclinationResultantBefore: broData.zlmInclinationResultantBefore,
+        inclinationResultantAfter: broData.zlmInclinationResultantAfter,
       },
     };
+
+    if (broData.removedLayers.length > 0) {
+      json.removedLayers = broData.removedLayers.map((layer) => ({
+        sequenceNumber: layer.sequenceNumber,
+        upperBoundary: layer.upperBoundary,
+        lowerBoundary: layer.lowerBoundary,
+        description: layer.description,
+      }));
+    }
 
     json.measurements = broData.data;
   } else if (isBHRGTData(broData)) {
     // BHR-GT specific fields
     json.boreMetadata = {
-      descriptionProcedure: broData.description_procedure,
-      finalBoreDepth: broData.final_bore_depth,
-      finalSampleDepth: broData.final_sample_depth,
-      groundwaterLevel: broData.groundwater_level,
-      boreRockReached: broData.bore_rock_reached,
-      boreHoleCompleted: broData.bore_hole_completed,
+      descriptionProcedure: broData.descriptionProcedure,
+      finalBoreDepth: broData.finalBoreDepth,
+      finalSampleDepth: broData.finalSampleDepth,
+      groundwaterLevel: broData.groundwaterLevel,
+      boreRockReached: broData.boreRockReached,
+      boreHoleCompleted: broData.boreHoleCompleted,
     };
 
     json.layers = broData.data.map((layer) => ({
@@ -113,11 +122,11 @@ function convertBroDataToJson(broData: BROData): Record<string, unknown> {
   } else if (isBHRGData(broData)) {
     // BHR-G specific fields
     json.boreMetadata = {
-      descriptionProcedure: broData.description_procedure,
-      finalBoreDepth: broData.final_bore_depth,
-      finalSampleDepth: broData.final_sample_depth,
-      boreRockReached: broData.bore_rock_reached,
-      boreHoleCompleted: broData.bore_hole_completed,
+      descriptionProcedure: broData.descriptionProcedure,
+      finalBoreDepth: broData.finalBoreDepth,
+      finalSampleDepth: broData.finalSampleDepth,
+      boreRockReached: broData.boreRockReached,
+      boreHoleCompleted: broData.boreHoleCompleted,
     };
 
     json.layers = broData.data.map((layer) => ({

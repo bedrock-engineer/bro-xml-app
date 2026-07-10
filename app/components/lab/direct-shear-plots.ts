@@ -57,7 +57,7 @@ export function hasHeightChangeData(
   tests: Array<DirectShearDetermination>,
 ): boolean {
   return tests.some((test) =>
-    test.shearStage?.shearStressChangeDuringHorizontalDeformation?.some(
+    test.shearStage?.shearStressChangeDuringHorizontalDeformation.some(
       (p) => p.heightChange != null,
     ),
   );

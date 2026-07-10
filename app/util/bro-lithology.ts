@@ -319,9 +319,15 @@ const LEGEND_META = new Map(LEGEND_ORDER.map((entry) => [entry.key, entry]));
 export function collectSoilLegend(
   layers: Array<BHRGTLayer>,
 ): Array<SoilLegendEntry> {
+  return legendFromBands(buildSoilBands(layers));
+}
+
+/** Legend entries for a set of bands: known buckets in canonical order, extras
+ *  (legendKey "other:<label>") appended alphabetically in their band colour. */
+function legendFromBands(bands: Array<SoilBand>): Array<SoilLegendEntry> {
   // Record the first band seen per legend bucket (for the extras' colour).
   const present = new Map<string, SoilBand>();
-  for (const band of buildSoilBands(layers)) {
+  for (const band of bands) {
     if (!present.has(band.legendKey)) {
       present.set(band.legendKey, band);
     }
@@ -346,4 +352,83 @@ export function collectSoilLegend(
     });
   }
   return entries;
+}
+
+// === Removed layers (voorontgraving) =======================================
+
+/** Minimal shape of a free-text-described layer (CPT `removedLayers`). */
+export interface DescribedLayer {
+  upperBoundary: number;
+  lowerBoundary: number;
+  description: string | null;
+}
+
+// Dutch base-soil keywords. The earliest keyword in the text decides the main
+// soil, so "klei, zwak zandig" is clay while "zand, kleiig" is sand.
+const SOIL_KEYWORDS: Array<{ keyword: string; soil: keyof typeof COLOR }> = [
+  { keyword: "veen", soil: "veen" },
+  { keyword: "klei", soil: "klei" },
+  { keyword: "leem", soil: "leem" },
+  { keyword: "silt", soil: "silt" },
+  { keyword: "zand", soil: "zand" },
+  { keyword: "grind", soil: "grind" },
+];
+
+function matchBaseLithology(description: string): keyof typeof COLOR | null {
+  const text = description.toLowerCase();
+  let match: keyof typeof COLOR | null = null;
+  let matchIndex = Number.POSITIVE_INFINITY;
+  for (const { keyword, soil } of SOIL_KEYWORDS) {
+    const index = text.indexOf(keyword);
+    if (index !== -1 && index < matchIndex) {
+      match = soil;
+      matchIndex = index;
+    }
+  }
+  return match;
+}
+
+/**
+ * Bands for free-text-described layers. Unlike GEF pre-excavation layers,
+ * BRO removed layers carry no derived soil code, so the base lithology is
+ * matched from the Dutch description. Descriptions naming a recognisable soil
+ * get that lithology's colour + hatch; other materials (tegel, asfalt, puin…)
+ * get a plain grey band with their raw description as legend label.
+ */
+export function buildRemovedLayerBands(
+  layers: Array<DescribedLayer>,
+): Array<SoilBand> {
+  return layers.map((layer) => {
+    const soil = layer.description
+      ? matchBaseLithology(layer.description)
+      : null;
+    const y1 = layer.upperBoundary;
+    const y2 = layer.lowerBoundary;
+    if (!soil) {
+      return {
+        x1: 0,
+        x2: 1,
+        y1,
+        y2,
+        color: DEFAULT_LAYER_COLOR,
+        legendKey: `other:${layer.description ?? "?"}`,
+      };
+    }
+    return {
+      x1: 0,
+      x2: 1,
+      y1,
+      y2,
+      color: COLOR[soil],
+      hatchId: HATCH_SHAPE[soil] ? hatchPatternId(soil) : undefined,
+      legendKey: soil,
+    };
+  });
+}
+
+/** Legend entries for the soils/materials present in the removed layers. */
+export function collectRemovedLayerLegend(
+  layers: Array<DescribedLayer>,
+): Array<SoilLegendEntry> {
+  return legendFromBands(buildRemovedLayerBands(layers));
 }

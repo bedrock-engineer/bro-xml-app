@@ -29,6 +29,7 @@ import { Card } from "./card";
 import { CompactCptHeader, DetailedCptHeaders } from "./cpt-header-items";
 import { CptPlots } from "./cpt-plot";
 import { DissipationTestPlots } from "./dissipation-test-plot";
+import { RemovedLayersPlot } from "./removed-layers-plot";
 import { DownloadGeoJSONButton } from "./download-geojson-button";
 import { FileTable } from "./file-table";
 import { InstallInstructions } from "./install-instructions";
@@ -386,9 +387,16 @@ export function App() {
                   />
                 )}
 
-                {selectedFile.dissipation_tests?.length > 0 && (
+                {selectedFile.removedLayers.length > 0 && (
+                  <RemovedLayersPlot
+                    layers={selectedFile.removedLayers}
+                    baseFilename={selectedFileName.replace(/\.xml$/i, "")}
+                  />
+                )}
+
+                {selectedFile.dissipationTests.length > 0 && (
                   <DissipationTestPlots
-                    tests={selectedFile.dissipation_tests}
+                    tests={selectedFile.dissipationTests}
                     baseFilename={selectedFileName.replace(/\.xml$/i, "")}
                   />
                 )}
@@ -407,8 +415,8 @@ export function App() {
                   layers={selectedFile.data}
                   baseFilename={selectedFileName.replace(/\.xml$/i, "")}
                   analysis={selectedFile.analysis}
-                  groundwaterLevel={selectedFile.groundwater_level}
-                  surfaceNap={selectedFile.delivered_vertical_position_offset}
+                  groundwaterLevel={selectedFile.groundwaterLevel}
+                  surfaceNap={selectedFile.deliveredVerticalPositionOffset}
                 />
                 {selectedFile.analysis && (
                   <LaboratoryAnalysis

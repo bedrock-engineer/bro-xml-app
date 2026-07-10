@@ -69,9 +69,9 @@ export function FileTable({
 
   const rows: Array<FileRow> = useMemo(() => {
     return Object.entries(broData).map(([filename, data]) => {
-      const reportDate = data.research_report_date;
+      const reportDate = data.researchReportDate;
       const finalDepth = getFinalDepth(data);
-      const qualityRegime = data.quality_regime ?? "IMBRO/A";
+      const qualityRegime = data.qualityRegime ?? "IMBRO/A";
 
       return {
         id: filename,

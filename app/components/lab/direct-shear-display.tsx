@@ -28,7 +28,7 @@ export function DirectShearDisplay({
 
   const testsWithData = tests.filter(
     (test) =>
-      test.shearStage?.shearStressChangeDuringHorizontalDeformation?.length,
+      test.shearStage?.shearStressChangeDuringHorizontalDeformation.length,
   );
 
   return (
@@ -95,7 +95,7 @@ export function DirectShearDisplay({
             {testsWithData.map((test, index) => {
               const firstPoint =
                 test.shearStage
-                  ?.shearStressChangeDuringHorizontalDeformation?.[0];
+                  ?.shearStressChangeDuringHorizontalDeformation[0];
               return (
                 <div key={index} className="flex items-center gap-2">
                   <div
@@ -180,7 +180,7 @@ export function DirectShearDisplay({
                 </>
               )}
               {test.shearStage?.shearStressChangeDuringHorizontalDeformation
-                ?.length != null && (
+                .length != null && (
                 <>
                   <dt className="text-gray-500">{t("dataPoints")}</dt>
                   <dd>

@@ -23,11 +23,8 @@ import {
   type SampleLine,
   type TranslateFunction,
 } from "./bhr-gt-plot-render";
-import {
-  collectSoilLegend,
-  patternMarkup,
-  type SoilLegendEntry,
-} from "../util/bro-lithology";
+import { collectSoilLegend } from "../util/bro-lithology";
+import { SoilLegend } from "./soil-legend";
 
 const id = "boreplot";
 
@@ -202,26 +199,8 @@ export function BHRGTPlot({
       </div>
 
       {/* Soil type legend */}
-      {legendSoils.length > 0 && (
-        <div className="mt-4">
-          <h4 className="text-sm font-medium text-gray-700 mb-2">
-            {t("soilTypes")}
-          </h4>
-          <div className="flex flex-wrap gap-3 text-xs">
-            {legendSoils.map((soil) => (
-              <SoilLegendItem
-                key={soil.key}
-                entry={soil}
-                label={
-                  soil.i18nKey
-                    ? (t as TranslateFunction)(soil.i18nKey)
-                    : (soil.rawLabel ?? "")
-                }
-              />
-            ))}
-          </div>
-        </div>
-      )}
+      <SoilLegend soils={legendSoils} idPrefix="boreplot-legend" />
+
 
       {/* Lab test sample legend */}
       {sampleLines.length > 0 && (
@@ -245,37 +224,5 @@ export function BHRGTPlot({
 
       <PlotDownloadButtons plotId={id} filename={`${baseFilename}-boorstaat`} />
     </Card>
-  );
-}
-
-// Soil legend swatch: solid colour with the soil's hatch overlaid, mirroring
-// the bands in the plot so colour + texture stay in sync.
-function SoilLegendItem({
-  entry,
-  label,
-}: {
-  entry: SoilLegendEntry;
-  label: string;
-}) {
-  const patternId = `legend-hatch-${entry.key}`;
-  const hatch = entry.hatchSoil
-    ? patternMarkup(entry.hatchSoil, patternId)
-    : "";
-  return (
-    <div className="flex items-center gap-1">
-      <svg
-        width="16"
-        height="16"
-        className="border border-gray-300 block flex-shrink-0"
-        aria-hidden="true"
-      >
-        {hatch && <defs dangerouslySetInnerHTML={{ __html: hatch }} />}
-        <rect width="16" height="16" fill={entry.color} />
-        {hatch && (
-          <rect width="16" height="16" fill={`url(#${patternId})`} />
-        )}
-      </svg>
-      <span className="text-gray-600">{label}</span>
-    </div>
   );
 }

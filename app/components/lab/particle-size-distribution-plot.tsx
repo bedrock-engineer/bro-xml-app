@@ -39,7 +39,7 @@ export function ParticleSizeDistributionPlot({
         {data.fractionSmaller63um !== null && (
           <p>
             {t("finesFraction")} (&lt;63μm):{" "}
-            {data.fractionSmaller63um?.toFixed(1)}%
+            {data.fractionSmaller63um.toFixed(1)}%
           </p>
         )}
       </div>

@@ -1,5 +1,5 @@
 import { useTranslation } from "react-i18next";
-import { Link, redirect, useFetcher } from "react-router";
+import { Link, redirect, useFetcher, useSearchParams } from "react-router";
 import { Button, TextArea, Label, Input } from "react-aria-components";
 import type { Route } from "./+types/feedback";
 import { Card } from "../components/card";
@@ -59,9 +59,10 @@ export async function action({ request, context }: Route.ActionArgs) {
 export default function FeedbackPage() {
   const { t } = useTranslation();
   const fetcher = useFetcher();
+  const [searchParams] = useSearchParams();
 
   // Check for success in URL
-  const isSuccess = globalThis.window !== "undefined" && new URLSearchParams(globalThis.window.location.search).get("success") === "true";
+  const isSuccess = searchParams.get("success") === "true";
 
   if (isSuccess) {
     return (

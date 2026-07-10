@@ -11,7 +11,7 @@ function createGeoJSON(broData: Record<string, BROData>): FeatureCollection {
   const features: Array<Feature> = [];
 
   for (const [filename, data] of Object.entries(broData)) {
-    const location = data.standardized_location ?? data.delivered_location;
+    const location = data.standardizedLocation ?? data.deliveredLocation;
     if (!location) {
       continue;
     }
@@ -30,13 +30,13 @@ function createGeoJSON(broData: Record<string, BROData>): FeatureCollection {
       },
       properties: {
         filename,
-        broId: data.bro_id,
+        broId: data.broId,
         fileType: data.meta.dataType,
-        qualityRegime: data.quality_regime,
+        qualityRegime: data.qualityRegime,
         reportDate:
-          data.research_report_date?.toISOString().split("T")[0] ?? null,
-        surfaceElevation: data.delivered_vertical_position_offset,
-        verticalDatum: data.delivered_vertical_position_datum,
+          data.researchReportDate?.toISOString().split("T")[0] ?? null,
+        surfaceElevation: data.deliveredVerticalPositionOffset,
+        verticalDatum: data.deliveredVerticalPositionDatum,
         coordinateSystem: location.epsg,
         easting: location.x,
         northing: location.y,

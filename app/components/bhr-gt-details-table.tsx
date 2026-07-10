@@ -1,9 +1,7 @@
 import type { BHRGTLayer } from "@bedrock-engineer/bro-xml-parser";
 import { max, min } from "d3-array";
 import { useTranslation } from "react-i18next";
-import {
-  sandMedianRange
-} from "../util/grain-size";
+import { sandMedianRange } from "../util/grain-size";
 import { makeDepthToPixel } from "../util/plot-config";
 import {
   getLayerAttributes,
@@ -30,18 +28,6 @@ const ROW_MIN_HEIGHT = 28;
  */
 export type DetailsTableLayout = "scaled" | "rows";
 
-interface BhrgtDetailsTableProps {
-  layers: Array<BHRGTLayer>;
-  /** Must match the height passed to buildBhrgtPlot so rows align with the SVG. */
-  height: number;
-  /** Surface elevation (m NAP); enables the NAP depth labels when napMode is on. */
-  surfaceNap?: number | null;
-  /** Show depths as m NAP elevation rather than m below surface. */
-  napMode?: boolean;
-  /** Body layout: depth-scaled (aligned to chart) or uniform rows. */
-  layout?: DetailsTableLayout;
-}
-
 // Fixed left columns (depth + soil name) followed by one column per present
 // property. Widths are explicit px so the header and every depth-positioned
 // row share the same template and their columns line up.
@@ -54,9 +40,20 @@ export const GRAIN_COL = 120;
 /** The one property column rendered as a chart rather than text. */
 const GRAIN_KEY = "sandMedian";
 
-
 function columnWidth(key: string): number {
   return key === GRAIN_KEY ? GRAIN_COL : PROP_COL;
+}
+
+interface BhrgtDetailsTableProps {
+  layers: Array<BHRGTLayer>;
+  /** Must match the height passed to buildBhrgtPlot so rows align with the SVG. */
+  height: number;
+  /** Surface elevation (m NAP); enables the NAP depth labels when napMode is on. */
+  surfaceNap?: number | null;
+  /** Show depths as m NAP elevation rather than m below surface. */
+  napMode?: boolean;
+  /** Body layout: depth-scaled (aligned to chart) or uniform rows. */
+  layout?: DetailsTableLayout;
 }
 
 /**
@@ -98,7 +95,7 @@ export function BhrgtDetailsTable({
     }
     return { layer, byKey };
   });
-  
+
   const present = new Set(rows.flatMap(({ byKey }) => [...byKey.keys()]));
   const columns = LAYER_ATTRIBUTE_KEYS.filter((key) => present.has(key));
 
@@ -230,6 +227,7 @@ export function BhrgtDetailsTable({
           {rows.map(({ layer, byKey }) => {
             const top = toPixel(layer.upperBoundary);
             const rowHeight = toPixel(layer.lowerBoundary) - top;
+
             return (
               <div
                 key={`${layer.upperBoundary}-${layer.lowerBoundary}`}

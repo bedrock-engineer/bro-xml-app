@@ -74,8 +74,10 @@ export interface FailureEnvelope {
 
 /**
  * Fit the Mohr-Coulomb failure envelope τ = c + σ·tan(φ) to the peak points by
- * ordinary least squares. Returns zeroed parameters for a degenerate fit
- * (fewer than two distinct normal stresses).
+ * ordinary least squares. A negative cohesion intercept is physically
+ * meaningless, so such fits are redone through the origin (c = 0). Returns
+ * zeroed parameters for a degenerate fit (fewer than two distinct normal
+ * stresses).
  */
 export function fitFailureEnvelope(
   peakData: Array<PeakData>,
@@ -90,8 +92,14 @@ export function fitFailureEnvelope(
   const sumX2 = peakData.reduce((s, d) => s + d.normalStress * d.normalStress, 0);
 
   const denom = n * sumX2 - sumX * sumX;
-  const cohesion = denom === 0 ? 0 : (sumY * sumX2 - sumX * sumXY) / denom;
-  const tanPhi = denom === 0 ? 0 : (n * sumXY - sumX * sumY) / denom;
+  let cohesion = denom === 0 ? 0 : (sumY * sumX2 - sumX * sumXY) / denom;
+  let tanPhi = denom === 0 ? 0 : (n * sumXY - sumX * sumY) / denom;
+
+  if (cohesion < 0 && sumX2 > 0) {
+    cohesion = 0;
+    tanPhi = sumXY / sumX2;
+  }
+
   const phi = (Math.atan(tanPhi) * 180) / Math.PI;
 
   return { cohesion, tanPhi, phi };
@@ -156,11 +164,11 @@ export function buildStressDisplacementPlot(
     },
     marks: [
       Plot.frame(),
-      ...testGroups.map((group, index) =>
+      ...testGroups.map((group) =>
         Plot.line(group, {
           x: "displacement",
           y: "stress",
-          stroke: CHART_COLORS[index % CHART_COLORS.length],
+          stroke: CHART_COLORS[(group[0]?.testIndex ?? 0) % CHART_COLORS.length],
           strokeWidth: 2,
         }),
       ),
@@ -173,9 +181,17 @@ export function buildStressDisplacementPlot(
   });
 }
 
+const ENVELOPE_PLOT_WIDTH = 500;
+const ENVELOPE_PLOT_HEIGHT = 350;
+// Fixed margins so the data area's aspect ratio is known exactly — required
+// for the equal-scaling domain math (Plot's implicit margins would skew it)
+const ENVELOPE_PLOT_MARGINS = { left: 40, right: 20, top: 20, bottom: 30 };
+
 /**
  * Build the failure envelope (τf vs σn) with the fitted Mohr-Coulomb line and a
- * c/φ annotation. Returns null with fewer than two peak points.
+ * c/φ annotation. The axis domains share one kPa-per-pixel scale so the slope
+ * of the drawn line reads as the true friction angle. Returns null with fewer
+ * than two peak points.
  */
 export function buildFailureEnvelopePlot(
   peakData: Array<PeakData>,
@@ -186,7 +202,30 @@ export function buildFailureEnvelopePlot(
   }
 
   const { cohesion, tanPhi, phi } = fitFailureEnvelope(peakData);
-  const maxSigma = Math.max(...peakData.map((d) => d.normalStress)) * 1.2;
+  // Suppress the fitted line when all tests share one normal stress — the
+  // degenerate fit would draw a misleading τ = 0 envelope
+  const distinctStresses = new Set(peakData.map((d) => d.normalStress));
+  const showEnvelope = distinctStresses.size >= 2;
+
+  const plotAspect =
+    (ENVELOPE_PLOT_HEIGHT -
+      ENVELOPE_PLOT_MARGINS.top -
+      ENVELOPE_PLOT_MARGINS.bottom) /
+    (ENVELOPE_PLOT_WIDTH -
+      ENVELOPE_PLOT_MARGINS.left -
+      ENVELOPE_PLOT_MARGINS.right);
+  const dataMaxSigma = Math.max(...peakData.map((d) => d.normalStress)) * 1.2;
+  const dataMaxTau = Math.max(...peakData.map((d) => d.peakShearStress)) * 1.15;
+
+  let maxSigma: number;
+  let maxTau: number;
+  if (dataMaxTau <= dataMaxSigma * plotAspect) {
+    maxSigma = dataMaxSigma;
+    maxTau = dataMaxSigma * plotAspect;
+  } else {
+    maxTau = dataMaxTau;
+    maxSigma = dataMaxTau / plotAspect;
+  }
 
   const lineData = [
     { x: 0, y: cohesion },
@@ -194,8 +233,12 @@ export function buildFailureEnvelopePlot(
   ];
 
   return Plot.plot({
-    width: 500,
-    height: 350,
+    width: ENVELOPE_PLOT_WIDTH,
+    height: ENVELOPE_PLOT_HEIGHT,
+    marginLeft: ENVELOPE_PLOT_MARGINS.left,
+    marginRight: ENVELOPE_PLOT_MARGINS.right,
+    marginTop: ENVELOPE_PLOT_MARGINS.top,
+    marginBottom: ENVELOPE_PLOT_MARGINS.bottom,
     style: { backgroundColor: "white" },
     x: {
       label: t("normalStressAxisLabel"),
@@ -204,18 +247,24 @@ export function buildFailureEnvelopePlot(
     },
     y: {
       label: t("peakShearStressAxisLabel"),
+      domain: [0, maxTau],
       grid: true,
     },
     marks: [
       Plot.frame(),
       // Regression line
-      Plot.line(lineData, {
-        x: "x",
-        y: "y",
-        stroke: "#6b7280",
-        strokeWidth: 1.5,
-        strokeDasharray: "6,3",
-      }),
+      ...(showEnvelope
+        ? [
+            Plot.line(lineData, {
+              x: "x",
+              y: "y",
+              stroke: "#6b7280",
+              strokeWidth: 1.5,
+              strokeDasharray: "6,3",
+              clip: true,
+            }),
+          ]
+        : []),
       // Data points
       Plot.dot(peakData, {
         x: "normalStress",
@@ -227,14 +276,21 @@ export function buildFailureEnvelopePlot(
           `σn = ${d.normalStress.toFixed(1)} kPa\nτf = ${d.peakShearStress.toFixed(1)} kPa`,
       }),
       // c and φ label
-      Plot.text([`c = ${cohesion.toFixed(1)} kPa, φ = ${phi.toFixed(1)}°`], {
-        frameAnchor: "top-left",
-        dx: 10,
-        dy: 10,
-        fill: "#374151",
-        fontSize: 11,
-        fontWeight: "bold",
-      }),
+      ...(showEnvelope
+        ? [
+            Plot.text(
+              [`c = ${cohesion.toFixed(1)} kPa, φ = ${phi.toFixed(1)}°`],
+              {
+                frameAnchor: "top-left",
+                dx: 10,
+                dy: 10,
+                fill: "#374151",
+                fontSize: 11,
+                fontWeight: "bold",
+              },
+            ),
+          ]
+        : []),
       createWatermarkMark(t("madeWithBedrockBroViewer"), {
         frameAnchor: "top-right",
         dx: -5,
@@ -295,11 +351,11 @@ export function buildHeightChangePlot(
     },
     marks: [
       Plot.frame(),
-      ...testGroups.map((group, index) =>
+      ...testGroups.map((group) =>
         Plot.line(group, {
           x: "displacement",
           y: "heightChange",
-          stroke: CHART_COLORS[index % CHART_COLORS.length],
+          stroke: CHART_COLORS[(group[0]?.testIndex ?? 0) % CHART_COLORS.length],
           strokeWidth: 1,
         }),
       ),

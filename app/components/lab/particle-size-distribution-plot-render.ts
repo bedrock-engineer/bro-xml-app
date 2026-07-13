@@ -29,7 +29,8 @@ const FRACTIONS: Array<{
   { size: 2000, field: "fraction1400umto2mm" },
   { size: 4000, field: "fraction2to4mm" },
   { size: 8000, field: "fraction4to8mm" },
-  { size: 16_000, field: "fraction16to31_5mm" },
+  { size: 16_000, field: "fraction8to16mm" },
+  { size: 31_500, field: "fraction16to31_5mm" },
   { size: 63_000, field: "fraction31_5to63mm" },
 ];
 
@@ -96,22 +97,30 @@ export function buildParticleSizeDistributionPlot(
       Plot.ruleX([2], { stroke: "#ddd", strokeDasharray: "4,4" }),
       Plot.ruleX([63], { stroke: "#ddd", strokeDasharray: "4,4" }),
       Plot.ruleX([2000], { stroke: "#ddd", strokeDasharray: "4,4" }),
-      // Labels for soil types
-      Plot.text([{ x: 10, y: 95, text: t("clay") }], {
+      // Labels for soil fractions (ISO 14688: clay < 2 μm, silt 2-63 μm,
+      // sand 63-2000 μm, gravel 2-63 mm), at each band's geometric center
+      Plot.text([{ x: 1.4, y: 95, text: t("clay") }], {
         x: "x",
         y: "y",
         text: "text",
         fontSize: 10,
         fill: "gray",
       }),
-      Plot.text([{ x: 200, y: 95, text: t("sand") }], {
+      Plot.text([{ x: 11, y: 95, text: t("siltSoil") }], {
         x: "x",
         y: "y",
         text: "text",
         fontSize: 10,
         fill: "gray",
       }),
-      Plot.text([{ x: 10_000, y: 95, text: t("gravel") }], {
+      Plot.text([{ x: 355, y: 95, text: t("sand") }], {
+        x: "x",
+        y: "y",
+        text: "text",
+        fontSize: 10,
+        fill: "gray",
+      }),
+      Plot.text([{ x: 11_000, y: 95, text: t("gravel") }], {
         x: "x",
         y: "y",
         text: "text",

@@ -51,11 +51,6 @@ export function buildConsistencyLimitsPlot(
       ),
       // Vertical separator at LL=50 (low/high plasticity boundary)
       Plot.ruleX([50]),
-      // Reference line PI = LL
-      Plot.line([
-        [0, 0],
-        [60, 60],
-      ]),
       // A-line
       Plot.line([
         [4, 4],
@@ -63,6 +58,38 @@ export function buildConsistencyLimitsPlot(
         [25.5, aLine(25.5)],
         [102, aLine(102)],
       ]),
+      // Line labels
+      Plot.text([{ x: 95, y: aLine(95) - 3, text: t("aLineLabel") }], {
+        x: "x",
+        y: "y",
+        text: "text",
+        fontSize: 10,
+        fill: "gray",
+      }),
+      Plot.text([{ x: 62, y: uLine(62) + 5, text: t("uLineLabel") }], {
+        x: "x",
+        y: "y",
+        text: "text",
+        fontSize: 10,
+        fill: "lightgrey",
+      }),
+      // Classification zone labels per ASTM D2487 Fig. 4: clays (C) above the
+      // A-line, silts (M) below; organic soils (O) can plot in either zone
+      Plot.text(
+        [
+          { x: 37, y: 20, text: "CL or OL" },
+          { x: 72, y: 46, text: "CH or OH" },
+          { x: 43, y: 7, text: "ML or OL" },
+          { x: 82, y: 22, text: "MH or OH" },
+        ],
+        {
+          x: "x",
+          y: "y",
+          text: "text",
+          fontSize: 10,
+          fill: "gray",
+        },
+      ),
       // Data point
       Plot.dot([data], {
         x: "liquidLimit",

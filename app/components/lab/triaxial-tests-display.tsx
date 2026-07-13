@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next";
 import { CHART_COLORS, type TranslateFunction } from "../../util/plot-config";
 import { PlotFigure } from "../plot-figure";
 import {
+  buildPorePressureStrainPlot,
   buildTriaxialMohrCirclesPlot,
   buildTriaxialStressStrainPlot,
   computeMohrCircles,
@@ -23,6 +24,12 @@ export function TriaxialTestsDisplay({
 
   const testsWithData = tests.filter(
     (test) => test.loadStage?.shearStressChangeDuringLoading.length
+  );
+
+  const hasPorePressureData = testsWithData.some((test) =>
+    test.loadStage?.shearStressChangeDuringLoading.some(
+      (p) => p.porePressure != null,
+    ),
   );
 
   return (
@@ -71,6 +78,23 @@ export function TriaxialTestsDisplay({
                 />
               </div>
             )}
+
+            {/* Pore pressure chart (undrained tests) */}
+            {hasPorePressureData && (
+              <div>
+                <h5 className="text-sm font-medium mb-2 text-center">
+                  Pore Pressure
+                </h5>
+
+                <PlotFigure
+                  render={() =>
+                    buildPorePressureStrainPlot(tests, t as TranslateFunction)
+                  }
+                  deps={[tests, t]}
+                  filename={`${baseFilename}-pore-pressure`}
+                />
+              </div>
+            )}
           </div>
 
           {/* Legend */}
@@ -78,12 +102,14 @@ export function TriaxialTestsDisplay({
             {testsWithData.map((test, index) => {
               const cellPressure = test.loadStage?.shearStressChangeDuringLoading[0]
                 ?.cellPressure;
+              const originalIndex = tests.indexOf(test);
               return (
                 <div key={index} className="flex items-center gap-2">
                   <div
                     className="w-4 h-0.5"
                     style={{
-                      backgroundColor: CHART_COLORS[index % CHART_COLORS.length],
+                      backgroundColor:
+                        CHART_COLORS[originalIndex % CHART_COLORS.length],
                     }}
                   ></div>
                   <span>
@@ -101,7 +127,9 @@ export function TriaxialTestsDisplay({
 
       {/* Test details */}
       <div className="mt-4 space-y-3">
-        {tests.map((test, index) => (
+        {tests.map((test, index) => {
+          const circle = mohrCircles.find((c) => c.testIndex === index);
+          return (
           <div key={index} className="p-3 bg-gray-50 rounded text-sm">
             <div className="flex items-center gap-2 mb-2">
               <div
@@ -131,12 +159,11 @@ export function TriaxialTestsDisplay({
                   <dd>{test.beginHeight} mm</dd>
                 </>
               )}
-              {mohrCircles[index] && (
+              {circle && (
                 <>
                   <dt className="text-gray-500">σ₃ / σ₁</dt>
                   <dd>
-                    {mohrCircles[index].sigma3} / {mohrCircles[index].sigma1.toFixed(0)}{" "}
-                    kPa
+                    {circle.sigma3} / {circle.sigma1.toFixed(0)} kPa
                   </dd>
                 </>
               )}
@@ -151,7 +178,8 @@ export function TriaxialTestsDisplay({
                 )}
             </dl>
           </div>
-        ))}
+          );
+        })}
       </div>
     </div>
   );

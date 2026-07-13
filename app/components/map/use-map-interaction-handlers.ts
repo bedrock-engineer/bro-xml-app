@@ -10,7 +10,7 @@ import {
   pointLayerId,
 } from "./map-style.client";
 
-export interface MapInteractionHandlers {
+interface MapInteractionHandlers {
   onMarkerClick: (filename: string) => void;
   onPickLocation: (broId: string, layer: BROLocationLayer) => void;
 }

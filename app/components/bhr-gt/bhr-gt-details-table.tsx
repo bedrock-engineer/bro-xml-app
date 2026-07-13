@@ -35,7 +35,7 @@ const DEPTH_COL = 44;
 const SOIL_COL = 96;
 const PROP_COL = 84;
 // The sand-median column is a grain-size sparkline, so it needs more room.
-export const GRAIN_COL = 120;
+const GRAIN_COL = 120;
 
 /** The one property column rendered as a chart rather than text. */
 const GRAIN_KEY = "sandMedian";

@@ -36,7 +36,7 @@ const searchMarkerColor = "#0d9488"; // teal, distinct from point colors
 const kadasterAttribution =
   'Kaartgegevens &copy; <a href="https://www.kadaster.nl/">Kadaster</a>';
 
-export interface BasemapDefinition {
+interface BasemapDefinition {
   id: string;
   labelKey: "mapBasemapTopo" | "mapBasemapAerial" | "mapBasemapOsm";
   tiles: string;

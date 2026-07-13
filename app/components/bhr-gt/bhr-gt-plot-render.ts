@@ -50,7 +50,7 @@ export interface SampleLine {
   intervalIndex: number;
 }
 
-export interface BuildBhrgtPlotOptions {
+interface BuildBhrgtPlotOptions {
   layers: Array<BHRGTLayer>;
   sampleLines: Array<SampleLine>;
   /** Groundwater depth during drilling (m below surface) */
@@ -106,7 +106,7 @@ export function buildBhrgtPlot({
 
   // Split each layer into proportional soil-composition bands (main soil +
   // admixtures), coloured by soil type with a hatch overlay per band.
-  const soilBands = buildSoilBands(layers);
+  const soilBands = buildSoilBands(layers, (l) => l.geotechnicalSoilName);
   const hatchedBands = soilBands.filter((b) => b.hatchId);
 
   const plot = Plot.plot({
@@ -240,7 +240,7 @@ export function buildBhrgtPlot({
 }
 
 /** A labelled per-layer attribute, ready for the tooltip or the details table. */
-export interface LayerAttribute {
+interface LayerAttribute {
   /** Stable identifier (also the i18n key) — used to pivot attributes into
    *  the details-table columns. */
   key: string;

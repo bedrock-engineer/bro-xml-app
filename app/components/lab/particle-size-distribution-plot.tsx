@@ -6,7 +6,7 @@ import { PlotDownloadButtons } from "../plot-download-buttons";
 import { PlotFigure } from "../plot-figure";
 import { buildParticleSizeDistributionPlot } from "./particle-size-distribution-plot-render";
 
-export interface ParticleSizeDistributionPlotProps {
+interface ParticleSizeDistributionPlotProps {
   data: ParticleSizeDistributionDetermination;
   baseFilename: string;
 }

@@ -6,7 +6,7 @@ import {
   type TranslateFunction,
 } from "../../util/plot-config";
 
-export interface MohrCircleData {
+interface MohrCircleData {
   sigma3: number; // confining pressure
   sigma1: number; // major principal stress at failure
   /** Pore pressure at peak deviator stress (undrained tests), for σ' = σ - u */
@@ -54,7 +54,7 @@ export function computeMohrCircles(
     .filter((c): c is MohrCircleData => c !== null);
 }
 
-export interface MohrEnvelope {
+interface MohrEnvelope {
   /** Cohesion intercept c (kPa) */
   cohesion: number;
   /** Friction angle φ (degrees) */
@@ -73,7 +73,7 @@ export interface MohrEnvelope {
  * through the origin. Returns null when there are fewer than two circles or
  * the fit is degenerate (slope outside (0, 1)).
  */
-export function fitMohrEnvelope(
+function fitMohrEnvelope(
   mohrCircles: Array<MohrCircleData>,
 ): MohrEnvelope | null {
   if (mohrCircles.length < 2) {

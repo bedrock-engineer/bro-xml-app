@@ -9,25 +9,37 @@
  * visual channel beyond colour. Widths follow the BRO admixture grades
  * (zwak/matig/sterk), expressed there as x/60 fractions and reproduced verbatim.
  *
- * Note: this colours by *soil type* (geotechnicalSoilName), unlike the parser's
- * getSoilColor() which maps an *observed* BRO colour name (e.g. "lichtBruin").
- * Soil names absent from the table fall back to the observed colour as a single
- * plain band, so nothing regresses.
+ * Note: this colours by *soil type*, unlike the parser's getSoilColor() which
+ * maps an *observed* BRO colour name (e.g. "lichtBruin"). brodata feeds the
+ * same table from either soil-name column (geotechnicalSoilName for BHR-GT,
+ * soilNameNEN5104 for BHR-G), so callers pass an accessor for their layer
+ * type. Soil names absent from the table fall back to their base lithology
+ * when the name contains one (e.g. "leemNietGespecificeerd" → leem), else to
+ * the observed colour as a single plain band, so nothing regresses.
  */
-import type { BHRGTLayer } from "@bedrock-engineer/bro-xml-parser";
 import { getSoilColor } from "@bedrock-engineer/bro-xml-parser";
 
 /** Default colour when a layer has neither a mapped soil type nor a BRO colour */
-export const DEFAULT_LAYER_COLOR = "#b0b0b0";
+const DEFAULT_LAYER_COLOR = "#b0b0b0";
 
 const SVG_NS = "http://www.w3.org/2000/svg";
+
+/** Minimal layer shape needed to build soil bands (BHRGTLayer and BHRGLayer
+ *  both satisfy it; the soil name comes from a caller-supplied accessor since
+ *  its field differs per bore type). */
+interface LithologyLayer {
+  upperBoundary: number;
+  lowerBoundary: number;
+  color?: string | null;
+  sandMedianClass?: string | null;
+}
 
 /**
  * Observed-colour fill for a layer: the parser maps the BRO colour name
  * (e.g. "lichtBruin") to hex. Used as the fallback fill for soil names not in
  * the composition table.
  */
-export function getLayerColor(layer: BHRGTLayer): string {
+function getLayerColor(layer: LithologyLayer): string {
   if (layer.color) {
     return getSoilColor(layer.color, DEFAULT_LAYER_COLOR);
   }
@@ -234,13 +246,31 @@ export interface SoilBand {
 }
 
 // Resolve one layer into its composition sub-bands (x ∈ [0, 1]).
-function layerBands(layer: BHRGTLayer): Array<SoilBand> {
+function layerBands(layer: LithologyLayer, soilName: string): Array<SoilBand> {
   const y1 = layer.upperBoundary;
   const y2 = layer.lowerBoundary;
-  const spec = BRO_LITHOLOGY_PROPERTIES[layer.geotechnicalSoilName];
+  const spec = BRO_LITHOLOGY_PROPERTIES[soilName];
 
-  // Unmapped soil name: one plain band in the observed BRO colour.
   if (!spec) {
+    // Soil names outside the composition table can still contain a base
+    // lithology (NEN5104 has e.g. "leemNietGespecificeerd") — match it by
+    // keyword so the layer joins the soil-type colour scheme.
+    const base = matchBaseLithology(soilName);
+    if (base) {
+      const isSand = base === "zand";
+      return [
+        {
+          x1: 0,
+          x2: 1,
+          y1,
+          y2,
+          color: isSand ? sandColor(layer.sandMedianClass) : COLOR[base],
+          hatchId: HATCH_SHAPE[base] ? hatchPatternId(base) : undefined,
+          legendKey: isSand ? sandLegendKey(layer.sandMedianClass) : base,
+        },
+      ];
+    }
+    // No recognisable lithology: one plain band in the observed BRO colour.
     return [
       {
         x1: 0,
@@ -248,7 +278,7 @@ function layerBands(layer: BHRGTLayer): Array<SoilBand> {
         y1,
         y2,
         color: getLayerColor(layer),
-        legendKey: `other:${layer.geotechnicalSoilName}`,
+        legendKey: `other:${soilName}`,
       },
     ];
   }
@@ -270,9 +300,14 @@ function layerBands(layer: BHRGTLayer): Array<SoilBand> {
   });
 }
 
-/** Flatten all layers into horizontally-stacked composition bands. */
-export function buildSoilBands(layers: Array<BHRGTLayer>): Array<SoilBand> {
-  return layers.flatMap((layer) => layerBands(layer));
+/** Flatten all layers into horizontally-stacked composition bands. The
+ *  accessor picks the layer's BRO soil name (geotechnicalSoilName for BHR-GT,
+ *  soilNameNEN5104 for BHR-G). */
+export function buildSoilBands<T extends LithologyLayer>(
+  layers: Array<T>,
+  getSoilName: (layer: T) => string,
+): Array<SoilBand> {
+  return layers.flatMap((layer) => layerBands(layer, getSoilName(layer)));
 }
 
 /** A soil legend entry, resolved to display data for the React legend. */
@@ -316,10 +351,11 @@ const LEGEND_META = new Map(LEGEND_ORDER.map((entry) => [entry.key, entry]));
  * order. Soils not in the composition table are appended (alphabetically) with
  * their raw name and observed colour.
  */
-export function collectSoilLegend(
-  layers: Array<BHRGTLayer>,
+export function collectSoilLegend<T extends LithologyLayer>(
+  layers: Array<T>,
+  getSoilName: (layer: T) => string,
 ): Array<SoilLegendEntry> {
-  return legendFromBands(buildSoilBands(layers));
+  return legendFromBands(buildSoilBands(layers, getSoilName));
 }
 
 /** Legend entries for a set of bands: known buckets in canonical order, extras
@@ -357,7 +393,7 @@ function legendFromBands(bands: Array<SoilBand>): Array<SoilLegendEntry> {
 // === Removed layers (voorontgraving) =======================================
 
 /** Minimal shape of a free-text-described layer (CPT `removedLayers`). */
-export interface DescribedLayer {
+interface DescribedLayer {
   upperBoundary: number;
   lowerBoundary: number;
   description: string | null;

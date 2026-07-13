@@ -6,7 +6,7 @@ import { PlotDownloadButtons } from "../plot-download-buttons";
 import { PlotFigure } from "../plot-figure";
 import { buildConsistencyLimitsPlot } from "./consistency-limits-plot";
 
-export interface ConsistencyLimitsDisplayProps {
+interface ConsistencyLimitsDisplayProps {
   data: ConsistencyLimitsDetermination;
   baseFilename: string;
 }

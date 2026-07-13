@@ -22,7 +22,7 @@ const OTHER_MARGIN_LEFT = 10;
 const MARGIN_RIGHT = 5;
 const PLOT_HEIGHT = 400;
 
-export interface BuildDepthProfilesOptions {
+interface BuildDepthProfilesOptions {
   intervals: Array<InvestigatedInterval>;
   determinations: Array<DeterminationConfig>;
   maxDepth: number;

@@ -23,7 +23,7 @@ function toggleLayerIds(toggle: ToggleableMapLayer): Array<string> {
     : [pointLayerId(toggle), clusterLayerId(toggle)];
 }
 
-export interface LayerVisibilityResult {
+interface LayerVisibilityResult {
   visibility: Record<ToggleableMapLayer, boolean>;
   setLayerVisible: (layer: ToggleableMapLayer, visible: boolean) => void;
 }

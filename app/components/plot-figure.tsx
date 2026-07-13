@@ -1,7 +1,7 @@
 import { type DependencyList, type RefObject, useEffect, useRef } from "react";
 import { PlotDownloadButtons } from "./plot-download-buttons";
 
-export interface PlotFigureProps {
+interface PlotFigureProps {
   /**
    * Builds the Observable Plot node (e.g. via a `buildXPlot(data, t)` helper).
    * Return `null` to render nothing — for example when there is no data. Runs

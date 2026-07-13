@@ -24,17 +24,17 @@ const netherlandsBounds: LngLatBoundsLike = [
   [7.5, 53.8],
 ];
 
-export const maxBounds: LngLatBoundsLike = [
+const maxBounds: LngLatBoundsLike = [
   [2, 50],
   [8.5, 54.3],
 ];
 
-export interface MapPortals {
+interface MapPortals {
   search: HTMLDivElement;
   panel: HTMLDivElement;
 }
 
-export interface MapInitResult {
+interface MapInitResult {
   mapRef: RefObject<maplibregl.Map | null>;
   /**
    * Null until the map has mounted. Once set, each field is a stable

@@ -98,7 +98,7 @@ export function getLabTestCategories(
 /**
  * Get individual determination types present in an interval (for display)
  */
-export function getDeterminationTypes(
+function getDeterminationTypes(
   interval: InvestigatedInterval
 ): Array<string> {
   const types: Array<string> = [];

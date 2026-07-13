@@ -21,7 +21,7 @@ export const PLOT_MARGINS = {
   top: 30,
 } as const;
 
-export const MIN_LAYER_HEIGHT_PX = 15;
+const MIN_LAYER_HEIGHT_PX = 15;
 
 export const depthYAxisConfig = {
   reverse: true,
@@ -79,12 +79,12 @@ export function filterLayersByPixelHeight<T extends LayerWithBoundaries>(
  *  truth shared by Observable Plot's y scale and the HTML details table's d3
  *  scale, so the two can never drift. Range maps `minDepth`→top, `maxDepth`→
  *  bottom (depth increasing downward). */
-export interface DepthScaleSpec {
+interface DepthScaleSpec {
   domain: [number, number];
   range: [number, number];
 }
 
-export function depthScaleSpec(
+function depthScaleSpec(
   height: number,
   minDepth: number,
   maxDepth: number,
@@ -128,16 +128,4 @@ export function depthYScaleOptions(
     domain,
     range,
   };
-}
-
-/**
- * Calculate pixels per meter for a given plot configuration
- */
-export function calculatePixelsPerMeter(
-  plotHeight: number,
-  minDepth: number,
-  maxDepth: number,
-): number {
-  const depthRange = maxDepth - minDepth;
-  return plotHeight / depthRange;
 }

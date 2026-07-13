@@ -1,9 +1,14 @@
 import type { BHRGLayer } from "@bedrock-engineer/bro-xml-parser";
-import { getSoilColor } from "@bedrock-engineer/bro-xml-parser";
 import * as Plot from "@observablehq/plot";
 import { max, min } from "d3-array";
 import { useEffect, useRef } from "react";
 import { useTranslation } from "react-i18next";
+import {
+  buildSoilBands,
+  collectSoilLegend,
+  injectHatchPatterns,
+  type SoilBand,
+} from "../../util/bro-lithology";
 import {
   PLOT_MARGINS,
   createWatermarkMark,
@@ -13,21 +18,11 @@ import {
 } from "../../util/plot-config";
 import { Card, CardTitle } from "../card";
 import { PlotDownloadButtons } from "../plot-download-buttons";
+import { SoilLegend } from "../soil-legend";
 const id = "bhrg-plot";
 
-/** Default color when layer has no BRO color specified */
-const DEFAULT_LAYER_COLOR = "#b0b0b0";
-
-/**
- * Get hex color for a BHR-G layer
- * Uses the BRO color field if available, otherwise falls back to default
- */
-function getLayerColor(layer: BHRGLayer): string {
-  if (layer.color) {
-    return getSoilColor(layer.color, DEFAULT_LAYER_COLOR);
-  }
-  return DEFAULT_LAYER_COLOR;
-}
+/** BHR-G layers carry their BRO soil name in the NEN5104 field. */
+const soilNameOf = (layer: BHRGLayer): string => layer.soilNameNEN5104;
 
 interface BHRGPlotProps {
   layers: Array<BHRGLayer>;
@@ -63,6 +58,12 @@ export function BHRGPlot({
       maxDepth,
     );
 
+    // Split each layer into proportional soil-composition bands (main soil +
+    // admixtures), coloured by soil type with a hatch overlay per band — the
+    // same scheme as the BHR-GT bore plot.
+    const soilBands = buildSoilBands(layers, soilNameOf);
+    const hatchedBands = soilBands.filter((b) => b.hatchId);
+
     const plot = Plot.plot({
       style: {
         overflow: "visible",
@@ -73,18 +74,37 @@ export function BHRGPlot({
       marginLeft: PLOT_MARGINS.left,
       marginRight: PLOT_MARGINS.right,
       marginBottom: PLOT_MARGINS.bottom,
+      // Pass fill values verbatim (hex colours and url(#pattern) refs)
+      color: { type: "identity" },
       x: hiddenXAxisConfig,
       y: depthYAxisConfig,
       marks: [
-        // Soil layer rectangles
+        // Soil composition bands
+        Plot.rect(soilBands, {
+          x1: "x1",
+          x2: "x2",
+          y1: "y1",
+          y2: "y2",
+          fill: "color",
+          stroke: "white",
+          strokeWidth: 0.5,
+        }),
+        // Hatch overlay per band (second visual channel beyond colour)
+        Plot.rect(hatchedBands, {
+          x1: "x1",
+          x2: "x2",
+          y1: "y1",
+          y2: "y2",
+          fill: (d: SoilBand) => `url(#${d.hatchId})`,
+          stroke: null,
+        }),
+        // Transparent full-width overlay carrying the per-layer tooltip
         Plot.rect(layers, {
           x1: 0,
           x2: 1,
           y1: "upperBoundary",
           y2: "lowerBoundary",
-          fill: (d: BHRGLayer) => getLayerColor(d),
-          stroke: "white",
-          strokeWidth: 0.5,
+          fill: "transparent",
           title: formatBHRGLayerTitle,
           tip: true,
         }),
@@ -116,32 +136,35 @@ export function BHRGPlot({
             tip: true,
           },
         ),
-        // NEN5104 code labels for layers tall enough
+        // NEN5104 soil-name labels for layers tall enough in pixels. A white
+        // halo (paint-order: stroke) plus wrapping keeps names legible over
+        // the narrow, dark soil bands, matching the BHR-GT plot.
         Plot.text(layersWithLabels, {
-          x: 1.3,
+          x: 0.5,
           y: (d: BHRGLayer) =>
             d.upperBoundary + (d.lowerBoundary - d.upperBoundary) / 2,
           text: (d: BHRGLayer) => d.soilNameNEN5104,
           fill: "black",
-          fontSize: 10,
-          textAnchor: "start",
-          // mixBlendMode:"difference"
+          stroke: "white",
+          strokeWidth: 2,
+          paintOrder: "stroke",
+          fontSize: 9,
+          textAnchor: "middle",
+          lineWidth: 8,
+          lineHeight: 1,
         }),
-        // Full soil descriptions to the right
-        // Plot.text(layers, {
-        //   x: 1,
-        //   y: (d: BHRGLayer) =>
-        //     d.upperBoundary + (d.lowerBoundary - d.upperBoundary) / 2,
-        //   text: (d: BHRGLayer) => formatLayerDescription(d),
-        //   fill: "black",
-        //   fontSize: 9,
-        //   textAnchor: "start",
-        //   dx: 5,
-        // }),
         Plot.frame(),
         createWatermarkMark(t("madeWithBedrockBroViewer")),
       ],
     });
+
+    // Inject the hatch <pattern> defs the bands reference via url(#…).
+    const svg = (
+      plot.tagName.toLowerCase() === "svg" ? plot : plot.querySelector("svg")
+    ) as SVGElement | null;
+    if (svg) {
+      injectHatchPatterns(svg);
+    }
 
     containerRef.current.append(plot);
 
@@ -153,6 +176,9 @@ export function BHRGPlot({
   const hasAnthropogenic = layers.some((l) => l.anthropogenic);
   const hasRooted = layers.some((l) => l.rooted);
 
+  // Legend entries reflect only the soils actually present in this borehole.
+  const legendSoils = collectSoilLegend(layers, soilNameOf);
+
   return (
     <Card>
       <CardTitle>{t("geologicalBoreLog")}</CardTitle>
@@ -160,6 +186,9 @@ export function BHRGPlot({
       <div className="flex justify-center">
         <div id={id} ref={containerRef}></div>
       </div>
+
+      {/* Soil type legend */}
+      <SoilLegend soils={legendSoils} idPrefix="bhrg-legend" />
 
       {/* Special indicators legend */}
       {(hasAnthropogenic || hasRooted) && (

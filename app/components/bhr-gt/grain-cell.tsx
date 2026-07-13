@@ -8,7 +8,7 @@ const GRAIN_PAD = 16;
 
 // Shared log grain-size scale: same domain + pixel range in every cell and the
 // header, so dots are comparable down the column (fine → coarse, left → right).
-export const xGrain = scaleLog()
+const xGrain = scaleLog()
   .domain(SAND_MEDIAN_DOMAIN)
   .range([GRAIN_PAD, GRAIN_COL - GRAIN_PAD]);
 

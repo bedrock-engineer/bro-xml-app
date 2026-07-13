@@ -17,7 +17,7 @@ export interface PdokSuggestion {
   type: string;
 }
 
-export interface PdokPlace {
+interface PdokPlace {
   id: string;
   name: string;
   longitude: number;

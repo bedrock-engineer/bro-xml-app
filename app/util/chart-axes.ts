@@ -12,7 +12,7 @@ export interface ChartColumn {
   name: string;
 }
 
-export interface ChartAxes {
+interface ChartAxes {
   yAxis: ChartColumn | null;
   xAxis: ChartColumn | null;
   availableColumns: Array<ChartColumn>;

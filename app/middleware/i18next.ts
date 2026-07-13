@@ -14,18 +14,17 @@ export const localeCookie = createCookie("lng", {
   httpOnly: true,
 });
 
-export const [i18nextMiddleware, getLocale, getInstance] =
-  createI18nextMiddleware({
-    detection: {
-      supportedLanguages: languageCodes,
-      fallbackLanguage: "nl",
-      cookie: localeCookie,
-      // Cookie first (user's explicit choice), then Accept-Language header
-      order: ["cookie", "header"],
-    },
-    i18next: { resources },
-    plugins: [initReactI18next],
-  });
+export const [i18nextMiddleware, getLocale] = createI18nextMiddleware({
+  detection: {
+    supportedLanguages: languageCodes,
+    fallbackLanguage: "nl",
+    cookie: localeCookie,
+    // Cookie first (user's explicit choice), then Accept-Language header
+    order: ["cookie", "header"],
+  },
+  i18next: { resources },
+  plugins: [initReactI18next],
+});
 
 // This adds type-safety to the `t` function
 declare module "i18next" {

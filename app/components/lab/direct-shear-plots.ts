@@ -10,7 +10,7 @@ export type DirectShearDetermination = NonNullable<
   InvestigatedInterval["shearStressChangeDuringHorizontalDeformationDetermination"]
 >[number];
 
-export interface PeakData {
+interface PeakData {
   normalStress: number;
   peakShearStress: number;
   testIndex: number;
@@ -63,7 +63,7 @@ export function hasHeightChangeData(
   );
 }
 
-export interface FailureEnvelope {
+interface FailureEnvelope {
   /** Cohesion intercept c (kPa) */
   cohesion: number;
   /** tan(φ) — slope of the envelope */
@@ -79,7 +79,7 @@ export interface FailureEnvelope {
  * zeroed parameters for a degenerate fit (fewer than two distinct normal
  * stresses).
  */
-export function fitFailureEnvelope(
+function fitFailureEnvelope(
   peakData: Array<PeakData>,
 ): FailureEnvelope {
   const n = peakData.length;

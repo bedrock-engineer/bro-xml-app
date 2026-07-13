@@ -7,11 +7,13 @@ export const meta: Route.MetaFunction = ({ matches }) => {
   const parentData = matches[0].loaderData as { locale?: string } | undefined;
   const locale = parentData?.locale ?? "nl";
   const title =
-    locale === "nl" ? "Over - BRO XML Viewer" : "About - BRO XML Viewer";
+    locale === "nl"
+      ? "Over BRO XML Viewer - CPT, BHR-GT & Boormonsteranalyses (BHR-GT-BMA)"
+      : "About BRO XML Viewer - CPT, BHR-GT & Boormonsteranalyses (BHR-GT-BMA)";
   const description =
     locale === "nl"
-      ? "Informatie over de Bedrock BRO XML Viewer"
-      : "Information about the Bedrock BRO XML Viewer";
+      ? "Informatie over de Bedrock.engineer BRO XML Viewer: bekijk CPT sonderingen, BHR-GT boringen en geotechnische boormonsteranalyses (BHR-GT-BMA) uit de Basisregistratie Ondergrond."
+      : "Information about the Bedrock.engineer BRO XML Viewer: view CPT soundings, BHR-GT boreholes and geotechnical borehole sample analyses (BHR-GT-BMA) from the Basisregistratie Ondergrond.";
 
   return [{ title }, { name: "description", content: description }];
 };
@@ -30,7 +32,7 @@ export default function InfoPage() {
             to="/"
             className="text-2xl flex gap-2 items-center hover:opacity-80"
           >
-            <img src="/bedrock.svg" width={30} alt="Bedrock logo" />{" "}
+            <img src="/bedrock.svg" width={30} alt="Bedrock.engineer logo" />{" "}
             {t("appTitle")}
           </Link>
         </div>
@@ -47,8 +49,11 @@ export default function InfoPage() {
             </p>
             <ul className="list-disc list-inside space-y-2 text-gray-700">
               <li>{t("featureCpt")}</li>
+              
               <li>{t("featureBhrGt")}</li>
+              
               <li>{t("featureLab")}</li>
+
               <li>{t("featureBhrG")}</li>
             </ul>
             <p className="text-gray-500 text-sm mt-4 italic">
@@ -57,18 +62,18 @@ export default function InfoPage() {
           </Card>
 
           <Card>
-            <h2 className="text-xl font-medium mb-4">
-              Ondersteunde Geoetechnische Boormonsteranalyse tests
-            </h2>
+            <h2 className="text-xl font-medium mb-4">{t("bmaTitle")}</h2>
+            
+            <p className="text-gray-700 mb-4">{t("bmaDescription")}</p>
+
             <p>
-              De volgende lab tests zijn ondersteund. Heb je verzoeken of suggesties
-              hiervoor, bijvoorbeeld voor betere grafieken of tabellen? Laat het
-              ons weten via de{" "}
+              {t("bmaFeedbackPrompt")}{" "}
               <Link to="/feedback" className="text-blue-500 hover:underline">
-                Feedback
+                {t("giveFeedback")}
               </Link>
-              pagina.
+              .
             </p>
+
             <ul className="list-disc list-inside space-y-2 text-gray-700">
               <li>basisparameter</li>
               <li>korrelgrootteverdeling</li>
@@ -90,14 +95,18 @@ export default function InfoPage() {
             <p className="text-gray-700 mb-4">{t("privacyDescription")}</p>
             <ul className="list-disc list-inside space-y-2 text-gray-700">
               <li>{t("privacyBullet1")}</li>
+              
               <li>{t("privacyBullet2")}</li>
+
               <li>{t("privacyBullet3")}</li>
             </ul>
           </Card>
 
           <Card>
             <h2 className="text-xl font-medium mb-4">{t("aboutBro")}</h2>
+            
             <p className="text-gray-700 mb-4">{t("aboutBroDescription")}</p>
+
             <a
               href="https://www.broloket.nl"
               target="_blank"
@@ -110,12 +119,17 @@ export default function InfoPage() {
 
           <Card>
             <h2 className="text-xl font-medium mb-4">{t("aboutBedrock")}</h2>
+
             <p className="text-gray-700 mb-4">{t("aboutBedrockDescription")}</p>
+            
             <ul className="list-disc list-inside space-y-2 text-gray-700 mb-4">
               <li>{t("customWebApps")}</li>
+            
               <li>{t("bimCadIntegrations")}</li>
+            
               <li>{t("pythonAutomation")}</li>
             </ul>
+            
             <a
               href="https://bedrock.engineer"
               target="_blank"

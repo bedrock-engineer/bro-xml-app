@@ -82,7 +82,7 @@ export function Layout({ children, loaderData }: LayoutProps) {
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <meta
           name="description"
-          content="View and visualize BRO (Basisregistratie Ondergrond) XML files in your browser. Analyze CPT, BHR-GT and BHR-G data instantly."
+          content="View and visualize BRO (Basisregistratie Ondergrond) XML files in your browser. Analyze CPT, BHR-GT, geotechnische boormonsteranalyses (BHR-GT-BMA) and BHR-G data instantly."
         />
         <meta name="format-detection" content="telephone=no" />
         <meta name="theme-color" content="#5d7a5a" />
@@ -90,10 +90,6 @@ export function Layout({ children, loaderData }: LayoutProps) {
         <meta
           name="apple-mobile-web-app-status-bar-style"
           content="black-translucent"
-        />
-        <meta
-          name="apple-mobile-web-app-title"
-          content="Bedrock Geotechnical BRO/XML viewer"
         />
         <Meta />
         <Links />
@@ -107,7 +103,7 @@ export function Layout({ children, loaderData }: LayoutProps) {
               alternateName: "Bedrock Geotechnical BRO/XML viewer",
               url: "https://bro.bedrock.engineer",
               description:
-                "Free online BRO XML viewer for geotechnical engineers. View, analyze and export CPT, BHR-GT and BHR-G data from Basisregistratie Ondergrond.",
+                "Free online BRO XML viewer for geotechnical engineers. View, analyze and export CPT, BHR-GT, geotechnische boormonsteranalyses (BHR-GT-BMA) and BHR-G data from Basisregistratie Ondergrond.",
               applicationCategory: "UtilityApplication",
               operatingSystem: "Any",
               browserRequirements: "Requires JavaScript",
@@ -119,10 +115,11 @@ export function Layout({ children, loaderData }: LayoutProps) {
               featureList: [
                 "View BRO/XML CPT files",
                 "View BRO/XML BHR-GT files (geotechnical boreholes)",
+                "View BRO/XML BHR-GT-BMA data (geotechnische boormonsteranalyses / borehole sample lab analyses)",
                 "View BRO/XML BHR-G files (geological boreholes)",
                 "CPT data visualization",
                 "Bore log visualization",
-                "Laboratory analysis visualization",
+                "Laboratory analysis visualization (boormonsteranalyse)",
                 "Export to CSV",
                 "Export to JSON",
                 "Export locations to GeoJSON",
@@ -134,7 +131,7 @@ export function Layout({ children, loaderData }: LayoutProps) {
                 priceCurrency: "EUR",
               },
               keywords:
-                "BRO, Basisregistratie Ondergrond, BRO XML, sondering, CPT, grondonderzoek, boringen, BHR-GT, BHR-G, geotechniek, geotechnical engineering, sondeergegevens, boorprofielen",
+                "BRO, Basisregistratie Ondergrond, BRO XML, sondering, CPT, grondonderzoek, boringen, BHR-GT, BHR-GT-BMA, BRO BHR-GT-BMA, boormonsteranalyse, geotechnische boormonsteranalyses, laboratoriumonderzoek, BHR-G, geotechniek, geotechnical engineering, sondeergegevens, boorprofielen",
               creator: {
                 "@type": "Organization",
                 name: "Bedrock.engineer",

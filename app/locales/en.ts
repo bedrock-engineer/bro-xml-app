@@ -3,7 +3,7 @@ export default {
     // App title and description
     appTitle: "Bedrock.engineer Geotechnical BRO/XML viewer",
     appDescription:
-      "View and analyze BRO (Basisregistratie Ondergrond) XML files for CPT, BHR-GT and BHR-G data in your browser.",
+      "View and analyze BRO (Basisregistratie Ondergrond) XML files for CPT soundings, BHR-GT boreholes, geotechnical borehole sample analyses (BHR-GT-BMA), and BHR-G data in your browser.",
     privacyNote: "Your data never leaves your browser.",
     offlineNote: "This app also works offline.",
     installInstructionsDesktop:
@@ -398,7 +398,13 @@ export default {
     featureCpt: "CPT (Cone Penetration Test) data with interactive plots",
     featureBhrGt: "BHR-GT (Geotechnical borehole) data with soil profiles",
     featureBhrG: "BHR-G (Geological borehole) data",
-    featureLab: "Laboratory test results including Atterberg limits, triaxial tests, and more",
+    featureLab:
+      "Geotechnical borehole sample analyses (BHR-GT-BMA) including Atterberg limits, triaxial tests, and more",
+    bmaTitle: "Supported geotechnical borehole sample analyses (BHR-GT-BMA)",
+    bmaDescription:
+      "The BRO registers laboratory tests on borehole samples as geotechnische boormonsteranalyse (BHR-GT-BMA), part of the geotechnical borehole survey (BHR-GT). This viewer visualizes the following BHR-GT-BMA tests:",
+    bmaFeedbackPrompt:
+      "Do you have requests or suggestions, for example for better charts or tables? Let us know via",
     otherBroTypesNote: "Other BRO data types are not yet supported. Contributions are welcome!",
     privacyTitle: "Privacy & Security",
     privacyDescription: "Your data stays private:",

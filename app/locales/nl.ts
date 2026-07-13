@@ -3,7 +3,7 @@ export default {
     // App title and description
     appTitle: "Bedrock.engineer Geotechniek BRO/XML viewer",
     appDescription:
-      "Bekijk en analyseer BRO (Basisregistratie Ondergrond) XML bestanden voor CPT, BHR-GT en BHR-G gegevens in je browser.",
+      "Bekijk en analyseer BRO (Basisregistratie Ondergrond) XML bestanden voor CPT sonderingen, BHR-GT boringen, geotechnische boormonsteranalyses (BHR-GT-BMA), en BHR-G gegevens in je browser.",
     privacyNote: "Je gegevens verlaten nooit je browser.",
     offlineNote: "Deze app werkt ook offline.",
     installInstructionsDesktop:
@@ -397,7 +397,13 @@ export default {
     featureCpt: "CPT (Cone Penetration Test) gegevens met interactieve grafieken",
     featureBhrGt: "BHR-GT (Geotechnische boringen) met grondprofielen",
     featureBhrG: "BHR-G (Geologische boringen)",
-    featureLab: "Laboratoriumresultaten inclusief Atterberg grenzen, triaxiaalproeven en meer",
+    featureLab:
+      "Geotechnische boormonsteranalyses (BHR-GT-BMA) inclusief Atterberg grenzen, triaxiaalproeven en meer",
+    bmaTitle: "Ondersteunde geotechnische boormonsteranalyses (BHR-GT-BMA)",
+    bmaDescription:
+      "In de BRO worden laboratoriumproeven op boormonsters geregistreerd als geotechnische boormonsteranalyse (BHR-GT-BMA), onderdeel van het geotechnisch booronderzoek (BHR-GT). Deze viewer visualiseert de volgende BHR-GT-BMA proeven:",
+    bmaFeedbackPrompt:
+      "Heb je verzoeken of suggesties, bijvoorbeeld voor betere grafieken of tabellen? Laat het ons weten via",
     otherBroTypesNote: "Andere BRO-gegevenstypes worden nog niet ondersteund. Bijdragen zijn welkom!",
     privacyTitle: "Privacy & Veiligheid",
     privacyDescription: "Je gegevens blijven privé:",

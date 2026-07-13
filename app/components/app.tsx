@@ -29,12 +29,12 @@ import { Card } from "./card";
 import { CompactCptHeader, DetailedCptHeaders } from "./cpt-header-items";
 import { CptPlots } from "./cpt-plot";
 import { DissipationTestPlots } from "./dissipation-test-plot";
-import { RemovedLayersPlot } from "./removed-layers-plot";
 import { DownloadGeoJSONButton } from "./download-geojson-button";
 import { FileTable } from "./file-table";
 import { InstallInstructions } from "./install-instructions";
 import { LaboratoryAnalysis } from "./laboratory-analysis";
 import { BROMap } from "./map.client";
+import { RemovedLayersPlot } from "./removed-layers-plot";
 
 function translateWarning(warning: string, t: TFunction): string {
   const parts = warning.split(":");
@@ -446,6 +446,7 @@ export function App() {
           <MarketingMessage />
         )}
       </main>
+
       <Footer />
     </div>
   );
@@ -557,7 +558,7 @@ function Footer() {
                 src="/bedrock.svg"
                 width="16px"
                 height="16px"
-                alt="Bedrock logo"
+                alt="Bedrock.engineer logo"
               />
               Bedrock.engineer
             </a>
@@ -566,7 +567,7 @@ function Footer() {
               className="text-blue-400 hover:underline flex gap-1 items-center text-sm mt-2"
               href="https://gef.bedrock.engineer"
             >
-              Bedrock GEF viewer
+              Bedrock.engineer GEF viewer
             </a>
           </div>
 

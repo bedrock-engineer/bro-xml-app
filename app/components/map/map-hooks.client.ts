@@ -81,15 +81,23 @@ export function locationsToGeoJSON(
   };
 }
 
+// String(undefined) is the truthy "undefined", so keep absent values empty
+function asText(value: string | number | boolean | null | undefined): string {
+  return value == null ? "" : String(value);
+}
+
 export function hoverPopupHtml(
   feature: MapGeoJSONFeature,
   t: TFunction,
 ): string {
   // todo maybe use zod here or just define a better type
-  const properties = feature.properties as Record<string, unknown>;
+  const properties = feature.properties as Record<
+    string,
+    string | number | boolean | null | undefined
+  >;
 
-  const broId = String(properties.broId);
   if (feature.layer.id.startsWith("loaded-points")) {
+    const broId = asText(properties.broId);
     const coordSystem = getCoordSystemName(String(properties.epsg));
     const x = Number(properties.x);
     const y = Number(properties.y);
@@ -110,14 +118,14 @@ export function hoverPopupHtml(
   // the tiles (quality regime, CPT quality class, final depth, report
   // year). Older records can miss any of them, so every line is
   // optional.
-  const metaLine = [String(properties.quality), String(properties.year)]
+  const metaLine = [asText(properties.quality), asText(properties.year)]
     .filter(Boolean)
     .join(" · ");
-  const qualityClass = /^klasse(\d)$/.exec(String(properties.quality_class));
+  const qualityClass = /^klasse(\d)$/.exec(asText(properties.quality_class));
   const depth = Number(properties.depth);
 
   const lines = [
-    `<strong>${broId}</strong>`,
+    `<strong>${asText(properties.bro_id)}</strong>`,
     metaLine,
     qualityClass
       ? t("mapPopupQualityClass", { classNumber: qualityClass[1] })

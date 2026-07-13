@@ -1,8 +1,8 @@
 import type { BHRGTLayer } from "@bedrock-engineer/bro-xml-parser";
 import { max, min } from "d3-array";
 import { useTranslation } from "react-i18next";
-import { sandMedianRange } from "../util/grain-size";
-import { makeDepthToPixel } from "../util/plot-config";
+import { sandMedianRange } from "./grain-size";
+import { makeDepthToPixel } from "../../util/plot-config";
 import {
   getLayerAttributes,
   LAYER_ATTRIBUTE_KEYS,

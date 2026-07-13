@@ -4,11 +4,16 @@ import type {
 } from "@bedrock-engineer/bro-xml-parser";
 import * as Plot from "@observablehq/plot";
 import { useEffect, useRef, useState } from "react";
-import { Label, Radio, RadioGroup } from "react-aria-components";
+import {
+  Label,
+  RadioButton,
+  RadioField,
+  RadioGroup,
+} from "react-aria-components";
 import { useTranslation } from "react-i18next";
 import { createWatermarkMark } from "~/util/plot-config";
-import { Card, CardTitle } from "./card";
-import { PlotDownloadButtons } from "./plot-download-buttons";
+import { Card, CardTitle } from "../card";
+import { PlotDownloadButtons } from "../plot-download-buttons";
 
 type TimeScale = "linear" | "log" | "sqrt";
 
@@ -184,13 +189,11 @@ function DissipationPlot({ plotId, test }: DissipationPlotProps) {
         </Label>
         <div className="flex gap-1">
           {options.map((option) => (
-            <Radio
-              key={option.value}
-              value={option.value}
-              className="cursor-pointer rounded-sm border border-gray-300 px-2.5 py-1 text-sm text-gray-700 transition-colors data-[selected]:border-blue-600 data-[selected]:bg-blue-600 data-[selected]:text-white hover:bg-gray-50 data-[selected]:hover:bg-blue-700"
-            >
-              {option.label}
-            </Radio>
+            <RadioField key={option.value} value={option.value}>
+              <RadioButton className="cursor-pointer rounded-sm border border-gray-300 px-2.5 py-1 text-sm text-gray-700 transition-colors data-[selected]:border-blue-600 data-[selected]:bg-blue-600 data-[selected]:text-white hover:bg-gray-50 data-[selected]:hover:bg-blue-700">
+                {option.label}
+              </RadioButton>
+            </RadioField>
           ))}
         </div>
       </RadioGroup>

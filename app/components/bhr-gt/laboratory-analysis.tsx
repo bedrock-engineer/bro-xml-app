@@ -13,14 +13,14 @@ import {
   SelectValue,
 } from "react-aria-components";
 import { useTranslation } from "react-i18next";
-import { Card, CardTitle } from "./card";
-import { BasicDeterminationsDepthPlots } from "./lab/basic-determinations-depth-plots";
-import { ConsistencyLimitsDisplay } from "./lab/consistency-limits-display";
-import { ParticleSizeDistributionPlot } from "./lab/particle-size-distribution-plot";
-import { PermeabilityDisplay } from "./lab/permeability-display";
-import { SettlementCharacteristicsDisplay } from "./lab/settlement-characteristics-display";
-import { DirectShearDisplay } from "./lab/direct-shear-display";
-import { TriaxialTestsDisplay } from "./lab/triaxial-tests-display";
+import { Card, CardTitle } from "../card";
+import { BasicDeterminationsDepthPlots } from "../lab/basic-determinations-depth-plots";
+import { ConsistencyLimitsDisplay } from "../lab/consistency-limits-display";
+import { ParticleSizeDistributionPlot } from "../lab/particle-size-distribution-plot";
+import { PermeabilityDisplay } from "../lab/permeability-display";
+import { SettlementCharacteristicsDisplay } from "../lab/settlement-characteristics-display";
+import { DirectShearDisplay } from "../lab/direct-shear-display";
+import { TriaxialTestsDisplay } from "../lab/triaxial-tests-display";
 
 interface LaboratoryAnalysisProps {
   analysis: BoreholeSampleAnalysis;
@@ -74,8 +74,8 @@ export function LaboratoryAnalysis({
       {/* Interval selector */}
       <div className="mb-4 mt-6">
         <Select
-          selectedKey={selectedInterval}
-          onSelectionChange={(key) => {
+          value={selectedInterval}
+          onChange={(key) => {
             setSelectedInterval(key as number);
           }}
           className="w-full max-w-md"

@@ -5,19 +5,19 @@ import type { BHRGTLayer, Grainshape } from "@bedrock-engineer/bro-xml-parser";
 import {
   LAB_TEST_CATEGORIES,
   type LabTestCategory,
-} from "../util/determination-types";
+} from "./determination-types";
 import {
   PLOT_MARGINS,
   depthYScaleOptions,
   hiddenXAxisConfig,
   createWatermarkMark,
   filterLayersByPixelHeight,
-} from "../util/plot-config";
+} from "../../util/plot-config";
 import {
   buildSoilBands,
   injectHatchPatterns,
   type SoilBand,
-} from "../util/bro-lithology";
+} from "../../util/bro-lithology";
 
 /** Minimal shape of i18next's t() used here (dynamic keys, returns a string). */
 export type TranslateFunction = (key: string) => string;
@@ -169,7 +169,7 @@ export function buildBhrgtPlot({
         text: (d: BHRGTLayer) => d.geotechnicalSoilName,
         fill: "black",
         stroke: "white",
-        strokeWidth: 1.5,
+        strokeWidth: 2,
         paintOrder: "stroke",
         fontSize: 9,
         textAnchor: "middle",

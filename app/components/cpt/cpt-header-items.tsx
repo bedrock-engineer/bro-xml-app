@@ -1,10 +1,10 @@
 import type { TFunction } from "i18next";
 import { useTranslation } from "react-i18next";
 import type { CPTData } from "@bedrock-engineer/bro-xml-parser";
-import type { HeaderItem, HeaderSection } from "../types/header-types";
-import { formatDate } from "../util/format";
-import { getLocationItems } from "../util/location-info";
-import { CardTitle } from "./card";
+import type { HeaderItem, HeaderSection } from "../../types/header-types";
+import { formatDate } from "../../util/format";
+import { getLocationItems } from "../../util/location-info";
+import { CardTitle } from "../card";
 import {
   BroIdRow,
   CompactHeaderWrapper,
@@ -17,8 +17,8 @@ import {
   ReportDateRow,
   SurfaceLevelRow,
   WaterLevelRow,
-} from "./compact-header-parts";
-import { HeaderSections } from "./header-section";
+} from "../compact-header-parts";
+import { HeaderSections } from "../header-section";
 
 interface CompactCptHeaderProps {
   filename: string;

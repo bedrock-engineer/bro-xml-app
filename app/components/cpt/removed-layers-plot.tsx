@@ -8,15 +8,15 @@ import {
   collectRemovedLayerLegend,
   injectHatchPatterns,
   type SoilBand,
-} from "../util/bro-lithology";
+} from "../../util/bro-lithology";
 import {
   createWatermarkMark,
   filterLayersByPixelHeight,
   hiddenXAxisConfig,
-} from "../util/plot-config";
-import { Card, CardTitle } from "./card";
-import { PlotDownloadButtons } from "./plot-download-buttons";
-import { SoilLegend } from "./soil-legend";
+} from "../../util/plot-config";
+import { Card, CardTitle } from "../card";
+import { PlotDownloadButtons } from "../plot-download-buttons";
+import { SoilLegend } from "../soil-legend";
 
 type RemovedLayer = CPTData["removedLayers"][number];
 

@@ -13,7 +13,8 @@ export default {
 
     // File actions
     chooseFiles: "Choose BRO XML files",
-    dropFilesHere: "Drop BRO XML files here",
+    dropFilesHere:
+      "Drop BRO XML files here or select ground investigation points on the map",
     loadSampleFiles: "load sample files",
     clearAllFiles: "Clear all files",
     removeFile: "Remove file",
@@ -141,8 +142,10 @@ export default {
     numberOfLayers: "Number of Layers",
     soilTypes: "Soil Types",
     layerDetails: "Layer details",
-    verticalReference: "Vertical reference (m -mv = below surface, m NAP = elevation)",
-    tableLayout: "Table layout (Scaled = rows sized to depth, Rows = uniform rows)",
+    verticalReference:
+      "Vertical reference (m -mv = below surface, m NAP = elevation)",
+    tableLayout:
+      "Table layout (Scaled = rows sized to depth, Rows = uniform rows)",
     tableLayoutScaled: "Scaled",
     tableLayoutRows: "Rows",
     boringStartDate: "Boring Start Date",
@@ -354,11 +357,30 @@ export default {
     copy: "Copy",
 
     // Map
+    map: "Map",
     loadingMap: "Loading map...",
     mapError: "Could not load the map",
     noValidLocations: "No valid locations to display",
     noLocationData: "No BRO files with location data",
     unknownCoordinateSystem: "Unknown",
+    mapPickHint: "Click a point on the map to load it from the BRO",
+    mapLegendCpt: "CPT",
+    mapLegendBhrgt: "Borehole (BHR-GT)",
+    mapLegendBhrg: "Borehole (BHR-G)",
+    mapLegendLoaded: "Loaded in app",
+    clusterLocations_one: "{{count}} location — zoom in",
+    clusterLocations_other: "{{count}} locations — zoom in",
+    mapPopupDepth: "Depth",
+    mapPopupQualityClass: "Quality class {{classNumber}}",
+    fetchingFromBro: "Loading {{broIds}} from the BRO…",
+    mapSearchPlaceholder: "Search address or place…",
+    mapSearchTypeToSearch: "Type to search…",
+    mapSearchSearching: "Searching…",
+    mapSearchNoResults: "No matches",
+    mapBasemapLabel: "Basemap",
+    mapBasemapTopo: "Topographic (BRT)",
+    mapBasemapAerial: "Aerial photo",
+    mapBasemapOsm: "OpenStreetMap",
 
     // File table columns
     filename: "Filename",
@@ -366,7 +388,8 @@ export default {
     depthM_table: "Depth (m)",
 
     // Empty state
-    uploadBroFile: "Upload a BRO XML file to get started",
+    uploadBroFile:
+      "Upload a BRO XML file or pick an investigation on the map to get started",
 
     // Download
     downloadLocationsGeoJson: "Download locations as GeoJSON",
@@ -409,10 +432,12 @@ export default {
       "The BRO registers laboratory tests on borehole samples as geotechnische boormonsteranalyse (BHR-GT-BMA), part of the geotechnical borehole survey (BHR-GT). This viewer visualizes the following BHR-GT-BMA tests:",
     bmaFeedbackPrompt:
       "Do you have requests or suggestions, for example for better charts or tables? Let us know via",
-    otherBroTypesNote: "Other BRO data types are not yet supported. Contributions are welcome!",
+    otherBroTypesNote:
+      "Other BRO data types are not yet supported. Contributions are welcome!",
     privacyTitle: "Privacy & Security",
     privacyDescription: "Your data stays private:",
-    privacyBullet1: "All processing happens in your browser - files are never uploaded to any server",
+    privacyBullet1:
+      "All processing happens in your browser - files are never uploaded to any server",
     privacyBullet2: "Works offline after first load",
     privacyBullet3: "No tracking, no cookies (except for language preference)",
     aboutBro: "What is the BRO?",
@@ -427,18 +452,23 @@ export default {
 
     // Feedback page
     feedbackTitle: "Help us improve",
-    feedbackSubtitle: "Your feedback helps us build better tools for geotechnical professionals.",
+    feedbackSubtitle:
+      "Your feedback helps us build better tools for geotechnical professionals.",
     feedbackQ1: "What do you currently use to view BRO files?",
-    feedbackQ1Placeholder: "e.g., Excel, GEF viewer, custom scripts, nothing specific...",
+    feedbackQ1Placeholder:
+      "e.g., Excel, GEF viewer, custom scripts, nothing specific...",
     feedbackQ2: "What would make this tool more useful for your work?",
-    feedbackQ2Placeholder: "e.g., export options, additional data types, integrations...",
-    feedbackQ3: "Would you be interested in custom tools for working with BRO data?",
+    feedbackQ2Placeholder:
+      "e.g., export options, additional data types, integrations...",
+    feedbackQ3:
+      "Would you be interested in custom tools for working with BRO data?",
     feedbackQ3Yes: "Yes, I'd like to learn more",
     feedbackQ3Maybe: "Maybe, depending on the solution",
     feedbackQ3No: "No, this free tool is sufficient",
     feedbackEmail: "Email address (optional)",
     feedbackEmailPlaceholder: "your@email.com",
-    feedbackEmailNote: "Only if you want us to follow up with you about custom solutions.",
+    feedbackEmailNote:
+      "Only if you want us to follow up with you about custom solutions.",
     feedbackAdditional: "Anything else you'd like to share?",
     feedbackAdditionalPlaceholder: "Other feedback, feature requests, bugs...",
     feedbackSubmit: "Submit feedback",

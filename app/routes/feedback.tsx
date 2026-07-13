@@ -25,18 +25,17 @@ export async function action({ request, context }: Route.ActionArgs) {
   }
 
   const formData = await request.formData();
-  const currentTools = formData.get("currentTools");
-  const improvements = formData.get("improvements");
-  const interestedInCustomTools = formData.get("interestedInCustomTools");
-  const email = formData.get("email");
-  const additionalComments = formData.get("additionalComments");
+  const field = (name: string) => {
+    const value = formData.get(name);
+    return typeof value === "string" ? value : "";
+  };
 
   const feedback = {
-    currentTools: String(currentTools ?? ""),
-    improvements: String(improvements ?? ""),
-    interestedInCustomTools: String(interestedInCustomTools ?? ""),
-    email: String(email ?? ""),
-    additionalComments: String(additionalComments ?? ""),
+    currentTools: field("currentTools"),
+    improvements: field("improvements"),
+    interestedInCustomTools: field("interestedInCustomTools"),
+    email: field("email"),
+    additionalComments: field("additionalComments"),
     submittedAt: new Date().toISOString(),
     userAgent: request.headers.get("user-agent") ?? "",
   };

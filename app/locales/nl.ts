@@ -14,7 +14,7 @@ export default {
 
     // File actions
     chooseFiles: "Kies BRO XML bestanden",
-    dropFilesHere: "Sleep BRO XML bestanden hierheen",
+    dropFilesHere: "Sleep BRO XML bestanden hierheen of selecteer ze op de kaart",
     loadSampleFiles: "laad voorbeeldbestanden",
     clearAllFiles: "Alle bestanden wissen",
     removeFile: "Bestand verwijderen",
@@ -26,9 +26,11 @@ export default {
     failedToParse_plural: "Kon {{count}} bestanden niet parsen:",
     warning: "{{count}} waarschuwing:",
     warning_plural: "{{count}} waarschuwingen:",
-    unknownBROFileType: "Onbekend BRO bestandstype. Verwacht CPT, BHR-GT, of BHR-G XML.",
+    unknownBROFileType:
+      "Onbekend BRO bestandstype. Verwacht CPT, BHR-GT, of BHR-G XML.",
     invalidXML: "Ongeldig XML bestand",
-    schemaVersionMismatch: "Schema versie mismatch: verwacht {{expected}}, gevonden {{found}}",
+    schemaVersionMismatch:
+      "Schema versie mismatch: verwacht {{expected}}, gevonden {{found}}",
     unknownNamespace: "Onbekende namespace: {{namespace}}",
 
     // Location
@@ -139,8 +141,10 @@ export default {
     numberOfLayers: "Aantal lagen",
     soilTypes: "Grondsoorten",
     layerDetails: "Laageigenschappen",
-    verticalReference: "Verticale referentie (m -mv = onder maaiveld, m NAP = hoogte)",
-    tableLayout: "Tabelindeling (Op schaal = rijen op diepteschaal, Rijen = gelijke rijen)",
+    verticalReference:
+      "Verticale referentie (m -mv = onder maaiveld, m NAP = hoogte)",
+    tableLayout:
+      "Tabelindeling (Op schaal = rijen op diepteschaal, Rijen = gelijke rijen)",
     tableLayoutScaled: "Op schaal",
     tableLayoutRows: "Rijen",
     boringStartDate: "Startdatum boring",
@@ -352,11 +356,30 @@ export default {
     copy: "Kopiëren",
 
     // Map
+    map: "Kaart",
     loadingMap: "Kaart laden...",
     mapError: "Kon de kaart niet laden",
     noValidLocations: "Geen geldige locaties om weer te geven",
     noLocationData: "Geen BRO-bestanden met locatiegegevens",
     unknownCoordinateSystem: "Onbekend",
+    mapPickHint: "Klik op een punt op de kaart om het uit de BRO te laden",
+    mapLegendCpt: "Sondering (CPT)",
+    mapLegendBhrgt: "Boring (BHR-GT)",
+    mapLegendBhrg: "Boring (BHR-G)",
+    mapLegendLoaded: "Geladen in app",
+    clusterLocations_one: "{{count}} locatie — zoom in",
+    clusterLocations_other: "{{count}} locaties — zoom in",
+    mapPopupDepth: "Diepte",
+    mapPopupQualityClass: "Kwaliteitsklasse {{classNumber}}",
+    fetchingFromBro: "{{broIds}} laden uit de BRO…",
+    mapSearchPlaceholder: "Zoek adres of plaats…",
+    mapSearchTypeToSearch: "Typ om te zoeken…",
+    mapSearchSearching: "Zoeken…",
+    mapSearchNoResults: "Geen resultaten",
+    mapBasemapLabel: "Ondergrond",
+    mapBasemapTopo: "Topografie (BRT)",
+    mapBasemapAerial: "Luchtfoto",
+    mapBasemapOsm: "OpenStreetMap",
 
     // File table columns
     filename: "Bestandsnaam",
@@ -364,7 +387,8 @@ export default {
     depthM_table: "Diepte (m)",
 
     // Empty state
-    uploadBroFile: "Upload een BRO XML-bestand om te beginnen",
+    uploadBroFile:
+      "Upload een BRO XML-bestand of kies een onderzoek op de kaart om te beginnen",
 
     // Download
     downloadLocationsGeoJson: "Download locaties als GeoJSON",
@@ -398,7 +422,8 @@ export default {
     whatIsBroViewer: "Wat is BRO XML Viewer?",
     whatIsBroViewerDescription:
       "BRO XML Viewer is een gratis tool om geotechnische en geologische gegevens uit de Basisregistratie Ondergrond (BRO) te bekijken en analyseren. Upload je BRO XML-bestanden en visualiseer direct:",
-    featureCpt: "CPT (Cone Penetration Test) gegevens met interactieve grafieken",
+    featureCpt:
+      "CPT (Cone Penetration Test) gegevens met interactieve grafieken",
     featureBhrGt: "BHR-GT (Geotechnische boringen) met grondprofielen",
     featureBhrG: "BHR-G (Geologische boringen)",
     featureLab:
@@ -408,10 +433,12 @@ export default {
       "In de BRO worden laboratoriumproeven op boormonsters geregistreerd als geotechnische boormonsteranalyse (BHR-GT-BMA), onderdeel van het geotechnisch booronderzoek (BHR-GT). Deze viewer visualiseert de volgende BHR-GT-BMA proeven:",
     bmaFeedbackPrompt:
       "Heb je verzoeken of suggesties, bijvoorbeeld voor betere grafieken of tabellen? Laat het ons weten via",
-    otherBroTypesNote: "Andere BRO-gegevenstypes worden nog niet ondersteund. Bijdragen zijn welkom!",
+    otherBroTypesNote:
+      "Andere BRO-gegevenstypes worden nog niet ondersteund. Bijdragen zijn welkom!",
     privacyTitle: "Privacy & Veiligheid",
     privacyDescription: "Je gegevens blijven privé:",
-    privacyBullet1: "Alle verwerking gebeurt in je browser, bestanden worden nooit naar een server geüpload",
+    privacyBullet1:
+      "Alle verwerking gebeurt in je browser, bestanden worden nooit naar een server geüpload",
     privacyBullet2: "Werkt offline na eerste keer laden",
     privacyBullet3: "Geen tracking, geen cookies (behalve voor taalvoorkeur)",
     aboutBro: "Wat is de BRO?",
@@ -426,18 +453,22 @@ export default {
 
     // Feedback page
     feedbackTitle: "Help ons verbeteren",
-    feedbackSubtitle: "Jouw feedback helpt ons betere tools te bouwen voor geotechnische professionals.",
+    feedbackSubtitle:
+      "Jouw feedback helpt ons betere tools te bouwen voor geotechnische professionals.",
     feedbackQ1: "Wat gebruik je momenteel om BRO-bestanden te bekijken?",
     feedbackQ1Placeholder: "bijv. BRO Loket, eigen scripts...",
     feedbackQ2: "Wat zou deze tool nuttiger maken voor je werk?",
-    feedbackQ2Placeholder: "bijv. exportopties, extra gegevenstypes, integraties...",
-    feedbackQ3: "Zou je geïnteresseerd zijn in maatwerktools voor het werken met BRO-gegevens?",
+    feedbackQ2Placeholder:
+      "bijv. exportopties, extra gegevenstypes, integraties...",
+    feedbackQ3:
+      "Zou je geïnteresseerd zijn in maatwerktools voor het werken met BRO-gegevens?",
     feedbackQ3Yes: "Ja, ik wil graag meer weten",
     feedbackQ3Maybe: "Misschien, afhankelijk van de oplossing",
     feedbackQ3No: "Nee, deze gratis tool is voldoende",
     feedbackEmail: "E-mailadres (optioneel)",
     feedbackEmailPlaceholder: "jouw@email.nl",
-    feedbackEmailNote: "Alleen als je wilt dat we contact met je opnemen over maatwerkoplossingen.",
+    feedbackEmailNote:
+      "Alleen als je wilt dat we contact met je opnemen over maatwerkoplossingen.",
     feedbackAdditional: "Nog iets anders dat je wilt delen?",
     feedbackAdditionalPlaceholder: "Andere feedback, feature requests, bugs...",
     feedbackSubmit: "Verstuur feedback",

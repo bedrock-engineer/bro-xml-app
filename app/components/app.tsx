@@ -9,7 +9,7 @@ import {
   TrashIcon,
   UploadIcon,
 } from "lucide-react";
-import { Suspense, useState, useTransition } from "react";
+import { Suspense, useEffect, useState, useTransition } from "react";
 import { Button, FileTrigger } from "react-aria-components";
 import { ErrorBoundary } from "react-error-boundary";
 import { useTranslation } from "react-i18next";
@@ -20,21 +20,28 @@ import {
   isBHRGTData,
   isCPTData,
 } from "~/types/bro-data";
+import { type BROLocationLayer, fetchBROObject } from "~/util/bro-api";
 import { detectChartAxes } from "~/util/chart-axes";
-import { CompactBHRGHeader, DetailedBHRGHeaders } from "./bhr-g-header-items";
-import { BHRGPlot } from "./bhr-g-plot";
-import { CompactBHRGTHeader, DetailedBoreHeaders } from "./bhr-gt-header-items";
-import { BHRGTPlot } from "./bhr-gt-plot";
+import {
+  CompactBHRGHeader,
+  DetailedBHRGHeaders,
+} from "./bhr-g/bhr-g-header-items";
+import { BHRGPlot } from "./bhr-g/bhr-g-plot";
+import {
+  CompactBHRGTHeader,
+  DetailedBoreHeaders,
+} from "./bhr-gt/bhr-gt-header-items";
+import { BHRGTPlot } from "./bhr-gt/bhr-gt-plot";
+import { LaboratoryAnalysis } from "./bhr-gt/laboratory-analysis";
 import { Card } from "./card";
-import { CompactCptHeader, DetailedCptHeaders } from "./cpt-header-items";
-import { CptPlots } from "./cpt-plot";
-import { DissipationTestPlots } from "./dissipation-test-plot";
+import { CompactCptHeader, DetailedCptHeaders } from "./cpt/cpt-header-items";
+import { CptPlots } from "./cpt/cpt-plot";
+import { DissipationTestPlots } from "./cpt/dissipation-test-plot";
+import { RemovedLayersPlot } from "./cpt/removed-layers-plot";
 import { DownloadGeoJSONButton } from "./download-geojson-button";
 import { FileTable } from "./file-table";
 import { InstallInstructions } from "./install-instructions";
-import { LaboratoryAnalysis } from "./laboratory-analysis";
-import { BROMap } from "./map.client";
-import { RemovedLayersPlot } from "./removed-layers-plot";
+import { BROMap } from "./map/map.client";
 
 function translateWarning(warning: string, t: TFunction): string {
   const parts = warning.split(":");
@@ -79,6 +86,7 @@ function translateError(error: string, t: TFunction): string {
 async function parseBROFile(file: File): Promise<BROData> {
   const text = await file.text();
   const parser = new BROParser(new XMLAdapter());
+
   return parser.parse(text);
 }
 
@@ -90,6 +98,56 @@ export function App() {
   const [failedFiles, setFailedFiles] = useState<
     Array<{ name: string; error: string }>
   >([]);
+  const [pendingBroIds, setPendingBroIds] = useState<Set<string>>(new Set());
+
+  // The map only renders on the client (map.client.tsx is empty on the
+  // server), so wait for hydration before mounting it
+  const [isClient, setIsClient] = useState(false);
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+
+  async function handlePickLocation(broId: string, layer: BROLocationLayer) {
+    // Already loaded? Just select it.
+    const existing = Object.entries(broData).find(
+      ([, data]) => data.broId === broId,
+    );
+    if (existing) {
+      setSelectedFileName(existing[0]);
+      return;
+    }
+
+    if (pendingBroIds.has(broId)) {
+      return;
+    }
+
+    setPendingBroIds((previous) => new Set(previous).add(broId));
+
+    try {
+      const xml = await fetchBROObject(broId, layer);
+      const parser = new BROParser(new XMLAdapter());
+      const data = parser.parse(xml);
+
+      startTransition(() => {
+        setBroData((previous) => ({ ...previous, [broId]: data }));
+        setSelectedFileName(broId);
+      });
+    } catch (error) {
+      setFailedFiles((previous) => [
+        ...previous,
+        {
+          name: broId,
+          error: error instanceof Error ? error.message : String(error),
+        },
+      ]);
+    } finally {
+      setPendingBroIds((previous) => {
+        const next = new Set(previous);
+        next.delete(broId);
+        return next;
+      });
+    }
+  }
 
   async function loadSampleFiles() {
     const sampleFiles = [
@@ -316,24 +374,20 @@ export function App() {
             </Button>
           )}
 
-          {Object.keys(broData).length > 0 && (
-            <div className="mb-6 mt-2">
-              <h2 className="text-xl font-semibold mb-3">
-                {Object.keys(broData).length > 1
-                  ? t("allLocations")
-                  : t("location")}
-              </h2>
+          <div className="mb-6 mt-2">
+            <h2 className="text-xl font-semibold mb-3">{t("map")}</h2>
 
+            {isClient ? (
               <ErrorBoundary
                 fallback={
-                  <div className="w-full h-96 rounded-sm border border-gray-300 bg-gray-100 flex items-center justify-center">
+                  <div className="w-full h-[600px] rounded-sm border border-gray-300 bg-gray-100 flex items-center justify-center">
                     <span className="text-gray-500">{t("mapError")}</span>
                   </div>
                 }
               >
                 <Suspense
                   fallback={
-                    <div className="w-full h-96 rounded-sm border border-gray-300 bg-gray-100 flex items-center justify-center">
+                    <div className="w-full h-[600px] rounded-sm border border-gray-300 bg-gray-100 flex items-center justify-center">
                       <span className="text-gray-500">{t("loadingMap")}</span>
                     </div>
                   }
@@ -342,13 +396,34 @@ export function App() {
                     broData={broData}
                     selectedFileName={selectedFileName}
                     onMarkerClick={setSelectedFileName}
+                    onPickLocation={(broId, layer) => {
+                      handlePickLocation(broId, layer).catch(
+                        (error: unknown) => {
+                          console.error(error);
+                        },
+                      );
+                    }}
                   />
                 </Suspense>
               </ErrorBoundary>
+            ) : (
+              <div className="w-full h-[620px] rounded-sm border border-gray-300 bg-gray-100 flex items-center justify-center">
+                <span className="text-gray-500">{t("loadingMap")}</span>
+              </div>
+            )}
 
+            {pendingBroIds.size > 0 && (
+              <p className="text-xs text-blue-600 mb-1">
+                {t("fetchingFromBro", {
+                  broIds: [...pendingBroIds].join(", "),
+                })}
+              </p>
+            )}
+
+            {Object.keys(broData).length > 0 && (
               <DownloadGeoJSONButton broData={broData} />
-            </div>
-          )}
+            )}
+          </div>
         </div>
 
         {selectedFile ? (

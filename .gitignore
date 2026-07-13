@@ -8,6 +8,9 @@
 
 TODO.md
 
+# Local dev copy; production serves from R2 (see use-map-init.ts)
+/public/bro_locations.pmtiles
+
 # Claude Code
 .claude/
 CLAUDE.md

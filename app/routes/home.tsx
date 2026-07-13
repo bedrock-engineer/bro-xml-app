@@ -9,7 +9,7 @@ const siteUrl = "https://bro.bedrock.engineer";
 const metaDataTranslations = {
   en: {
     title:
-      "BRO XML Viewer - CPT, BHR-GT & Boormonsteranalyses (BHR-GT-BMA) | Bedrock.engineer",
+      "BRO XML Viewer - CPT, BHR-G, BHR-GT & Boormonsteranalyses (BHR-GT-BMA) | Bedrock.engineer",
     description:
       "Free online BRO XML viewer for geotechnical engineers. View, analyze and export CPT, BHR-GT, geotechnical borehole sample analyses (BHR-GT-BMA) and BHR-G data from Basisregistratie Ondergrond. Works directly in your browser.",
     siteName: "Bedrock.engineer Geotechnical BRO/XML viewer",
@@ -17,7 +17,7 @@ const metaDataTranslations = {
   },
   nl: {
     title:
-      "BRO XML Viewer - Sonderingen (CPT), Boringen (BHR-GT) & Boormonsteranalyses (BHR-GT-BMA) | Bedrock.engineer",
+      "BRO XML Viewer - Sonderingen (CPT), Boringen (BHR-GT, BHR-G) & Boormonsteranalyses (BHR-GT-BMA) | Bedrock.engineer",
     description:
       "Gratis online BRO XML viewer voor geotechnisch ingenieurs. Bekijk, analyseer, en exporteer CPT, BHR-GT, geotechnische boormonsteranalyses (BHR-GT-BMA) en BHR-G gegevens van de Basisregistratie Ondergrond. Werkt direct in je browser zonder installatie.",
     siteName: "Bedrock.engineer geotechniek BRO/XML viewer",

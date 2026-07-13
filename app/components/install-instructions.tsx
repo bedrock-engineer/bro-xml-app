@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next";
 export function InstallInstructions() {
   const { t } = useTranslation();
 
-  if (globalThis.window === undefined) {
+  if (import.meta.env.SSR) {
     return t("installInstructionsDesktop");
   }
 

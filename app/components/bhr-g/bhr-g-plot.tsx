@@ -10,9 +10,9 @@ import {
   depthYAxisConfig,
   filterLayersByPixelHeight,
   hiddenXAxisConfig,
-} from "../util/plot-config";
-import { Card, CardTitle } from "./card";
-import { PlotDownloadButtons } from "./plot-download-buttons";
+} from "../../util/plot-config";
+import { Card, CardTitle } from "../card";
+import { PlotDownloadButtons } from "../plot-download-buttons";
 const id = "bhrg-plot";
 
 /** Default color when layer has no BRO color specified */

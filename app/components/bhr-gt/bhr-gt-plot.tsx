@@ -8,23 +8,24 @@ import type {
 import {
   LAB_TEST_CATEGORIES,
   getLabTestCategories,
-} from "../util/determination-types";
-import { Card, CardTitle } from "./card";
-import { LegendItem } from "./legend-item";
+} from "./determination-types";
+import { Card, CardTitle } from "../card";
+import { LegendItem } from "../legend-item";
 import {
   BhrgtDetailsTable,
   DETAILS_HEADER_HEIGHT,
   type DetailsTableLayout,
 } from "./bhr-gt-details-table";
-import { PlotDownloadButtons } from "./plot-download-buttons";
+import { PlotDownloadButtons } from "../plot-download-buttons";
 import {
   buildBhrgtPlot,
   CATEGORY_ORDER,
   type SampleLine,
   type TranslateFunction,
 } from "./bhr-gt-plot-render";
-import { collectSoilLegend } from "../util/bro-lithology";
-import { SoilLegend } from "./soil-legend";
+
+import { SoilLegend } from "../soil-legend";
+import { collectSoilLegend } from "~/util/bro-lithology";
 
 const id = "boreplot";
 
@@ -140,6 +141,7 @@ export function BHRGTPlot({
             >
               {t("tableLayoutScaled")}
             </ToggleButton>
+
             <ToggleButton
               id="rows"
               className="cursor-pointer border-l border-gray-300 px-2 py-0.5 text-gray-600 transition-colors data-[selected]:bg-gray-700 data-[selected]:text-white hover:bg-gray-50 data-[selected]:hover:bg-gray-700"
@@ -147,6 +149,7 @@ export function BHRGTPlot({
               {t("tableLayoutRows")}
             </ToggleButton>
           </ToggleButtonGroup>
+
           {canShowNap && (
             <ToggleButtonGroup
               aria-label={t("verticalReference")}
@@ -164,6 +167,7 @@ export function BHRGTPlot({
               >
                 m -mv
               </ToggleButton>
+
               <ToggleButton
                 id="nap"
                 className="cursor-pointer border-l border-gray-300 px-2 py-0.5 text-gray-600 transition-colors data-[selected]:bg-gray-700 data-[selected]:text-white hover:bg-gray-50 data-[selected]:hover:bg-gray-700"
@@ -185,7 +189,7 @@ export function BHRGTPlot({
           >
             {napMode ? "m NAP" : "m -mv"}
           </div>
-          
+
           <div id={id} ref={containerRef}></div>
         </div>
 
@@ -201,13 +205,13 @@ export function BHRGTPlot({
       {/* Soil type legend */}
       <SoilLegend soils={legendSoils} idPrefix="boreplot-legend" />
 
-
       {/* Lab test sample legend */}
       {sampleLines.length > 0 && (
         <div className="mt-4">
           <h4 className="text-sm font-medium text-gray-700 mb-2">
             {t("labTestSamples")}
           </h4>
+
           <div className="flex flex-wrap gap-3 text-xs">
             {CATEGORY_ORDER.filter((category) =>
               sampleLines.some((line) => line.category === category),

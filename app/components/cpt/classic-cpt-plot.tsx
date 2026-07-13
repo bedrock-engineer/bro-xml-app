@@ -5,7 +5,7 @@ import { useRef } from "react";
 import { useTranslation } from "react-i18next";
 import type { CPTMeasurement } from "@bedrock-engineer/bro-xml-parser";
 import type { ChartColumn } from "~/util/chart-axes";
-import { PlotDownloadButtons } from "./plot-download-buttons";
+import { PlotDownloadButtons } from "../plot-download-buttons";
 
 /**
  * Classic all-in-one CPT sounding chart, à la the geotechnical convention used

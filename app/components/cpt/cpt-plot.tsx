@@ -3,7 +3,8 @@ import * as Plot from "@observablehq/plot";
 import { useEffect, useRef, useState } from "react";
 import {
   Button,
-  Checkbox,
+  CheckboxButton,
+  CheckboxField,
   CheckboxGroup,
   Label,
   ListBox,
@@ -16,9 +17,9 @@ import {
 import { useTranslation } from "react-i18next";
 import type { ChartColumn } from "~/util/chart-axes";
 import { createWatermarkMark } from "~/util/plot-config";
-import { Card, CardTitle } from "./card";
+import { Card, CardTitle } from "../card";
+import { PlotDownloadButtons } from "../plot-download-buttons";
 import { ClassicCptPlot } from "./classic-cpt-plot";
-import { PlotDownloadButtons } from "./plot-download-buttons";
 
 function isDepthChartColumn(col: ChartColumn): boolean {
   return col.key === "penetrationLength" || col.key === "depth";
@@ -73,23 +74,21 @@ export function CptPlots({
           </Label>
           <div className="flex flex-wrap gap-x-4 gapy-y-1">
             {xAxisOptions.map((x) => (
-              <Checkbox
-                key={x.key}
-                value={x.key}
-                className="flex items-center gap-2 group"
-              >
-                <div className="w-4 h-4 border-2 border-gray-300 rounded flex items-center justify-center group-data-selected:bg-blue-600 group-data-selected:border-blue-600 group-hover:border-gray-400 group-data-selected:group-hover:bg-blue-700 group-data-pressed:scale-95 transition-all">
-                  <svg
-                    viewBox="0 0 18 18"
-                    className="w-3 h-3 fill-none stroke-white stroke-2 opacity-0 group-data-selected:opacity-100"
-                  >
-                    <polyline points="1 9 7 14 15 4" />
-                  </svg>
-                </div>
-                <span className="text-sm text-gray-700">
-                  {x.name} ({x.unit})
-                </span>
-              </Checkbox>
+              <CheckboxField key={x.key} value={x.key}>
+                <CheckboxButton className="flex items-center gap-2 group">
+                  <div className="w-4 h-4 border-2 border-gray-300 rounded flex items-center justify-center group-data-selected:bg-blue-600 group-data-selected:border-blue-600 group-hover:border-gray-400 group-data-selected:group-hover:bg-blue-700 group-data-pressed:scale-95 transition-all">
+                    <svg
+                      viewBox="0 0 18 18"
+                      className="w-3 h-3 fill-none stroke-white stroke-2 opacity-0 group-data-selected:opacity-100"
+                    >
+                      <polyline points="1 9 7 14 15 4" />
+                    </svg>
+                  </div>
+                  <span className="text-sm text-gray-700">
+                    {x.name} ({x.unit})
+                  </span>
+                </CheckboxButton>
+              </CheckboxField>
             ))}
           </div>
         </CheckboxGroup>
@@ -97,8 +96,8 @@ export function CptPlots({
         <div className="flex-1">
           {yAxisOptions.length > 1 ? (
             <Select
-              selectedKey={selectedYAxis}
-              onSelectionChange={(key) => {
+              value={selectedYAxis}
+              onChange={(key) => {
                 setSelectedYAxis(key as keyof CPTMeasurement);
               }}
               className="w-full max-w-2xs"

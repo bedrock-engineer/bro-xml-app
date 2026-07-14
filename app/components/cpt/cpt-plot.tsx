@@ -50,6 +50,7 @@ export function CptPlots({
   const [selectedAxes, setSelectedAxes] = useState([initialXAxis.key]);
   const [selectedYAxis, setSelectedYAxis] = useState(initialYAxis.key);
   const [showClassic, setShowClassic] = useState(false);
+  const [fixedDomains, setFixedDomains] = useState(false);
 
   const xAxisOptions = availableChartColumns.filter(
     (col) => !isDepthChartColumn(col),
@@ -84,6 +85,7 @@ export function CptPlots({
                       <polyline points="1 9 7 14 15 4" />
                     </svg>
                   </div>
+
                   <span className="text-sm text-gray-700">
                     {x.name} ({x.unit})
                   </span>
@@ -105,6 +107,7 @@ export function CptPlots({
               <Label className="block text-sm font-medium text-gray-700 mb-1">
                 {t("yAxisVertical")}
               </Label>
+
               <Button className="w-full px-3 py-2 bg-white border border-gray-300 rounded-sm text-sm text-gray-700 text-left flex justify-between items-center hover:bg-gray-50">
                 <SelectValue />
                 <span aria-hidden="true">▼</span>
@@ -129,12 +132,21 @@ export function CptPlots({
               <span className="block text-sm font-medium text-gray-700 mb-1">
                 {t("yAxisVertical")}
               </span>
+
               <div className="px-3 py-2 bg-gray-50 border border-gray-300 rounded-sm text-sm text-gray-700">
                 {currentYAxis.name} ({currentYAxis.unit})
               </div>
             </div>
           )}
         </div>
+
+        <ToggleButton
+          isSelected={fixedDomains}
+          onChange={setFixedDomains}
+          className="px-3 py-2 bg-white border border-gray-300 rounded-sm text-sm text-gray-700 hover:bg-gray-50 selected:bg-blue-600 selected:text-white selected:border-blue-600"
+        >
+          {t("fixedDomains")}
+        </ToggleButton>
 
         <ToggleButton
           isSelected={showClassic}
@@ -153,6 +165,7 @@ export function CptPlots({
             availableChartColumns={xAxisOptions}
             height={height}
             baseFilename={baseFilename}
+            fixedDomains={fixedDomains}
           />
         </div>
       ) : (
@@ -178,7 +191,9 @@ export function CptPlots({
                   yAxis={currentYAxis}
                   xAxis={xAxis}
                   reverseY={true}
+                  fixedDomain={fixedDomains ? xAxis.fixedDomain : undefined}
                 />
+                
                 <PlotDownloadButtons
                   plotId={plotId}
                   filename={`${baseFilename}-${xAxis.name}`}
@@ -200,6 +215,8 @@ interface CptPlotProps {
   height: number;
   reverseY?: boolean;
   plotId: string;
+  /** When set, the x-scale uses this domain instead of the data extent. */
+  fixedDomain?: [number, number];
 }
 
 function CptPlot({
@@ -210,6 +227,7 @@ function CptPlot({
   data,
   reverseY = true,
   plotId,
+  fixedDomain,
 }: CptPlotProps) {
   const { t } = useTranslation();
   const containerRef = useRef<HTMLDivElement>(null);
@@ -230,6 +248,7 @@ function CptPlot({
       x: {
         label: `${xAxis.name} (${xAxis.unit})`,
         grid: true,
+        domain: fixedDomain,
       },
       y: {
         grid: true,
@@ -243,6 +262,9 @@ function CptPlot({
           y: yAxis.key,
           filter: (d: CPTMeasurement) =>
             d[xAxis.key] != null && d[yAxis.key] != null,
+          // Values outside a fixed domain (e.g. qc spikes above 30 MPa)
+          // should clip at the frame instead of drawing past the axis.
+          clip: fixedDomain !== undefined,
         }),
         Plot.crosshair(data, {
           x: xAxis.key,
@@ -260,7 +282,7 @@ function CptPlot({
     return () => {
       plot.remove();
     };
-  }, [data, xAxis, yAxis, width, height, reverseY, t]);
+  }, [data, xAxis, yAxis, width, height, reverseY, fixedDomain, t]);
 
   return <div id={plotId} ref={containerRef}></div>;
 }

@@ -2,6 +2,7 @@ import type { BROData } from "@bedrock-engineer/bro-xml-parser";
 import { type Map as MaplibreMap } from "maplibre-gl";
 import { LngLatBounds, type GeoJSONSource } from "maplibre-gl";
 import { type RefObject, useEffect, useMemo, useRef } from "react";
+import { useToWgs84 } from "~/util/coordinates";
 import {
   type LocationInfo,
   extractLocation,
@@ -22,12 +23,17 @@ export function useLoadedLocations(
 ): void {
   const knownFilenamesRef = useRef<Set<string>>(new Set());
 
+  // Gets a new identity once the RDNAPTRANS datum grid activates and
+  // conversions upgrade from ~0.5 m to cm accuracy (popups show 6
+  // decimals), so the locations memo recomputes then.
+  const toWgs84 = useToWgs84();
+
   // Extract locations of the files loaded in the app
   const locations: Array<LocationInfo> = useMemo(() => {
     return Object.entries(broData)
-      .map(([filename, data]) => extractLocation(filename, data))
+      .map(([filename, data]) => extractLocation(filename, data, toWgs84))
       .filter((loc): loc is LocationInfo => loc !== null);
-  }, [broData]);
+  }, [broData, toWgs84]);
 
   const loadedGeoJSON = useMemo(
     () => locationsToGeoJSON(locations, selectedFileName),

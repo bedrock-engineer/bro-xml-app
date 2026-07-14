@@ -2,7 +2,7 @@ import type { TFunction } from "i18next";
 import type { MapGeoJSONFeature } from "maplibre-gl";
 import { type Map as MaplibreMap } from "maplibre-gl";
 import type { BROData, BROFileType } from "~/types/bro-data";
-import { getCoordSystemName, toWgs84 } from "~/util/coordinates";
+import { type ToWgs84, getCoordSystemName } from "~/util/coordinates";
 
 export interface LocationInfo {
   filename: string;
@@ -16,11 +16,13 @@ export interface LocationInfo {
 }
 
 /**
- * Extract location from BRO data
+ * Extract location from BRO data. The converter comes in as a parameter
+ * (from useToWgs84) so callers' memoization tracks datum-grid upgrades.
  */
 export function extractLocation(
   filename: string,
   data: BROData,
+  toWgs84: ToWgs84,
 ): LocationInfo | null {
   const location = data.standardizedLocation ?? data.deliveredLocation;
 

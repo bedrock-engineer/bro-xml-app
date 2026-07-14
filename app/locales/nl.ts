@@ -18,6 +18,7 @@ export default {
     loadSampleFiles: "laad voorbeeldbestanden",
     clearAllFiles: "Alle bestanden wissen",
     removeFile: "Bestand verwijderen",
+    downloadXmlFile: "BRO XML-bestand downloaden",
     processingFiles: "Bestanden verwerken...",
     or: "of",
 
@@ -317,6 +318,7 @@ export default {
     classicCptChart: "Klassieke sondeergrafiek",
     showClassicCptChart: "Klassieke sondeergrafiek tonen",
     showColumnCharts: "Kolomgrafieken tonen",
+    fixedDomains: "Vaste as",
     legend: "Legenda",
     labTestSamples: "Laboratoriummonsters",
     depthM: "Diepte (m)",

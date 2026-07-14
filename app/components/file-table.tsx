@@ -1,4 +1,9 @@
-import { ChevronDownIcon, ChevronUpIcon, XIcon } from "lucide-react";
+import {
+  ChevronDownIcon,
+  ChevronUpIcon,
+  DownloadIcon,
+  XIcon,
+} from "lucide-react";
 import { useMemo, useState } from "react";
 import type {
   FileDropItem,
@@ -51,6 +56,7 @@ interface FileTableProps {
   selectedFileName: string;
   onSelectionChange: (filename: string) => void;
   onFileDrop: (files: Array<File>) => void;
+  onFileDownload: (filename: string) => void;
   onFileRemove: (filename: string) => void;
 }
 
@@ -59,6 +65,7 @@ export function FileTable({
   selectedFileName,
   onSelectionChange,
   onFileDrop,
+  onFileDownload,
   onFileRemove,
 }: FileTableProps) {
   const { t } = useTranslation();
@@ -196,8 +203,8 @@ export function FileTable({
             />
           </Column>
 
-          <Column id="remove" className="file-table-column w-10">
-            {/* Empty header for remove column */}
+          <Column id="actions" className="file-table-column w-16">
+            {/* Empty header for download/remove buttons */}
           </Column>
         </TableHeader>
 
@@ -229,15 +236,27 @@ export function FileTable({
               <Cell className="file-table-cell">{row.qualityRegime}</Cell>
 
               <Cell className="file-table-cell">
-                <Button
-                  onPress={() => {
-                    onFileRemove(row.filename);
-                  }}
-                  className="p-1 hover:bg-gray-200 rounded text-gray-500 hover:text-gray-700"
-                  aria-label={t("removeFile")}
-                >
-                  <XIcon size={14} />
-                </Button>
+                <div className="flex items-center gap-0.5">
+                  <Button
+                    onPress={() => {
+                      onFileDownload(row.filename);
+                    }}
+                    className="p-1 hover:bg-gray-200 rounded text-gray-500 hover:text-gray-700"
+                    aria-label={t("downloadXmlFile")}
+                  >
+                    <DownloadIcon size={14} />
+                  </Button>
+
+                  <Button
+                    onPress={() => {
+                      onFileRemove(row.filename);
+                    }}
+                    className="p-1 hover:bg-gray-200 rounded text-gray-500 hover:text-gray-700"
+                    aria-label={t("removeFile")}
+                  >
+                    <XIcon size={14} />
+                  </Button>
+                </div>
               </Cell>
             </Row>
           )}

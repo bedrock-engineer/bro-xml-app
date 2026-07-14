@@ -1,7 +1,11 @@
 import type { Location } from "@bedrock-engineer/bro-xml-parser";
 import type { ReactNode } from "react";
 import { useTranslation } from "react-i18next";
-import { getCoordSystemName, normalizeEpsg, toWgs84 } from "../util/coordinates";
+import {
+  getCoordSystemName,
+  normalizeEpsg,
+  useToWgs84,
+} from "../util/coordinates";
 import { formatDate } from "../util/format";
 import { CopyButton } from "./copy-button";
 
@@ -155,6 +159,9 @@ interface LocationDisplayProps {
 
 export function LocationDisplay({ location }: LocationDisplayProps) {
   const { t } = useTranslation();
+  // Re-renders once the RDNAPTRANS datum grid activates, so the WGS84
+  // digits upgrade from ~0.5 m to cm accuracy.
+  const toWgs84 = useToWgs84();
 
   if (!location) {
     return null;

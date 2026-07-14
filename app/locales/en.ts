@@ -18,6 +18,7 @@ export default {
     loadSampleFiles: "load sample files",
     clearAllFiles: "Clear all files",
     removeFile: "Remove file",
+    downloadXmlFile: "Download BRO XML file",
     processingFiles: "Processing files...",
     or: "or",
 
@@ -318,6 +319,7 @@ export default {
     classicCptChart: "Classic CPT chart",
     showClassicCptChart: "Show classic CPT chart",
     showColumnCharts: "Show column charts",
+    fixedDomains: "Fixed axis ranges",
     legend: "Legend",
     labTestSamples: "Lab Test Samples",
     depthM: "Depth (m)",

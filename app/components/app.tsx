@@ -22,6 +22,7 @@ import {
 } from "~/types/bro-data";
 import { type BROLocationLayer, fetchBROObject } from "~/util/bro-api";
 import { detectChartAxes } from "~/util/chart-axes";
+import { downloadFile } from "~/util/download";
 import {
   CompactBHRGHeader,
   DetailedBHRGHeaders,
@@ -94,6 +95,7 @@ export function App() {
   const { t } = useTranslation();
   const [isPending, startTransition] = useTransition();
   const [broData, setBroData] = useState<Record<string, BROData>>({});
+  const [rawXml, setRawXml] = useState<Record<string, Blob>>({});
   const [selectedFileName, setSelectedFileName] = useState("");
   const [failedFiles, setFailedFiles] = useState<
     Array<{ name: string; error: string }>
@@ -130,6 +132,10 @@ export function App() {
 
       startTransition(() => {
         setBroData((previous) => ({ ...previous, [broId]: data }));
+        setRawXml((previous) => ({
+          ...previous,
+          [broId]: new Blob([xml], { type: "application/xml" }),
+        }));
         setSelectedFileName(broId);
       });
     } catch (error) {
@@ -168,14 +174,23 @@ export function App() {
         throw new Error(`HTTP ${response.status}`);
       }
       const text = await response.text();
-      return { filename, data: parser.parse(text) };
+      return {
+        filename,
+        data: parser.parse(text),
+        xml: new Blob([text], { type: "application/xml" }),
+      };
     });
     const results = await Promise.allSettled(parsedFiles);
 
     const successful = results
       .filter(
-        (r): r is PromiseFulfilledResult<{ filename: string; data: BROData }> =>
-          r.status === "fulfilled",
+        (
+          r,
+        ): r is PromiseFulfilledResult<{
+          filename: string;
+          data: BROData;
+          xml: Blob;
+        }> => r.status === "fulfilled",
       )
       .map((r) => r.value);
 
@@ -196,9 +211,13 @@ export function App() {
     const bro = Object.fromEntries(
       successful.map(({ filename, data }) => [filename, data]),
     ) as Record<string, BROData>;
+    const xml = Object.fromEntries(
+      successful.map(({ filename, xml }) => [filename, xml]),
+    );
 
     startTransition(() => {
       setBroData((previous) => ({ ...previous, ...bro }));
+      setRawXml((previous) => ({ ...previous, ...xml }));
       setFailedFiles((previous) => [...previous, ...failed]);
       if (successful[0]) {
         setSelectedFileName(successful[0].filename);
@@ -214,10 +233,16 @@ export function App() {
         files.map((file) => parseBROFile(file)),
       );
 
-      const parsedBroFiles = results
-        .filter((f) => f.status === "fulfilled")
-        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-        .map((d, index) => [files[index]!.name, d.value]);
+      const parsed = results
+        .map((result, index) => ({ result, file: files[index] }))
+        .filter(
+          (
+            item,
+          ): item is {
+            result: PromiseFulfilledResult<BROData>;
+            file: File;
+          } => item.result.status === "fulfilled",
+        );
 
       const failed = results
         .map((result, index) => ({ result, file: files[index] }))
@@ -233,10 +258,17 @@ export function App() {
               : String(result.reason),
         }));
 
-      const bro = Object.fromEntries(parsedBroFiles) as Record<string, BROData>;
+      const bro = Object.fromEntries(
+        parsed.map(({ result, file }) => [file.name, result.value]),
+      ) as Record<string, BROData>;
+      // A File is already a Blob, so the upload itself is the download source
+      const xml = Object.fromEntries(
+        parsed.map(({ file }) => [file.name, file]),
+      );
 
       startTransition(() => {
         setBroData((previous) => ({ ...previous, ...bro }));
+        setRawXml((previous) => ({ ...previous, ...xml }));
         setFailedFiles((previous) => [...previous, ...failed]);
 
         if (files[0]) {
@@ -345,8 +377,25 @@ export function App() {
                 console.error(error);
               });
             }}
+            onFileDownload={(filename) => {
+              const xml = rawXml[filename];
+              if (xml) {
+                downloadFile(
+                  xml,
+                  filename.toLowerCase().endsWith(".xml")
+                    ? filename
+                    : `${filename}.xml`,
+                  "application/xml",
+                );
+              }
+            }}
             onFileRemove={(filename) => {
               setBroData((previous) => {
+                // eslint-disable-next-line @typescript-eslint/no-unused-vars
+                const { [filename]: _, ...rest } = previous;
+                return rest;
+              });
+              setRawXml((previous) => {
                 // eslint-disable-next-line @typescript-eslint/no-unused-vars
                 const { [filename]: _, ...rest } = previous;
                 return rest;
@@ -366,6 +415,7 @@ export function App() {
               className="button mt-2 ml-auto transition-colors"
               onPress={() => {
                 setBroData({});
+                setRawXml({});
                 setSelectedFileName("");
                 setFailedFiles([]);
               }}

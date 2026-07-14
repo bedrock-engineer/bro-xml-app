@@ -2,12 +2,13 @@
  * Generic utility for downloading content as a file in the browser
  */
 export function downloadFile(
-  content: string,
+  content: string | Blob,
   filename: string,
-  mimeType: string
+  mimeType: string,
 ): void {
   // Create blob and download
-  const blob = new Blob([content], { type: mimeType });
+  const blob =
+    content instanceof Blob ? content : new Blob([content], { type: mimeType });
   const link = document.createElement("a");
 
   link.href = URL.createObjectURL(blob);

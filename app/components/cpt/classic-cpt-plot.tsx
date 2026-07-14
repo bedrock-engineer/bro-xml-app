@@ -1,7 +1,7 @@
 import { max as d3Max, extent as d3Extent } from "d3-array";
 import { scaleLinear, type ScaleLinear } from "d3-scale";
 import { line as d3Line } from "d3-shape";
-import { useRef } from "react";
+import { useId, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import type { CPTMeasurement } from "@bedrock-engineer/bro-xml-parser";
 import type { ChartColumn } from "~/util/chart-axes";
@@ -63,6 +63,9 @@ interface ClassicCptPlotProps {
   width?: number;
   height?: number;
   baseFilename: string;
+  /** Use each column's conventional fixed range instead of the data extent,
+   *  so charts of different soundings share the same x-scales. */
+  fixedDomains?: boolean;
 }
 
 export function ClassicCptPlot({
@@ -72,9 +75,11 @@ export function ClassicCptPlot({
   width = 460,
   height = 800,
   baseFilename,
+  fixedDomains = false,
 }: ClassicCptPlotProps) {
   const { t } = useTranslation();
   const containerRef = useRef<HTMLDivElement>(null);
+  const clipId = useId();
 
   const yKey = yAxis.key;
 
@@ -102,11 +107,14 @@ export function ClassicCptPlot({
     }
 
     const side = parameter.mirror ? top : bottom;
-    // Domain [0, 2·max] keeps each curve in roughly one half of the frame
+    // Domain [0, 2·max] keeps each curve in roughly one half of the frame;
+    // with fixed domains the column's conventional max replaces the data max.
+    const domainMax =
+      fixedDomains && column.fixedDomain ? column.fixedDomain[1] : maxValue;
     side.push({
       column,
       style: parameter,
-      scale: scaleLinear().domain([0, maxValue * 2]),
+      scale: scaleLinear().domain([0, domainMax * 2]),
       row: side.length,
     });
   }
@@ -153,6 +161,18 @@ export function ClassicCptPlot({
           role="img"
           aria-label={t("classicCptChart")}
         >
+          {/* With fixed domains the data can exceed the conventional range;
+              clip the curves at the frame instead of drawing past it. */}
+          {fixedDomains && (
+            <clipPath id={clipId}>
+              <rect
+                x={plotLeft}
+                y={plotTop}
+                width={plotRight - plotLeft}
+                height={plotBottom - plotTop}
+              />
+            </clipPath>
+          )}
           {/* Depth grid + y-axis */}
           {yTicks.map((tick) => {
             const y = yScale(tick);
@@ -256,6 +276,7 @@ export function ClassicCptPlot({
                 stroke={p.style.color}
                 strokeWidth={1}
                 strokeDasharray={p.style.dash}
+                clipPath={fixedDomains ? `url(#${clipId})` : undefined}
               />
             );
           })}

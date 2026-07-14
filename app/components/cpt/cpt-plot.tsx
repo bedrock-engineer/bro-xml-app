@@ -10,9 +10,11 @@ import {
   ListBox,
   ListBoxItem,
   Popover,
+  RadioButton,
+  RadioField,
+  RadioGroup,
   Select,
   SelectValue,
-  ToggleButton,
 } from "react-aria-components";
 import { useTranslation } from "react-i18next";
 import type { ChartColumn } from "~/util/chart-axes";
@@ -64,11 +66,34 @@ export function CptPlots({
       <CardTitle>{t("graphs")}</CardTitle>
 
       <div className="mb-4 flex flex-wrap gap-4 items-end">
+        <RadioGroup
+          value={showClassic ? "classic" : "columns"}
+          onChange={(v) => {
+            setShowClassic(v === "classic");
+          }}
+          orientation="horizontal"
+          aria-label={t("chartType")}
+          className="flex gap-1"
+        >
+          {[
+            { value: "columns", label: t("columnCharts") },
+            { value: "classic", label: t("classicCptChart") },
+          ].map((option) => (
+            <RadioField key={option.value} value={option.value}>
+              <RadioButton className="cursor-pointer rounded-sm border border-gray-300 px-2.5 py-1 text-sm text-gray-700 transition-colors data-selected:border-blue-600 data-selected:bg-blue-600 data-selected:text-white hover:bg-gray-50 data-selected:hover:bg-blue-700">
+                {option.label}
+              </RadioButton>
+            </RadioField>
+          ))}
+        </RadioGroup>
+
         <CheckboxGroup
           value={selectedAxes as Array<string>}
           onChange={(v) => {
             setSelectedAxes(v as Array<keyof CPTMeasurement>);
           }}
+          isDisabled={showClassic}
+          className="data-disabled:opacity-50"
         >
           <Label className="block text-sm font-medium text-gray-700 mb-2">
             {t("columns")}
@@ -76,8 +101,8 @@ export function CptPlots({
           <div className="flex flex-wrap gap-x-4 gapy-y-1">
             {xAxisOptions.map((x) => (
               <CheckboxField key={x.key} value={x.key}>
-                <CheckboxButton className="flex items-center gap-2 group">
-                  <div className="w-4 h-4 border-2 border-gray-300 rounded flex items-center justify-center group-data-selected:bg-blue-600 group-data-selected:border-blue-600 group-hover:border-gray-400 group-data-selected:group-hover:bg-blue-700 group-data-pressed:scale-95 transition-all">
+                <CheckboxButton className="flex items-center gap-2 group data-disabled:cursor-not-allowed">
+                  <div className="w-4 h-4 border-2 border-gray-300 rounded flex items-center justify-center group-data-selected:bg-blue-600 group-data-selected:border-blue-600 group-data-hovered:border-gray-400 group-data-selected:group-data-hovered:bg-blue-700 group-data-pressed:scale-95 transition-all">
                     <svg
                       viewBox="0 0 18 18"
                       className="w-3 h-3 fill-none stroke-white stroke-2 opacity-0 group-data-selected:opacity-100"
@@ -140,21 +165,26 @@ export function CptPlots({
           )}
         </div>
 
-        <ToggleButton
-          isSelected={fixedDomains}
-          onChange={setFixedDomains}
-          className="px-2 py-1 bg-white border border-gray-300 rounded-sm text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+        <RadioGroup
+          value={fixedDomains ? "fixed" : "auto"}
+          onChange={(v) => {
+            setFixedDomains(v === "fixed");
+          }}
+          orientation="horizontal"
+          aria-label={t("axisRanges")}
+          className="flex gap-1"
         >
-          {fixedDomains ? t("autoDomains") : t("fixedDomains")}
-        </ToggleButton>
-
-        <ToggleButton
-          isSelected={showClassic}
-          onChange={setShowClassic}
-          className="px-2 py-1 bg-white border border-gray-300 rounded-sm text-sm text-gray-700 hover:bg-gray-50 transition-colors"
-        >
-          {showClassic ? t("showColumnCharts") : t("showClassicCptChart")}
-        </ToggleButton>
+          {[
+            { value: "auto", label: t("autoDomains") },
+            { value: "fixed", label: t("fixedDomains") },
+          ].map((option) => (
+            <RadioField key={option.value} value={option.value}>
+              <RadioButton className="cursor-pointer rounded-sm border border-gray-300 px-2.5 py-1 text-sm text-gray-700 transition-colors data-selected:border-blue-600 data-selected:bg-blue-600 data-selected:text-white hover:bg-gray-50 data-selected:hover:bg-blue-700">
+                {option.label}
+              </RadioButton>
+            </RadioField>
+          ))}
+        </RadioGroup>
       </div>
 
       {showClassic ? (

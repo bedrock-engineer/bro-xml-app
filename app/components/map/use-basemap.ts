@@ -1,6 +1,9 @@
 import { type RefObject, useState, useEffect } from "react";
-import { type BasemapId, defaultBasemapId, basemaps } from "./map-controls.client";
-import { runWhenStyleLoaded } from "./map-hooks.client";
+import {
+  type BasemapId,
+  defaultBasemapId,
+  basemaps,
+} from "./map-controls.client";
 
 /**
  * Basemap selection. Switching toggles visibility of the raster layers
@@ -9,25 +12,24 @@ import { runWhenStyleLoaded } from "./map-hooks.client";
  */
 
 export function useBasemap(
-  mapRef: RefObject<maplibregl.Map | null>
+  mapRef: RefObject<maplibregl.Map | null>,
+  styleReady: boolean,
 ): [BasemapId, (id: BasemapId) => void] {
   const [basemap, setBasemap] = useState<BasemapId>(defaultBasemapId);
 
   useEffect(() => {
     const map = mapRef.current;
-    if (!map) {
+    if (!map || !styleReady) {
       return;
     }
-    return runWhenStyleLoaded(map, () => {
-      for (const definition of basemaps) {
-        map.setLayoutProperty(
-          `basemap-${definition.id}`,
-          "visibility",
-          definition.id === basemap ? "visible" : "none"
-        );
-      }
-    });
-  }, [mapRef, basemap]);
+    for (const definition of basemaps) {
+      map.setLayoutProperty(
+        `basemap-${definition.id}`,
+        "visibility",
+        definition.id === basemap ? "visible" : "none",
+      );
+    }
+  }, [mapRef, styleReady, basemap]);
 
   return [basemap, setBasemap];
 }

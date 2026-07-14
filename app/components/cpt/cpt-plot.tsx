@@ -143,15 +143,15 @@ export function CptPlots({
         <ToggleButton
           isSelected={fixedDomains}
           onChange={setFixedDomains}
-          className="px-3 py-2 bg-white border border-gray-300 rounded-sm text-sm text-gray-700 hover:bg-gray-50 selected:bg-blue-600 selected:text-white selected:border-blue-600"
+          className="px-2 py-1 bg-white border border-gray-300 rounded-sm text-sm text-gray-700 hover:bg-gray-50 transition-colors"
         >
-          {t("fixedDomains")}
+          {fixedDomains ? t("autoDomains") : t("fixedDomains")}
         </ToggleButton>
 
         <ToggleButton
           isSelected={showClassic}
           onChange={setShowClassic}
-          className="px-3 py-2 bg-white border border-gray-300 rounded-sm text-sm text-gray-700 hover:bg-gray-50 selected:bg-blue-600 selected:text-white selected:border-blue-600"
+          className="px-2 py-1 bg-white border border-gray-300 rounded-sm text-sm text-gray-700 hover:bg-gray-50 transition-colors"
         >
           {showClassic ? t("showColumnCharts") : t("showClassicCptChart")}
         </ToggleButton>
@@ -193,7 +193,7 @@ export function CptPlots({
                   reverseY={true}
                   fixedDomain={fixedDomains ? xAxis.fixedDomain : undefined}
                 />
-                
+
                 <PlotDownloadButtons
                   plotId={plotId}
                   filename={`${baseFilename}-${xAxis.name}`}

@@ -37,15 +37,18 @@ export function BROMap({
   const { t } = useTranslation();
   const containerRef = useRef<HTMLDivElement>(null);
 
-  const { mapRef, portals } = useMapInit(containerRef);
+  const { mapRef, styleReady, portals } = useMapInit(containerRef);
 
   useMapInteractions(mapRef, { onMarkerClick, onPickLocation });
 
-  const [basemap, setBasemap] = useBasemap(mapRef);
+  const [basemap, setBasemap] = useBasemap(mapRef, styleReady);
 
-  const { visibility, setLayerVisible } = useLayerVisibility(mapRef);
+  const { visibility, setLayerVisible } = useLayerVisibility(
+    mapRef,
+    styleReady,
+  );
 
-  useLoadedLocations(mapRef, broData, selectedFileName);
+  useLoadedLocations(mapRef, styleReady, broData, selectedFileName);
 
   return (
     <>

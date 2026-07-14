@@ -1,11 +1,10 @@
 import type { Location } from "@bedrock-engineer/bro-xml-parser";
 import proj4 from "proj4";
 import { useSyncExternalStore } from "react";
-
-// Type-only import: erased at compile time, so geotiff.js stays out of
-// the main bundle. The runtime `import("geotiff")` below loads the chunk
+// The runtime `import("geotiff")` below loads the chunk
 // in parallel with the grid download, off the critical rendering path.
 import type { fromArrayBuffer as GeoTIFFFromArrayBuffer } from "geotiff";
+
 type GeoTIFFInstance = Awaited<ReturnType<typeof GeoTIFFFromArrayBuffer>>;
 
 interface WGS84Coords {

@@ -37,6 +37,14 @@ interface MapPortals {
 interface MapInitResult {
   mapRef: RefObject<maplibregl.Map | null>;
   /**
+   * True once the style's initial `load` event has fired. The style is
+   * never replaced (basemap switching only toggles layer visibility),
+   * so this flips exactly once; effects that mutate the style gate on
+   * it instead of `map.isStyleLoaded()`, which is false any time the
+   * map is busy (tiles in flight, pending mutations).
+   */
+  styleReady: boolean;
+  /**
    * Null until the map has mounted. Once set, each field is a stable
    * DOM node the caller renders into via `createPortal`. Cleared on
    * unmount so the portals leave the React tree before the nodes are
@@ -50,6 +58,7 @@ export function useMapInit(
 ): MapInitResult {
   const mapRef = useRef<MaplibreMap | null>(null);
   const [portals, setPortals] = useState<MapPortals | null>(null);
+  const [styleReady, setStyleReady] = useState(false);
 
   useEffect(() => {
     const container = containerRef.current;
@@ -68,6 +77,10 @@ export function useMapInit(
 
     registerCptIcons(map);
 
+    void map.once("load", () => {
+      setStyleReady(true);
+    });
+
     map.addControl(new NavigationControl({ showCompass: false }), "top-right");
     map.addControl(new ScaleControl({ unit: "metric" }), "bottom-left");
 
@@ -82,10 +95,11 @@ export function useMapInit(
 
     return () => {
       setPortals(null);
+      setStyleReady(false);
       map.remove();
       mapRef.current = null;
     };
   }, [containerRef]);
 
-  return { mapRef, portals };
+  return { mapRef, styleReady, portals };
 }

@@ -1,10 +1,15 @@
-import type { LayerSpecification, StyleSpecification } from "maplibre-gl";
+import type {
+  FilterSpecification,
+  LayerSpecification,
+  StyleSpecification,
+} from "maplibre-gl";
 import maplibregl from "maplibre-gl";
 import { Protocol } from "pmtiles";
 import type { BROLocationLayer } from "~/util/bro-api";
 import {
   basemaps,
   defaultBasemapId,
+  loadedStrokeColor,
   selectedColor,
   typeColors,
 } from "./map-controls.client";
@@ -38,6 +43,22 @@ export function clusterLayerId(layer: BROLocationLayer): string {
 /** Ids of the layers showing the files loaded in the app. */
 export const loadedLayerIds = ["loaded-points", "loaded-points-cpt"];
 
+/**
+ * Filter for the unclustered tile point layers. Locations loaded in
+ * the app are excluded so each BRO point renders exactly once — as its
+ * "loaded" marker. Clusters are baked into the tiles by tippecanoe, so
+ * their counts still include loaded points.
+ */
+export function broPointFilter(
+  excludedBroIds: Array<string>,
+): FilterSpecification {
+  return [
+    "all",
+    ["!", ["has", "point_count"]],
+    ["!", ["in", ["get", "bro_id"], ["literal", excludedBroIds]]],
+  ];
+}
+
 // Layers that respond to hover/click, in priority order: loaded files
 // first, then single points, then clusters
 export const interactiveLayers = [
@@ -59,6 +80,7 @@ function triangleIcon(
   size: number,
   color: string,
   strokeWidth: number,
+  strokeColor: string,
 ): MapIcon {
   const pixelRatio = 2;
   const canvas = document.createElement("canvas");
@@ -80,7 +102,7 @@ function triangleIcon(
   context.fill();
   context.lineJoin = "round";
   context.lineWidth = strokeWidth;
-  context.strokeStyle = "#ffffff";
+  context.strokeStyle = strokeColor;
   context.stroke();
 
   return {
@@ -96,9 +118,14 @@ function triangleIcon(
  */
 export function registerCptIcons(map: maplibregl.Map): void {
   const icons: Record<string, MapIcon> = {
-    "cpt-triangle": triangleIcon(12, typeColors.CPT, 1.5),
-    "cpt-triangle-loaded": triangleIcon(20, typeColors.CPT, 2),
-    "cpt-triangle-selected": triangleIcon(26, selectedColor, 3),
+    "cpt-triangle": triangleIcon(12, typeColors.CPT, 1.5, "#ffffff"),
+    "cpt-triangle-loaded": triangleIcon(
+      16,
+      typeColors.CPT,
+      2,
+      loadedStrokeColor,
+    ),
+    "cpt-triangle-selected": triangleIcon(20, selectedColor, 2, "#ffffff"),
   };
   for (const [id, icon] of Object.entries(icons)) {
     map.addImage(id, icon.data, { pixelRatio: icon.pixelRatio });
@@ -116,7 +143,7 @@ function broPointLayer(layer: BROLocationLayer): LayerSpecification {
       type: "symbol",
       source: "bro",
       "source-layer": layer,
-      filter: ["!", ["has", "point_count"]],
+      filter: broPointFilter([]),
       layout: {
         "icon-image": "cpt-triangle",
         "icon-allow-overlap": true,
@@ -133,7 +160,7 @@ function broPointLayer(layer: BROLocationLayer): LayerSpecification {
     type: "circle",
     source: "bro",
     "source-layer": layer,
-    filter: ["!", ["has", "point_count"]],
+    filter: broPointFilter([]),
     paint: {
       "circle-color": pmtilesLayerColors[layer],
       "circle-opacity": 0.85,
@@ -248,9 +275,14 @@ export function createMapStyle(pmtilesUrl: string): StyleSpecification {
               typeColors["BHR-GT"],
             ],
           ],
-          "circle-radius": ["case", ["get", "selected"], 10, 8],
-          "circle-stroke-width": ["case", ["get", "selected"], 3, 2],
-          "circle-stroke-color": "#ffffff",
+          "circle-radius": ["case", ["get", "selected"], 8, 6],
+          "circle-stroke-width": ["case", ["get", "selected"], 2.5, 2],
+          "circle-stroke-color": [
+            "case",
+            ["get", "selected"],
+            "#ffffff",
+            loadedStrokeColor,
+          ],
         },
       },
       {

@@ -16,7 +16,7 @@ import {
 } from "react-aria-components";
 import { useTranslation } from "react-i18next";
 import type { BROFileType } from "~/types/bro-data";
-import type { ToggleableMapLayer } from "./use-layer-visibility";
+import type { BROLocationLayer } from "~/util/bro-api";
 import {
   lookupAddress,
   suggestAddresses,
@@ -30,6 +30,10 @@ export const typeColors: Record<BROFileType, string> = {
 };
 
 export const selectedColor = "#dc2626"; // red
+
+// Dark stroke marks files loaded in the app; tile points have a white
+// hairline, so the ring color alone tells the states apart.
+export const loadedStrokeColor = "#1f2937";
 
 const searchMarkerColor = "#0d9488"; // teal, distinct from point colors
 
@@ -250,16 +254,16 @@ export function SearchBox({ mapRef }: SearchBoxProps) {
 }
 
 interface MapLayersPanelProps {
-  visibility: Record<ToggleableMapLayer, boolean>;
-  onVisibilityChange: (layer: ToggleableMapLayer, visible: boolean) => void;
+  visibility: Record<BROLocationLayer, boolean>;
+  onVisibilityChange: (layer: BROLocationLayer, visible: boolean) => void;
   basemap: BasemapId;
   onBasemapChange: (id: BasemapId) => void;
 }
 
 /**
- * Legend with visibility toggles for the BRO location layers and the
- * loaded files, plus a basemap picker. Rendered into the map via
- * `PortalControl`.
+ * Legend with visibility toggles for the BRO location layers, static
+ * legend entries for the loaded / selected marker states, and a
+ * basemap picker. Rendered into the map via `PortalControl`.
  */
 export function MapLayersPanel({
   visibility,
@@ -296,15 +300,6 @@ export function MapLayersPanel({
           onVisibilityChange("bhrg", checked);
         }}
       />
-      <LayerToggle
-        color={typeColors.CPT}
-        label={t("mapLegendLoaded")}
-        ring
-        checked={visibility.loaded}
-        onChange={(checked) => {
-          onVisibilityChange("loaded", checked);
-        }}
-      />
 
       <RadioGroup
         value={basemap}
@@ -330,14 +325,12 @@ export function MapLayersPanel({
 function LayerToggle({
   color,
   label,
-  ring = false,
   shape = "circle",
   checked,
   onChange,
 }: {
   color: string;
   label: string;
-  ring?: boolean;
   shape?: LegendShape;
   checked: boolean;
   onChange: (checked: boolean) => void;
@@ -353,7 +346,7 @@ function LayerToggle({
             <polyline points="1 9 7 14 15 4" />
           </svg>
         </span>
-        <LegendDot color={color} ring={ring} shape={shape} />
+        <LegendDot color={color} shape={shape} />
         {label}
       </CheckboxButton>
     </CheckboxField>
@@ -364,11 +357,9 @@ type LegendShape = "circle" | "triangle";
 
 function LegendDot({
   color,
-  ring = false,
   shape = "circle",
 }: {
   color: string;
-  ring?: boolean;
   shape?: LegendShape;
 }) {
   if (shape === "triangle") {
@@ -389,10 +380,10 @@ function LegendDot({
     <span
       className="inline-block rounded-full shrink-0"
       style={{
-        width: ring ? 12 : 10,
-        height: ring ? 12 : 10,
+        width: 10,
+        height: 10,
         backgroundColor: color,
-        border: ring ? "2px solid #ffffff" : "1px solid #ffffff",
+        border: "1px solid #ffffff",
         boxShadow: "0 0 0 1px rgba(0,0,0,0.25)",
       }}
     />

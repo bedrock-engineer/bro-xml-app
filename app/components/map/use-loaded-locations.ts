@@ -7,17 +7,24 @@ import {
   type LocationInfo,
   extractLocation,
   locationsToGeoJSON,
-  runWhenStyleLoaded,
 } from "./map-hooks.client";
+import {
+  broPointFilter,
+  broTileLayers,
+  pointLayerId,
+} from "./map-style.client";
 
 /**
- * Keep the "loaded" GeoJSON source in sync with the files loaded in the
- * app, and fit bounds when files are added outside the current view
- * (uploads); picked points are already in view, so the map does not jump.
+ * Keep the "loaded" GeoJSON source in sync with the files loaded in
+ * the app, hide the tile twins of loaded locations so each BRO point
+ * renders exactly once, and fit bounds when files are added outside
+ * the current view (uploads); picked points are already in view, so
+ * the map does not jump.
  */
 
 export function useLoadedLocations(
   mapRef: RefObject<MaplibreMap | null>,
+  styleReady: boolean,
   broData: Record<string, BROData>,
   selectedFileName: string | null,
 ): void {
@@ -42,13 +49,18 @@ export function useLoadedLocations(
 
   useEffect(() => {
     const map = mapRef.current;
-    if (!map) {
+    if (!map || !styleReady) {
       return;
     }
 
-    const cleanup = runWhenStyleLoaded(map, () => {
-      map.getSource<GeoJSONSource>("loaded")?.setData(loadedGeoJSON);
-    });
+    map.getSource<GeoJSONSource>("loaded")?.setData(loadedGeoJSON);
+
+    const loadedBroIds = locations
+      .map((loc) => loc.broId)
+      .filter((broId): broId is string => broId !== null);
+    for (const layer of broTileLayers) {
+      map.setFilter(pointLayerId(layer), broPointFilter(loadedBroIds));
+    }
 
     const known = knownFilenamesRef.current;
     const added = locations.filter((loc) => !known.has(loc.filename));
@@ -66,7 +78,5 @@ export function useLoadedLocations(
       }
       map.fitBounds(fitBounds, { padding: 50, maxZoom: 14 });
     }
-
-    return cleanup;
-  }, [mapRef, loadedGeoJSON, locations]);
+  }, [mapRef, styleReady, loadedGeoJSON, locations]);
 }

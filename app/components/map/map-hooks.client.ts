@@ -1,6 +1,5 @@
 import type { TFunction } from "i18next";
 import type { MapGeoJSONFeature } from "maplibre-gl";
-import { type Map as MaplibreMap } from "maplibre-gl";
 import type { BROData, BROFileType } from "~/types/bro-data";
 import { type ToWgs84, getCoordSystemName } from "~/util/coordinates";
 
@@ -137,24 +136,3 @@ export function hoverPopupHtml(
 
   return `<div class="text-xs">${lines.join("<br/>")}</div>`;
 }
-
-/**
- * Run `apply` now if the map style is ready, otherwise once it loads.
- * Returns a cleanup function for the pending listener, for use as an
- * effect return value.
- */
-export function runWhenStyleLoaded(
-  map: MaplibreMap,
-  apply: () => void,
-): (() => void) | undefined {
-  if (map.isStyleLoaded()) {
-    apply();
-    return undefined;
-  }
-  void map.once("load", apply);
-  return () => {
-    map.off("load", apply);
-  };
-}
-
-

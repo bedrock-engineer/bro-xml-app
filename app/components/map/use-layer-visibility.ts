@@ -1,61 +1,44 @@
 import { type Map as MaplibreMap } from "maplibre-gl";
 import { type RefObject, useEffect, useState } from "react";
 import type { BROLocationLayer } from "~/util/bro-api";
-import { runWhenStyleLoaded } from "./map-hooks.client";
 import {
   broTileLayers,
   clusterLayerId,
-  loadedLayerIds,
   pointLayerId,
 } from "./map-style.client";
 
-/** Layer groups the user can show/hide from the layers panel. */
-export type ToggleableMapLayer = BROLocationLayer | "loaded";
-
-const toggleableLayers: Array<ToggleableMapLayer> = [
-  ...broTileLayers,
-  "loaded",
-];
-
-function toggleLayerIds(toggle: ToggleableMapLayer): Array<string> {
-  return toggle === "loaded"
-    ? loadedLayerIds
-    : [pointLayerId(toggle), clusterLayerId(toggle)];
-}
-
 interface LayerVisibilityResult {
-  visibility: Record<ToggleableMapLayer, boolean>;
-  setLayerVisible: (layer: ToggleableMapLayer, visible: boolean) => void;
+  visibility: Record<BROLocationLayer, boolean>;
+  setLayerVisible: (layer: BROLocationLayer, visible: boolean) => void;
 }
 /**
- * Visibility toggles for the BRO location layers and the files loaded
- * in the app. Hidden layers are also skipped by queryRenderedFeatures,
- * so hover and click stop matching them too.
+ * Visibility toggles for the BRO location layers. Files loaded in the
+ * app stay visible regardless — the user put them there deliberately.
+ * Hidden layers are also skipped by queryRenderedFeatures, so hover
+ * and click stop matching them too.
  */
 
 export function useLayerVisibility(
   mapRef: RefObject<MaplibreMap | null>,
+  styleReady: boolean,
 ): LayerVisibilityResult {
   const [visibility, setVisibility] = useState<
-    Record<ToggleableMapLayer, boolean>
-  >({ cpt: true, bhrgt: true, bhrg: true, loaded: true });
+    Record<BROLocationLayer, boolean>
+  >({ cpt: true, bhrgt: true, bhrg: true });
 
   useEffect(() => {
     const map = mapRef.current;
-    if (!map) {
+    if (!map || !styleReady) {
       return;
     }
-    return runWhenStyleLoaded(map, () => {
-      for (const layer of toggleableLayers) {
-        const value = visibility[layer] ? "visible" : "none";
-        for (const layerId of toggleLayerIds(layer)) {
-          map.setLayoutProperty(layerId, "visibility", value);
-        }
-      }
-    });
-  }, [mapRef, visibility]);
+    for (const layer of broTileLayers) {
+      const value = visibility[layer] ? "visible" : "none";
+      map.setLayoutProperty(pointLayerId(layer), "visibility", value);
+      map.setLayoutProperty(clusterLayerId(layer), "visibility", value);
+    }
+  }, [mapRef, styleReady, visibility]);
 
-  const setLayerVisible = (layer: ToggleableMapLayer, visible: boolean) => {
+  const setLayerVisible = (layer: BROLocationLayer, visible: boolean) => {
     setVisibility((previous) => ({ ...previous, [layer]: visible }));
   };
 

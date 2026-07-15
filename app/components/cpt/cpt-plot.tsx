@@ -1,4 +1,3 @@
-import type { CPTMeasurement } from "@bedrock-engineer/bro-xml-parser";
 import * as Plot from "@observablehq/plot";
 import { useEffect, useRef, useState } from "react";
 import {
@@ -10,25 +9,27 @@ import {
   ListBox,
   ListBoxItem,
   Popover,
-  RadioButton,
-  RadioField,
-  RadioGroup,
   Select,
   SelectValue,
 } from "react-aria-components";
 import { useTranslation } from "react-i18next";
-import type { ChartColumn } from "~/util/chart-axes";
+import type { ChartColumn, CPTChartRow } from "~/util/chart-axes";
 import { createWatermarkMark } from "~/util/plot-config";
 import { Card, CardTitle } from "../card";
 import { PlotDownloadButtons } from "../plot-download-buttons";
+import { RadioButtonGroup } from "../radio-button-group";
 import { ClassicCptPlot } from "./classic-cpt-plot";
 
 function isDepthChartColumn(col: ChartColumn): boolean {
-  return col.key === "penetrationLength" || col.key === "depth";
+  return (
+    col.key === "penetrationLength" ||
+    col.key === "depth" ||
+    col.key === "elevationNAP"
+  );
 }
 
 interface CptPlotsProps {
-  data: Array<CPTMeasurement>;
+  data: Array<CPTChartRow>;
   xAxis: ChartColumn;
   yAxis: ChartColumn;
   availableChartColumns: Array<ChartColumn>;
@@ -65,32 +66,39 @@ export function CptPlots({
     <Card>
       <CardTitle>{t("graphs")}</CardTitle>
 
-      <div className="mb-4 flex flex-wrap gap-4 items-end">
-        <RadioGroup
-          value={showClassic ? "classic" : "columns"}
-          onChange={(v) => {
-            setShowClassic(v === "classic");
-          }}
-          orientation="horizontal"
-          aria-label={t("chartType")}
-          className="flex gap-1"
-        >
-          {[
-            { value: "columns", label: t("columnCharts") },
-            { value: "classic", label: t("classicCptChart") },
-          ].map((option) => (
-            <RadioField key={option.value} value={option.value}>
-              <RadioButton className="cursor-pointer rounded-sm border border-gray-300 px-2.5 py-1 text-sm text-gray-700 transition-colors data-selected:border-blue-600 data-selected:bg-blue-600 data-selected:text-white hover:bg-gray-50 data-selected:hover:bg-blue-700">
-                {option.label}
-              </RadioButton>
-            </RadioField>
-          ))}
-        </RadioGroup>
+      <div className="mb-4 grid gap-2">
+        <div className="flex flex-wrap gap-x-6 gap-y-1">
+          <RadioButtonGroup
+            value={showClassic ? "classic" : "columns"}
+            onChange={(v) => {
+              setShowClassic(v === "classic");
+            }}
+            label={t("chartType")}
+            options={[
+              { value: "columns", label: t("columnCharts") },
+              { value: "classic", label: t("classicCptChart") },
+            ]}
+            className="text-sm text-gray-700"
+          />
+
+          <RadioButtonGroup
+            value={fixedDomains ? "fixed" : "auto"}
+            onChange={(v) => {
+              setFixedDomains(v === "fixed");
+            }}
+            label={t("axisRanges")}
+            options={[
+              { value: "auto", label: t("autoDomains") },
+              { value: "fixed", label: t("fixedDomains") },
+            ]}
+            className="text-sm text-gray-700"
+          />
+        </div>
 
         <CheckboxGroup
           value={selectedAxes as Array<string>}
           onChange={(v) => {
-            setSelectedAxes(v as Array<keyof CPTMeasurement>);
+            setSelectedAxes(v as Array<keyof CPTChartRow>);
           }}
           isDisabled={showClassic}
           className="data-disabled:opacity-50"
@@ -125,7 +133,7 @@ export function CptPlots({
             <Select
               value={selectedYAxis}
               onChange={(key) => {
-                setSelectedYAxis(key as keyof CPTMeasurement);
+                setSelectedYAxis(key as keyof CPTChartRow);
               }}
               className="w-full max-w-2xs"
             >
@@ -164,27 +172,6 @@ export function CptPlots({
             </div>
           )}
         </div>
-
-        <RadioGroup
-          value={fixedDomains ? "fixed" : "auto"}
-          onChange={(v) => {
-            setFixedDomains(v === "fixed");
-          }}
-          orientation="horizontal"
-          aria-label={t("axisRanges")}
-          className="flex gap-1"
-        >
-          {[
-            { value: "auto", label: t("autoDomains") },
-            { value: "fixed", label: t("fixedDomains") },
-          ].map((option) => (
-            <RadioField key={option.value} value={option.value}>
-              <RadioButton className="cursor-pointer rounded-sm border border-gray-300 px-2.5 py-1 text-sm text-gray-700 transition-colors data-selected:border-blue-600 data-selected:bg-blue-600 data-selected:text-white hover:bg-gray-50 data-selected:hover:bg-blue-700">
-                {option.label}
-              </RadioButton>
-            </RadioField>
-          ))}
-        </RadioGroup>
       </div>
 
       {showClassic ? (
@@ -220,7 +207,7 @@ export function CptPlots({
                   width={width}
                   yAxis={currentYAxis}
                   xAxis={xAxis}
-                  reverseY={true}
+                  reverseY={!currentYAxis.increasesUpward}
                   fixedDomain={fixedDomains ? xAxis.fixedDomain : undefined}
                 />
 
@@ -238,7 +225,7 @@ export function CptPlots({
 }
 
 interface CptPlotProps {
-  data: Array<CPTMeasurement>;
+  data: Array<CPTChartRow>;
   xAxis: ChartColumn;
   yAxis: ChartColumn;
   width: number;
@@ -290,7 +277,7 @@ function CptPlot({
         Plot.lineX(data, {
           x: xAxis.key,
           y: yAxis.key,
-          filter: (d: CPTMeasurement) =>
+          filter: (d: CPTChartRow) =>
             d[xAxis.key] != null && d[yAxis.key] != null,
           // Values outside a fixed domain (e.g. qc spikes above 30 MPa)
           // should clip at the frame instead of drawing past the axis.

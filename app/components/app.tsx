@@ -9,7 +9,7 @@ import {
   TrashIcon,
   UploadIcon,
 } from "lucide-react";
-import { Suspense, useEffect, useState, useTransition } from "react";
+import { Suspense, useEffect, useMemo, useState, useTransition } from "react";
 import { Button, FileTrigger } from "react-aria-components";
 import { ErrorBoundary } from "react-error-boundary";
 import { useTranslation } from "react-i18next";
@@ -280,10 +280,16 @@ export function App() {
 
   const selectedFile = selectedFileName ? broData[selectedFileName] : undefined;
 
-  const chartAxes =
-    selectedFile && isCPTData(selectedFile)
-      ? detectChartAxes(selectedFile)
-      : null;
+  // Memoized because detectChartAxes maps the measurement rows (adding the
+  // derived NAP elevation column); a fresh array every render would remake
+  // the plots.
+  const chartAxes = useMemo(
+    () =>
+      selectedFile && isCPTData(selectedFile)
+        ? detectChartAxes(selectedFile, t)
+        : null,
+    [selectedFile, t],
+  );
 
   return (
     <div className="pancake">
@@ -503,7 +509,7 @@ export function App() {
 
                 {chartAxes?.xAxis && chartAxes.yAxis && (
                   <CptPlots
-                    data={selectedFile.data}
+                    data={chartAxes.data}
                     xAxis={chartAxes.xAxis}
                     yAxis={chartAxes.yAxis}
                     availableChartColumns={chartAxes.availableColumns}
@@ -631,19 +637,19 @@ function Header() {
           className="text-3xl flex gap-2 items-center"
           style={{ fontFamily: "var(--font-condensed)" }}
         >
-          <img src="bedrock.svg" width={30} /> {t("appTitle")}
+          <img src="bedrock.svg" width={30} />
+          <span style={{ color: "hsl(110 3% 53%)" }}>
+            Bedrock.engineer
+          </span>{" "}
+          {t("appTitle")}
         </h1>
 
         <button
           className="px-3 py-1 text-sm border border-gray-300 rounded hover:bg-gray-100 transition-colors"
           onClick={() => {
-            handleLanguageChange()
-              .then((a) => {
-                console.log("Language change submitted", a);
-              })
-              .catch((error: unknown) => {
-                console.error(error);
-              });
+            handleLanguageChange().catch((error: unknown) => {
+              console.error("Language change error:", error);
+            });
           }}
         >
           {i18n.language === "nl" ? "English" : "Nederlands"}
@@ -678,6 +684,10 @@ function Footer() {
             <a
               className="hover:underline flex gap-1 items-center text-lg mt-2"
               href="https://bedrock.engineer"
+              style={{
+                color: "hsl(110 3% 53%)",
+                fontFamily: "var(--font-condensed)",
+              }}
             >
               <img
                 src="/bedrock.svg"

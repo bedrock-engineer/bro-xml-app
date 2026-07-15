@@ -4,16 +4,11 @@ import type {
 } from "@bedrock-engineer/bro-xml-parser";
 import * as Plot from "@observablehq/plot";
 import { useEffect, useRef, useState } from "react";
-import {
-  Label,
-  RadioButton,
-  RadioField,
-  RadioGroup,
-} from "react-aria-components";
 import { useTranslation } from "react-i18next";
 import { createWatermarkMark } from "~/util/plot-config";
 import { Card, CardTitle } from "../card";
 import { PlotDownloadButtons } from "../plot-download-buttons";
+import { RadioButtonGroup } from "../radio-button-group";
 
 type TimeScale = "linear" | "log" | "sqrt";
 
@@ -176,27 +171,13 @@ function DissipationPlot({ plotId, test }: DissipationPlotProps) {
 
   return (
     <div>
-      <RadioGroup
+      <RadioButtonGroup
         value={timeScale}
-        onChange={(v) => {
-          setTimeScale(v as TimeScale);
-        }}
-        orientation="horizontal"
-        className="flex items-center gap-3 mb-3"
-      >
-        <Label className="text-sm font-medium text-gray-700">
-          {t("timeScale")}
-        </Label>
-        <div className="flex gap-1">
-          {options.map((option) => (
-            <RadioField key={option.value} value={option.value}>
-              <RadioButton className="cursor-pointer rounded-sm border border-gray-300 px-2.5 py-1 text-sm text-gray-700 transition-colors data-[selected]:border-blue-600 data-[selected]:bg-blue-600 data-[selected]:text-white hover:bg-gray-50 data-[selected]:hover:bg-blue-700">
-                {option.label}
-              </RadioButton>
-            </RadioField>
-          ))}
-        </div>
-      </RadioGroup>
+        onChange={setTimeScale}
+        label={t("timeScale")}
+        options={options}
+        className="mb-3 text-sm text-gray-700"
+      />
       <div id={plotId} ref={containerRef}></div>
     </div>
   );

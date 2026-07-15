@@ -1,7 +1,7 @@
 export default {
   translation: {
     // App title and description
-    appTitle: "Bedrock.engineer Geotechniek BRO/XML viewer",
+    appTitle: "Geotechniek BRO/XML viewer",
     appDescription:
       "Bekijk en analyseer BRO (Basisregistratie Ondergrond) XML bestanden voor CPT sonderingen, BHR-GT boringen, geotechnische boormonsteranalyses (BHR-GT-BMA), en BHR-G gegevens in je browser.",
     privacyNote: "Je gegevens verlaten nooit je browser.",
@@ -329,6 +329,36 @@ export default {
     selectDownloadFormat: "Kies downloadformaat",
     madeWithBedrockBroViewer: "Gemaakt met Bedrock BRO/XML viewer",
 
+    // CPT measurement column names
+    cptColumn: {
+      penetrationLength: "Sondeerlengte",
+      depth: "Diepte",
+      elevationNAP: "Diepte t.o.v. NAP",
+      elapsedTime: "Verstreken tijd",
+      coneResistance: "Conusweerstand (qc)",
+      correctedConeResistance: "Gecorrigeerde conusweerstand (qt)",
+      netConeResistance: "Netto conusweerstand (qn)",
+      localFriction: "Plaatselijke wrijving (fs)",
+      frictionRatio: "Wrijvingsgetal (Rf)",
+      porePressureU1: "Waterspanning u1",
+      porePressureU2: "Waterspanning u2",
+      porePressureU3: "Waterspanning u3",
+      poreRatio: "Waterspanningsratio",
+      inclinationX: "Helling X",
+      inclinationY: "Helling Y",
+      inclinationEW: "Helling OW",
+      inclinationNS: "Helling NZ",
+      inclinationResultant: "Resulterende helling",
+      magneticFieldStrengthX: "Magnetische veldsterkte X",
+      magneticFieldStrengthY: "Magnetische veldsterkte Y",
+      magneticFieldStrengthZ: "Magnetische veldsterkte Z",
+      magneticFieldStrengthTotal: "Totale magnetische veldsterkte",
+      magneticInclination: "Magnetische inclinatie",
+      magneticDeclination: "Magnetische declinatie",
+      electricalConductivity: "Elektrische geleidbaarheid",
+      temperature: "Temperatuur",
+    },
+
     // Lab test types
     labTestType: {
       basic: "Basis (water, dichtheid)",
@@ -401,7 +431,7 @@ export default {
     contact: "Contact",
     feedbackOrRequests: "Bugs, feedback of verzoeken?",
     needSimilarApp:
-      "Heb je een vergelijkbare app nodig voor je geotechnische workflow?",
+      "Heb je een vergelijkbare app nodig voor je geotechnische BRO data of workflow?",
     contactUs: "Neem contact op",
 
     // Empty state CTA
@@ -409,7 +439,7 @@ export default {
     customWebApps:
       "Webapps op maat voor BRO/XML dataverwerking en visualisatie",
     broXmlPdfReports:
-      "Geautomatiseerde PDF-rapportage vanuit BRO XML (sonderingen en boringen)",
+      "Geautomatiseerde PDF-rapportage vanuit BRO/XML",
     pythonAutomation:
       "Python scripts voor geautomatiseerde BRO data-extractie, analyse en rapportage",
     bimCadIntegrations:
@@ -442,8 +472,7 @@ export default {
     privacyDescription: "Je gegevens blijven privé:",
     privacyBullet1:
       "Alle verwerking gebeurt in je browser, bestanden worden nooit naar een server geüpload",
-    privacyBullet2: "Werkt offline na eerste keer laden",
-    privacyBullet3: "Geen tracking, geen cookies (behalve voor taalvoorkeur)",
+    privacyBullet2: "Kan geinstalleerd worden en offline gebruikt worden",
     aboutBro: "Wat is de BRO?",
     aboutBroDescription:
       "De Basisregistratie Ondergrond (BRO) is het Nederlandse nationale register voor ondergrondgegevens. Het bevat geotechnische en geologische gegevens van grondonderzoeken, een waardevolle bron voor bouw-, infrastructuur- en milieuprojecten in Nederland.",

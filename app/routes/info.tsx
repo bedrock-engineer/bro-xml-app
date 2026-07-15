@@ -49,9 +49,9 @@ export default function InfoPage() {
             </p>
             <ul className="list-disc list-inside space-y-2 text-gray-700">
               <li>{t("featureCpt")}</li>
-              
+
               <li>{t("featureBhrGt")}</li>
-              
+
               <li>{t("featureLab")}</li>
 
               <li>{t("featureBhrG")}</li>
@@ -63,7 +63,7 @@ export default function InfoPage() {
 
           <Card>
             <h2 className="text-xl font-medium mb-4">{t("bmaTitle")}</h2>
-            
+
             <p className="text-gray-700 mb-4">{t("bmaDescription")}</p>
 
             <p>
@@ -95,16 +95,14 @@ export default function InfoPage() {
             <p className="text-gray-700 mb-4">{t("privacyDescription")}</p>
             <ul className="list-disc list-inside space-y-2 text-gray-700">
               <li>{t("privacyBullet1")}</li>
-              
-              <li>{t("privacyBullet2")}</li>
 
-              <li>{t("privacyBullet3")}</li>
+              <li>{t("privacyBullet2")}</li>
             </ul>
           </Card>
 
           <Card>
             <h2 className="text-xl font-medium mb-4">{t("aboutBro")}</h2>
-            
+
             <p className="text-gray-700 mb-4">{t("aboutBroDescription")}</p>
 
             <a
@@ -121,15 +119,15 @@ export default function InfoPage() {
             <h2 className="text-xl font-medium mb-4">{t("aboutBedrock")}</h2>
 
             <p className="text-gray-700 mb-4">{t("aboutBedrockDescription")}</p>
-            
+
             <ul className="list-disc list-inside space-y-2 text-gray-700 mb-4">
               <li>{t("customWebApps")}</li>
-            
+
               <li>{t("bimCadIntegrations")}</li>
-            
+
               <li>{t("pythonAutomation")}</li>
             </ul>
-            
+
             <a
               href="https://bedrock.engineer"
               target="_blank"

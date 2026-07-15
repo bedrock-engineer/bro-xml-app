@@ -10,9 +10,6 @@ import {
   ListBox,
   ListBoxItem,
   Popover,
-  RadioButton,
-  RadioField,
-  RadioGroup,
 } from "react-aria-components";
 import { useTranslation } from "react-i18next";
 import type { BROFileType } from "~/types/bro-data";
@@ -22,6 +19,7 @@ import {
   suggestAddresses,
   type PdokSuggestion,
 } from "~/util/pdok";
+import { RadioButtonGroup } from "../radio-button-group";
 
 export const typeColors: Record<BROFileType, string> = {
   CPT: "#2563eb", // blue
@@ -301,23 +299,17 @@ export function MapLayersPanel({
         }}
       />
 
-      <RadioGroup
+      <RadioButtonGroup
         value={basemap}
         onChange={onBasemapChange}
         aria-label={t("mapBasemapLabel")}
-        className="border-t border-gray-200 pt-1 space-y-0.5"
-      >
-        {basemaps.map((definition) => (
-          <RadioField key={definition.id} value={definition.id}>
-            <RadioButton className="group flex cursor-pointer items-center gap-1.5">
-              <span className="flex h-3.5 w-3.5 shrink-0 items-center justify-center rounded-full border-2 border-gray-300 transition-colors group-hover:border-gray-400 group-data-selected:border-blue-600">
-                <span className="h-1.5 w-1.5 rounded-full bg-blue-600 opacity-0 transition-opacity group-data-selected:opacity-100" />
-              </span>
-              {t(definition.labelKey)}
-            </RadioButton>
-          </RadioField>
-        ))}
-      </RadioGroup>
+        orientation="vertical"
+        options={basemaps.map((definition) => ({
+          value: definition.id,
+          label: t(definition.labelKey),
+        }))}
+        className="border-t border-gray-200 pt-1"
+      />
     </div>
   );
 }

@@ -4,7 +4,7 @@ import { line as d3Line } from "d3-shape";
 import { useId, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import type { CPTMeasurement } from "@bedrock-engineer/bro-xml-parser";
-import type { ChartColumn } from "~/util/chart-axes";
+import type { ChartColumn, CPTChartRow } from "~/util/chart-axes";
 import { PlotDownloadButtons } from "../plot-download-buttons";
 
 /**
@@ -57,7 +57,7 @@ interface ResolvedParameter {
 }
 
 interface ClassicCptPlotProps {
-  data: Array<CPTMeasurement>;
+  data: Array<CPTChartRow>;
   yAxis: ChartColumn;
   availableChartColumns: Array<ChartColumn>;
   width?: number;
@@ -83,7 +83,8 @@ export function ClassicCptPlot({
 
   const yKey = yAxis.key;
 
-  // Depth domain from the data; min (shallow) maps to the top of the frame.
+  // Depth domain from the data; the shallow end maps to the top of the frame:
+  // the minimum for depth-like columns, the maximum for NAP elevation.
   const yDomain = d3Extent(data, (d) => d[yKey]);
 
   if (data.length === 0 || yDomain[0] === undefined) {
@@ -133,7 +134,11 @@ export function ClassicCptPlot({
   const plotBottom = height - marginBottom;
 
   const yScale = scaleLinear()
-    .domain([yDomain[0], yDomain[1]])
+    .domain(
+      yAxis.increasesUpward
+        ? [yDomain[1], yDomain[0]]
+        : [yDomain[0], yDomain[1]],
+    )
     .range([plotTop, plotBottom]);
 
   // Now that the pixel range is known, fix each x-scale's range (mirrored
@@ -259,7 +264,7 @@ export function ClassicCptPlot({
 
           {/* Curves */}
           {params.map((p) => {
-            const path = d3Line<CPTMeasurement>()
+            const path = d3Line<CPTChartRow>()
               .defined((d) => d[p.column.key] != null && d[yKey] != null)
               .x((d) => p.scale(Number(d[p.column.key])))
               .y((d) => yScale(Number(d[yKey])))(data);

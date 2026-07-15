@@ -1,5 +1,5 @@
-import { Popup } from "maplibre-gl";
 import type { Map as MaplibreMap, MapMouseEvent } from "maplibre-gl";
+import { Popup } from "maplibre-gl";
 import { type RefObject, useEffect, useEffectEvent } from "react";
 import { useTranslation } from "react-i18next";
 import type { BROLocationLayer } from "~/util/bro-api";
@@ -22,6 +22,7 @@ const tileLayerByPointLayer = new Map(
     layer,
   ]),
 );
+
 /**
  * Hover popups, pointer cursor, and click handling for the interactive
  * layers: loaded files select, clusters zoom in, single BRO points pick.

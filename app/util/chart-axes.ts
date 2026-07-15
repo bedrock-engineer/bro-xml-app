@@ -5,14 +5,27 @@
  */
 
 import type { CPTData, CPTMeasurement } from "@bedrock-engineer/bro-xml-parser";
+import type { TFunction } from "i18next";
+
+/**
+ * A CPT measurement row extended with columns derived in-app. BRO XML only
+ * delivers depths relative to the local reference point; elevation w.r.t. NAP
+ * is computed from the delivered vertical position offset.
+ */
+export type CPTChartRow = CPTMeasurement & {
+  elevationNAP?: number | null;
+};
 
 export interface ChartColumn {
-  key: keyof CPTMeasurement;
+  key: keyof CPTChartRow;
   unit: string;
   name: string;
   /** Conventional value range, used when plotting with fixed domains so
    *  multiple CPTs can be compared side by side. */
   fixedDomain?: [number, number];
+  /** Values increase upward (elevation) instead of downward (depth), so the
+   *  y-axis must not be inverted when this column is plotted vertically. */
+  increasesUpward?: boolean;
 }
 
 interface ChartAxes {
@@ -20,6 +33,8 @@ interface ChartAxes {
   xAxis: ChartColumn | null;
   availableColumns: Array<ChartColumn>;
   yAxisOptions: Array<ChartColumn>;
+  /** Measurement rows, augmented with derived columns such as elevationNAP. */
+  data: Array<CPTChartRow>;
 }
 
 /**
@@ -31,123 +46,93 @@ interface ChartAxes {
  * of the fixed range is comparability between soundings, not full coverage.
  */
 const CPT_COLUMN_METADATA: Record<
-  keyof CPTMeasurement,
-  { name: string; unit: string; fixedDomain?: [number, number] }
+  keyof CPTChartRow,
+  {
+    unit: string;
+    fixedDomain?: [number, number];
+    increasesUpward?: boolean;
+  }
 > = {
-  penetrationLength: { name: "Penetration Length", unit: "m" },
-  depth: { name: "Depth", unit: "m" },
-  elapsedTime: { name: "Elapsed Time", unit: "s" },
-  coneResistance: {
-    name: "Cone Resistance (qc)",
-    unit: "MPa",
-    fixedDomain: [0, 60],
-  },
-  correctedConeResistance: {
-    name: "Corrected Cone Resistance (qt)",
-    unit: "MPa",
-    fixedDomain: [0, 60],
-  },
-  netConeResistance: {
-    name: "Net Cone Resistance (qn)",
-    unit: "MPa",
-    fixedDomain: [0, 60],
-  },
-  localFriction: {
-    name: "Sleeve Friction (fs)",
-    unit: "MPa",
-    fixedDomain: [0, 0.3],
-  },
-  frictionRatio: {
-    name: "Friction Ratio (Rf)",
-    unit: "%",
-    fixedDomain: [0, 10],
-  },
-  porePressureU1: {
-    name: "Pore Pressure U1",
-    unit: "MPa",
-    fixedDomain: [-0.1, 1],
-  },
-  porePressureU2: {
-    name: "Pore Pressure U2",
-    unit: "MPa",
-    fixedDomain: [-0.1, 1],
-  },
-  porePressureU3: {
-    name: "Pore Pressure U3",
-    unit: "MPa",
-    fixedDomain: [-0.1, 1],
-  },
-  poreRatio: { name: "Pore Ratio", unit: "-", fixedDomain: [-0.2, 1.2] },
-  inclinationX: { name: "Inclination X", unit: "°", fixedDomain: [-15, 15] },
-  inclinationY: { name: "Inclination Y", unit: "°", fixedDomain: [-15, 15] },
-  inclinationEW: { name: "Inclination EW", unit: "°", fixedDomain: [-15, 15] },
-  inclinationNS: { name: "Inclination NS", unit: "°", fixedDomain: [-15, 15] },
-  inclinationResultant: {
-    name: "Inclination Resultant",
-    unit: "°",
-    fixedDomain: [0, 15],
-  },
-  magneticFieldStrengthX: {
-    name: "Magnetic Field X",
-    unit: "nT",
-    fixedDomain: [-50_000, 50_000],
-  },
-  magneticFieldStrengthY: {
-    name: "Magnetic Field Y",
-    unit: "nT",
-    fixedDomain: [-50_000, 50_000],
-  },
-  magneticFieldStrengthZ: {
-    name: "Magnetic Field Z",
-    unit: "nT",
-    fixedDomain: [-50_000, 50_000],
-  },
-  magneticFieldStrengthTotal: {
-    name: "Magnetic Field Total",
-    unit: "nT",
-    fixedDomain: [0, 75_000],
-  },
-  magneticInclination: {
-    name: "Magnetic Inclination",
-    unit: "°",
-    fixedDomain: [0, 90],
-  },
-  magneticDeclination: {
-    name: "Magnetic Declination",
-    unit: "°",
-    fixedDomain: [-30, 30],
-  },
-  electricalConductivity: {
-    name: "Electrical Conductivity",
-    unit: "mS/m",
-    fixedDomain: [0, 500],
-  },
-  temperature: { name: "Temperature", unit: "°C", fixedDomain: [0, 25] },
+  penetrationLength: { unit: "m" },
+  depth: { unit: "m" },
+  elevationNAP: { unit: "m", increasesUpward: true },
+  elapsedTime: { unit: "s" },
+  coneResistance: { unit: "MPa", fixedDomain: [0, 60] },
+  correctedConeResistance: { unit: "MPa", fixedDomain: [0, 60] },
+  netConeResistance: { unit: "MPa", fixedDomain: [0, 60] },
+  localFriction: { unit: "MPa", fixedDomain: [0, 0.3] },
+  frictionRatio: { unit: "%", fixedDomain: [0, 10] },
+  porePressureU1: { unit: "MPa", fixedDomain: [-0.1, 1] },
+  porePressureU2: { unit: "MPa", fixedDomain: [-0.1, 1] },
+  porePressureU3: { unit: "MPa", fixedDomain: [-0.1, 1] },
+  poreRatio: { unit: "-", fixedDomain: [-0.2, 1.2] },
+  inclinationX: { unit: "°", fixedDomain: [-15, 15] },
+  inclinationY: { unit: "°", fixedDomain: [-15, 15] },
+  inclinationEW: { unit: "°", fixedDomain: [-15, 15] },
+  inclinationNS: { unit: "°", fixedDomain: [-15, 15] },
+  inclinationResultant: { unit: "°", fixedDomain: [0, 15] },
+  magneticFieldStrengthX: { unit: "nT", fixedDomain: [-50_000, 50_000] },
+  magneticFieldStrengthY: { unit: "nT", fixedDomain: [-50_000, 50_000] },
+  magneticFieldStrengthZ: { unit: "nT", fixedDomain: [-50_000, 50_000] },
+  magneticFieldStrengthTotal: { unit: "nT", fixedDomain: [0, 75_000] },
+  magneticInclination: { unit: "°", fixedDomain: [0, 90] },
+  magneticDeclination: { unit: "°", fixedDomain: [-30, 30] },
+  electricalConductivity: { unit: "mS/m", fixedDomain: [0, 500] },
+  temperature: { unit: "°C", fixedDomain: [0, 25] },
 };
 
 /**
  * Get available columns from CPT measurement data
  */
-function getAvailableColumns(data: Array<CPTMeasurement>): Array<ChartColumn> {
+function getAvailableColumns(
+  data: Array<CPTChartRow>,
+  t: TFunction,
+): Array<ChartColumn> {
   const firstRow = data[0];
   if (!firstRow) {return [];}
 
   const columns: Array<ChartColumn> = [];
 
   for (const [key, meta] of Object.entries(CPT_COLUMN_METADATA)) {
-    const fieldKey = key as keyof CPTMeasurement;
+    const fieldKey = key as keyof CPTChartRow;
     // Check if the field exists and has non-null values in the data
     if (firstRow[fieldKey] !== undefined) {
       columns.push({
         key: fieldKey,
         unit: meta.unit,
-        name: meta.name,
+        name: t(`cptColumn.${fieldKey}`),
         fixedDomain: meta.fixedDomain,
+        increasesUpward: meta.increasesUpward,
       });
     }
   }
 
   return columns;
+}
+
+/**
+ * Augment measurement rows with elevation w.r.t. NAP when the file's vertical
+ * position allows it: BRO XML has no per-row NAP column, only the elevation of
+ * the reference point (`deliveredVerticalPositionOffset`), so
+ * elevationNAP = offset − depth (falling back to penetration length when the
+ * file has no inclination-corrected depth column).
+ */
+function withElevationNAP(cptData: CPTData): Array<CPTChartRow> {
+  const offset = cptData.deliveredVerticalPositionOffset;
+  if (
+    offset == null ||
+    cptData.deliveredVerticalPositionDatum?.toLowerCase() !== "nap"
+  ) {
+    return cptData.data;
+  }
+
+  const depthKey =
+    cptData.data[0]?.depth === undefined ? "penetrationLength" : "depth";
+
+  return cptData.data.map((row) => {
+    const depth = row[depthKey];
+    return { ...row, elevationNAP: depth == null ? null : offset - depth };
+  });
 }
 
 /**
@@ -157,13 +142,13 @@ function getAvailableColumns(data: Array<CPTMeasurement>): Array<ChartColumn> {
  * - Y-axis: Penetration length or depth
  * - X-axis: Cone resistance, fallback to corrected cone resistance or friction ratio
  */
-export function detectChartAxes(cptData: CPTData): ChartAxes {
-  const { data } = cptData;
-  const availableColumns = getAvailableColumns(data);
+export function detectChartAxes(cptData: CPTData, t: TFunction): ChartAxes {
+  const data = withElevationNAP(cptData);
+  const availableColumns = getAvailableColumns(data, t);
 
   // Y-axis options: depth-related columns
   const yAxisOptions = availableColumns.filter((col) =>
-    ["penetrationLength", "depth"].includes(col.key),
+    ["penetrationLength", "depth", "elevationNAP"].includes(col.key),
   );
 
   // Y-axis: prefer penetrationLength, then depth
@@ -175,7 +160,10 @@ export function detectChartAxes(cptData: CPTData): ChartAxes {
 
   // X-axis candidates: exclude depth columns
   const xCandidates = availableColumns.filter(
-    (col) => !["penetrationLength", "depth", "elapsedTime"].includes(col.key),
+    (col) =>
+      !["penetrationLength", "depth", "elevationNAP", "elapsedTime"].includes(
+        col.key,
+      ),
   );
 
   // X-axis: prefer coneResistance, then correctedConeResistance, then frictionRatio
@@ -191,5 +179,6 @@ export function detectChartAxes(cptData: CPTData): ChartAxes {
     xAxis,
     availableColumns: xCandidates,
     yAxisOptions,
+    data,
   };
 }

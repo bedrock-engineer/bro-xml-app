@@ -129,6 +129,7 @@ export function registerCptIcons(map: maplibregl.Map): void {
     ),
     "cpt-triangle-selected": triangleIcon(20, selectedColor, 2, "#ffffff"),
   };
+  
   for (const [id, icon] of Object.entries(icons)) {
     map.addImage(id, icon.data, { pixelRatio: icon.pixelRatio });
   }

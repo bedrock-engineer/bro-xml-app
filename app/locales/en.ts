@@ -1,7 +1,7 @@
 export default {
   translation: {
     // App title and description
-    appTitle: "Bedrock.engineer Geotechnical BRO/XML viewer",
+    appTitle: "Geotechnical BRO/XML viewer",
     appDescription:
       "View and analyze BRO (Basisregistratie Ondergrond) XML files for CPT soundings, BHR-GT boreholes, geotechnical borehole sample analyses (BHR-GT-BMA), and BHR-G data in your browser.",
     privacyNote: "Your data never leaves your browser.",
@@ -330,6 +330,36 @@ export default {
     selectDownloadFormat: "Select download format",
     madeWithBedrockBroViewer: "Made with Bedrock BRO/XML viewer",
 
+    // CPT measurement column names
+    cptColumn: {
+      penetrationLength: "Penetration Length",
+      depth: "Depth",
+      elevationNAP: "Depth w.r.t. NAP",
+      elapsedTime: "Elapsed Time",
+      coneResistance: "Cone Resistance (qc)",
+      correctedConeResistance: "Corrected Cone Resistance (qt)",
+      netConeResistance: "Net Cone Resistance (qn)",
+      localFriction: "Sleeve Friction (fs)",
+      frictionRatio: "Friction Ratio (Rf)",
+      porePressureU1: "Pore Pressure U1",
+      porePressureU2: "Pore Pressure U2",
+      porePressureU3: "Pore Pressure U3",
+      poreRatio: "Pore Ratio",
+      inclinationX: "Inclination X",
+      inclinationY: "Inclination Y",
+      inclinationEW: "Inclination EW",
+      inclinationNS: "Inclination NS",
+      inclinationResultant: "Inclination Resultant",
+      magneticFieldStrengthX: "Magnetic Field X",
+      magneticFieldStrengthY: "Magnetic Field Y",
+      magneticFieldStrengthZ: "Magnetic Field Z",
+      magneticFieldStrengthTotal: "Magnetic Field Total",
+      magneticInclination: "Magnetic Inclination",
+      magneticDeclination: "Magnetic Declination",
+      electricalConductivity: "Electrical Conductivity",
+      temperature: "Temperature",
+    },
+
     // Lab test types
     labTestType: {
       basic: "Basic (water, density)",
@@ -441,8 +471,7 @@ export default {
     privacyDescription: "Your data stays private:",
     privacyBullet1:
       "All processing happens in your browser - files are never uploaded to any server",
-    privacyBullet2: "Works offline after first load",
-    privacyBullet3: "No tracking, no cookies (except for language preference)",
+    privacyBullet2: "Can be installed and used offline after the first load",
     aboutBro: "What is the BRO?",
     aboutBroDescription:
       "The Basisregistratie Ondergrond (BRO) is the Dutch national registry for subsurface data. It contains geotechnical and geological data from soil investigations, making it a valuable resource for construction, infrastructure, and environmental projects in the Netherlands.",

@@ -92,7 +92,9 @@ function triangleIcon(
   }
 
   context.scale(pixelRatio, pixelRatio);
+
   const inset = strokeWidth / 2 + 0.5;
+
   context.beginPath();
   context.moveTo(inset, inset);
   context.lineTo(size - inset, inset);
@@ -189,16 +191,19 @@ function broLocationLayers(
       paint: {
         "circle-color": pmtilesLayerColors[layer],
         "circle-opacity": 0.5,
+        // Radius follows sqrt(count) so circle area is proportional
+        // to the number of points; counts range from 2 to ~50k.
+        // prettier-ignore
         "circle-radius": [
           "interpolate",
           ["linear"],
-          ["get", "point_count"],
-          2,
-          6,
-          50,
-          10,
-          500,
-          16,
+          ["sqrt", ["get", "point_count"]],
+          // sqrt of count, radius
+          1.4, 5,
+          7, 9,
+          22, 11,
+          71, 13, 
+          225, 20,
         ],
         "circle-stroke-width": 1,
         "circle-stroke-color": "#ffffff",

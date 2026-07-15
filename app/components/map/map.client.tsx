@@ -6,10 +6,10 @@ import type { BROData } from "~/types/bro-data";
 import type { BROLocationLayer } from "~/util/bro-api";
 import { MapLayersPanel, SearchBox } from "./map-controls.client";
 import { useBasemap } from "./use-basemap";
-import { useLoadedLocations } from "./use-loaded-locations";
 import { useLayerVisibility } from "./use-layer-visibility";
-import { useMapInteractions } from "./use-map-interaction-handlers";
+import { useLoadedLocations } from "./use-loaded-locations";
 import { useMapInit } from "./use-map-init";
+import { useMapInteractions } from "./use-map-interaction-handlers";
 
 interface MapProps {
   broData: Record<string, BROData>;
@@ -58,6 +58,7 @@ export function BROMap({
       />
 
       {portals && createPortal(<SearchBox mapRef={mapRef} />, portals.search)}
+      
       {portals &&
         createPortal(
           <MapLayersPanel

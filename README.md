@@ -4,7 +4,7 @@ Free, open-source web application for viewing and visualizing geotechnical BRO/X
 
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
 
-**Live Demo:** [bro.bedrock.engineer](https://bro.bedrock.engineer)
+[bro.bedrock.engineer](https://bro.bedrock.engineer)
 
 ## About
 

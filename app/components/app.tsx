@@ -682,7 +682,7 @@ function Footer() {
             </p>
 
             <a
-              className="hover:underline flex gap-1 items-center text-lg mt-2"
+              className="hover:underline flex gap-1 items-center text-md mt-2"
               href="https://bedrock.engineer"
               style={{
                 color: "hsl(110 3% 53%)",

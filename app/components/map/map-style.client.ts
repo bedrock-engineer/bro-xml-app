@@ -9,6 +9,7 @@ import type { BROLocationLayer } from "~/util/bro-api";
 import {
   basemaps,
   defaultBasemapId,
+  loadedColor,
   loadedStrokeColor,
   selectedColor,
   typeColors,
@@ -121,13 +122,8 @@ function triangleIcon(
 export function registerCptIcons(map: maplibregl.Map): void {
   const icons: Record<string, MapIcon> = {
     "cpt-triangle": triangleIcon(12, typeColors.CPT, 1.5, "#ffffff"),
-    "cpt-triangle-loaded": triangleIcon(
-      16,
-      typeColors.CPT,
-      2,
-      loadedStrokeColor,
-    ),
-    "cpt-triangle-selected": triangleIcon(20, selectedColor, 2, "#ffffff"),
+    "cpt-triangle-loaded": triangleIcon(20, loadedColor, 2, loadedStrokeColor),
+    "cpt-triangle-selected": triangleIcon(24, selectedColor, 2, "#ffffff"),
   };
   
   for (const [id, icon] of Object.entries(icons)) {

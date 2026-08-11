@@ -29,6 +29,10 @@ export const typeColors: Record<BROFileType, string> = {
 
 export const selectedColor = "#dc2626"; // red
 
+// Fill for markers of files loaded in the app: violet, distinct from
+// every type color so loaded points stand out among the tile points.
+export const loadedColor = "#7c3aed";
+
 // Dark stroke marks files loaded in the app; tile points have a white
 // hairline, so the ring color alone tells the states apart.
 export const loadedStrokeColor = "#1f2937";

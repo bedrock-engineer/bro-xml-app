@@ -512,5 +512,22 @@ export default {
     // Navigation
     info: "Info",
     feedback: "Feedback",
+
+    // Error page feedback form (Sentry user feedback widget)
+    reportProblem: "Probleem melden",
+    errorFeedbackFormTitle: "Probleem melden",
+    errorFeedbackNameLabel: "Naam",
+    errorFeedbackNamePlaceholder: "Je naam",
+    errorFeedbackEmailLabel: "E-mailadres",
+    errorFeedbackEmailPlaceholder: "jouw.email@voorbeeld.nl",
+    errorFeedbackMessageLabel: "Omschrijving",
+    errorFeedbackMessagePlaceholder: "Wat ging er mis? Wat had je verwacht?",
+    errorFeedbackSubmitButtonLabel: "Melding versturen",
+    errorFeedbackCancelButtonLabel: "Annuleren",
+    errorFeedbackConfirmButtonLabel: "Bevestigen",
+    errorFeedbackSuccessMessageText: "Bedankt voor je melding!",
+    errorFeedbackIsRequiredLabel: "(verplicht)",
+    errorFeedbackAddScreenshotButtonLabel: "Screenshot toevoegen",
+    errorFeedbackRemoveScreenshotButtonLabel: "Screenshot verwijderen",
   },
 } as const;

@@ -512,5 +512,23 @@ export default {
     // Navigation
     info: "Info",
     feedback: "Feedback",
+
+    // Error page feedback form (Sentry user feedback widget)
+    reportProblem: "Report a problem",
+    errorFeedbackFormTitle: "Report a problem",
+    errorFeedbackNameLabel: "Name",
+    errorFeedbackNamePlaceholder: "Your name",
+    errorFeedbackEmailLabel: "Email",
+    errorFeedbackEmailPlaceholder: "your.email@example.org",
+    errorFeedbackMessageLabel: "Description",
+    errorFeedbackMessagePlaceholder:
+      "What went wrong? What did you expect to happen?",
+    errorFeedbackSubmitButtonLabel: "Send report",
+    errorFeedbackCancelButtonLabel: "Cancel",
+    errorFeedbackConfirmButtonLabel: "Confirm",
+    errorFeedbackSuccessMessageText: "Thank you for your report!",
+    errorFeedbackIsRequiredLabel: "(required)",
+    errorFeedbackAddScreenshotButtonLabel: "Add a screenshot",
+    errorFeedbackRemoveScreenshotButtonLabel: "Remove screenshot",
   },
 } as const;

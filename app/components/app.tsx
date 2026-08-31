@@ -1,4 +1,5 @@
 import { BROParser, XMLAdapter } from "@bedrock-engineer/bro-xml-parser";
+import * as Sentry from "@sentry/react-router/cloudflare";
 import type { TFunction } from "i18next";
 import {
   GithubIcon,
@@ -440,6 +441,7 @@ export function App() {
                     <span className="text-gray-500">{t("mapError")}</span>
                   </div>
                 }
+                onError={(error) => Sentry.captureException(error)}
               >
                 <Suspense
                   fallback={

@@ -1,11 +1,11 @@
+import { use } from "react";
+import { browser } from "react-dom";
 import { useTranslation } from "react-i18next";
 
 export function InstallInstructions() {
   const { t } = useTranslation();
 
-  if (import.meta.env.SSR) {
-    return t("installInstructionsDesktop");
-  }
+  use(browser());
 
   const ua = navigator.userAgent;
   const isIOS = /iPad|iPhone|iPod/.test(ua);

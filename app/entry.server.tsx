@@ -2,13 +2,12 @@ import * as Sentry from "@sentry/cloudflare";
 import { isbot } from "isbot";
 import { renderToReadableStream } from "react-dom/server";
 import type { EntryContext, HandleErrorFunction } from "react-router";
-import { ServerRouter } from "react-router";
+import { isRouteErrorResponse, ServerRouter } from "react-router";
 import { contentSecurityPolicy, sentryReportEndpoint } from "~/util/csp";
 import { NonceContext } from "~/util/nonce";
 
 export const handleError: HandleErrorFunction = (error, { request }) => {
-  // Aborted requests (e.g. the user navigated away mid-load) are not errors.
-  if (!request.signal.aborted) {
+  if (!request.signal.aborted && !isRouteErrorResponse(error)) {
     Sentry.captureException(error);
     console.error(error);
   }

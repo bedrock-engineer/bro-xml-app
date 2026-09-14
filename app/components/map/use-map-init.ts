@@ -2,11 +2,20 @@ import {
   Map as MaplibreMap,
   NavigationControl,
   ScaleControl,
+  setWorkerUrl,
   type LngLatBoundsLike,
 } from "maplibre-gl";
+// MapLibre v6 resolves its worker via `new URL(..., import.meta.url)`,
+// which Vite cannot rewrite (404 from .vite/deps in dev, missing asset
+// in the build), so point it at a Vite-bundled worker explicitly. Use
+// `?worker&url` rather than plain `?url`: the dist worker imports its
+// sibling maplibre-gl-shared.mjs, which only `?worker` bundles in.
+import maplibreWorkerUrl from "maplibre-gl/dist/maplibre-gl-worker.mjs?worker&url";
 import { type RefObject, useEffect, useRef, useState } from "react";
 import { createMapStyle, registerCptIcons } from "./map-style.client";
 import { PortalControl } from "./portal-control";
+
+setWorkerUrl(maplibreWorkerUrl);
 
 /**
  * Production tiles live on R2 (the bucket's CORS allows only the app
@@ -35,7 +44,7 @@ interface MapPortals {
 }
 
 interface MapInitResult {
-  mapRef: RefObject<maplibregl.Map | null>;
+  mapRef: RefObject<MaplibreMap | null>;
   /**
    * True once the style's initial `load` event has fired. The style is
    * never replaced (basemap switching only toggles layer visibility),

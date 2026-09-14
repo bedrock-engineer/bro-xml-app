@@ -1,5 +1,4 @@
-import type { Map as MlMap } from "maplibre-gl";
-import maplibregl from "maplibre-gl";
+import { Marker, type Map as MlMap } from "maplibre-gl";
 import { useEffect, useRef, useState, type Key, type RefObject } from "react";
 import {
   CheckboxButton,
@@ -148,7 +147,7 @@ export function SearchBox({ mapRef }: SearchBoxProps) {
   const [query, setQuery] = useState("");
   const { suggestions, loading } = useAddressSuggest(query);
   const lookupAbortRef = useRef<AbortController | null>(null);
-  const markerRef = useRef<maplibregl.Marker | null>(null);
+  const markerRef = useRef<Marker | null>(null);
 
   function emptyStateMessage(): string {
     if (query.trim().length < minQueryLength) {
@@ -185,7 +184,7 @@ export function SearchBox({ mapRef }: SearchBoxProps) {
     if (markerRef.current) {
       markerRef.current.setLngLat([place.longitude, place.latitude]);
     } else {
-      markerRef.current = new maplibregl.Marker({ color: searchMarkerColor })
+      markerRef.current = new Marker({ color: searchMarkerColor })
         .setLngLat([place.longitude, place.latitude])
         .addTo(map);
     }

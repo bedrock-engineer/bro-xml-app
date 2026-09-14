@@ -1,9 +1,10 @@
-import type {
-  FilterSpecification,
-  LayerSpecification,
-  StyleSpecification,
+import {
+  addProtocol,
+  type FilterSpecification,
+  type LayerSpecification,
+  type Map as MaplibreMap,
+  type StyleSpecification,
 } from "maplibre-gl";
-import maplibregl from "maplibre-gl";
 import { Protocol } from "pmtiles";
 import type { BROLocationLayer } from "~/util/bro-api";
 import {
@@ -17,7 +18,7 @@ import {
 
 // Register the PMTiles protocol once per app load (client-only module)
 const protocol = new Protocol();
-maplibregl.addProtocol("pmtiles", protocol.tile);
+addProtocol("pmtiles", protocol.tile);
 
 const pmtilesLayerColors: Record<BROLocationLayer, string> = {
   cpt: typeColors.CPT,
@@ -119,7 +120,7 @@ function triangleIcon(
  * `createMapStyle`. Sizes mirror the circle layers they replaced:
  * small for tile points, larger for loaded / selected files.
  */
-export function registerCptIcons(map: maplibregl.Map): void {
+export function registerCptIcons(map: MaplibreMap): void {
   const icons: Record<string, MapIcon> = {
     "cpt-triangle": triangleIcon(12, typeColors.CPT, 1.5, "#ffffff"),
     "cpt-triangle-loaded": triangleIcon(20, loadedColor, 2, loadedStrokeColor),

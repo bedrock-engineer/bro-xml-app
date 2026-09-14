@@ -1,3 +1,4 @@
+import type { Map as MaplibreMap } from "maplibre-gl";
 import { type RefObject, useState, useEffect } from "react";
 import {
   type BasemapId,
@@ -12,7 +13,7 @@ import {
  */
 
 export function useBasemap(
-  mapRef: RefObject<maplibregl.Map | null>,
+  mapRef: RefObject<MaplibreMap | null>,
   styleReady: boolean,
 ): [BasemapId, (id: BasemapId) => void] {
   const [basemap, setBasemap] = useState<BasemapId>(defaultBasemapId);

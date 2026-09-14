@@ -53,7 +53,7 @@ export function useLoadedLocations(
       return;
     }
 
-    map.getSource<GeoJSONSource>("loaded")?.setData(loadedGeoJSON);
+    void map.getSource<GeoJSONSource>("loaded")?.setData(loadedGeoJSON);
 
     const loadedBroIds = locations
       .map((loc) => loc.broId)

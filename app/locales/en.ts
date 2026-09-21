@@ -435,7 +435,8 @@ export default {
     contactUs: "Contact us",
 
     // Empty state CTA
-    freeToolByBedrock: "Free tool by Bedrock.engineer. We build:",
+    freeToolByBedrock: "Free tool by",
+    weBuild: "We build:",
     customWebApps:
       "Custom web apps for BRO/XML data processing and visualization",
     broXmlPdfReports:

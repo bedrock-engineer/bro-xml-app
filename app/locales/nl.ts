@@ -435,7 +435,8 @@ export default {
     contactUs: "Neem contact op",
 
     // Empty state CTA
-    freeToolByBedrock: "Gratis tool van Bedrock.engineer. Wij bouwen:",
+    freeToolByBedrock: "Gratis tool van",
+    weBuild: "Wij bouwen:",
     customWebApps:
       "Webapps op maat voor BRO/XML dataverwerking en visualisatie",
     broXmlPdfReports:

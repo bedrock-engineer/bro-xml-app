@@ -22,7 +22,8 @@ export default async function handleRequest(
 ) {
   let shellRendered = false;
   const userAgent = request.headers.get("user-agent");
-  const nonce = crypto.randomUUID();
+
+  const nonce = import.meta.env.PROD ? crypto.randomUUID() : undefined;
 
   const body = await renderToReadableStream(
     <NonceContext.Provider value={nonce}>
@@ -55,7 +56,7 @@ export default async function handleRequest(
   responseHeaders.set("Content-Type", "text/html");
   // Dev is excluded: Vite and react-refresh inject inline scripts without
   // a nonce, so the policy would break the dev server.
-  if (import.meta.env.PROD) {
+  if (nonce) {
     responseHeaders.set(
       "Content-Security-Policy",
       contentSecurityPolicy(nonce),

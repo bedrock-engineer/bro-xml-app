@@ -178,7 +178,8 @@ export function buildBhrgtPlot({
         paintOrder: "stroke",
         fontSize: 9,
         textAnchor: "middle",
-        lineWidth: 8,
+        // ~the strip width (in ems) so readable multi-word names stay on one line
+        lineWidth: 15,
         lineHeight: 1,
       }),
       // Sample interval lines showing lab test locations

@@ -18,10 +18,17 @@ export function formatDate(date: string): string {
 }
 
 /**
- * Short readable label for a BRO coded value ("kleiigZand" → "Kleiig zand")
+ * Short readable label for a BRO coded value ("kleiigZand" → "Kleiig zand").
+ * Codes with acronyms or numbers ("ISO22476D1", "RTKGPS5tot10cm") are
+ * identifiers readers know verbatim, so those are kept as-is.
  */
 export function formatCode(coded: Coded | null | undefined): string | null {
-  return coded ? prettifyBroCode(coded.code) : null;
+  if (!coded) {
+    return null;
+  }
+  return /[A-Z]{2}|\d/.test(coded.code)
+    ? coded.code
+    : prettifyBroCode(coded.code);
 }
 
 /**

@@ -116,7 +116,9 @@ export function BHRGTPlot({
   const canShowNap = surfaceNap != null;
 
   // Legend entries reflect only the soils actually present in this borehole.
-  const legendSoils = collectSoilLegend(layers.map(bhrgtLithology));
+  const legendSoils = collectSoilLegend(
+    layers.map((layer) => bhrgtLithology(layer)),
+  );
 
   return (
     <Card>

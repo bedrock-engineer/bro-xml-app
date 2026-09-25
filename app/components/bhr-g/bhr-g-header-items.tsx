@@ -1,8 +1,8 @@
-import type { BHRGData } from "@bedrock-engineer/bro-xml-parser";
 import type { TFunction } from "i18next";
 import { useTranslation } from "react-i18next";
 import type { HeaderItem, HeaderSection } from "../../types/header-types";
 import {
+  type BHRGData,
   getDescriptiveLog,
   getFinalDepth,
   getLayers,
@@ -64,7 +64,9 @@ export function CompactBHRGHeader({ filename, data }: CompactBHRGHeaderProps) {
         <DepthRow label={t("finalBoreDepth")} depth={getFinalDepth(data)} />
         <HeaderRow
           label={t("classificationStandard")}
-          value={formatCode(data.boreholeSampleDescription?.descriptionProcedure)}
+          value={formatCode(
+            data.boreholeSampleDescription?.descriptionProcedure,
+          )}
         />
       </HeaderColumn>
     </CompactHeaderWrapper>
@@ -124,7 +126,9 @@ function getBHRGBoringInfo(data: BHRGData, t: TFunction): Array<HeaderItem> {
 
   const boringProcedure = formatCodes(boring.boringProcedure);
   const boringTechnique = formatCodes(
-    uniqueCodes(boring.boredInterval.map((i) => i.boringTechnique)),
+    uniqueCodes(
+      boring.boredInterval.map((interval) => interval.boringTechnique),
+    ),
   );
 
   if (boring.boringStartDate) {

@@ -68,7 +68,9 @@ export function BHRGPlot({
     // Split each layer into proportional soil-composition bands (main soil +
     // admixtures), coloured by soil type with a hatch overlay per band — the
     // same scheme as the BHR-GT bore plot.
-    const soilBands = buildSoilBands(layers.map(bhrgLithology));
+    const soilBands = buildSoilBands(
+      layers.map((layer) => bhrgLithology(layer)),
+    );
     const hatchedBands = soilBands.filter((b) => b.hatchId);
 
     const plot = Plot.plot({
@@ -117,7 +119,7 @@ export function BHRGPlot({
         }),
         // Anthropogenic indicator (hatching pattern simulation with dots)
         Plot.dot(
-          layers.filter(isAnthropogenic),
+          layers.filter((layer) => isAnthropogenic(layer)),
           {
             x: 1.2,
             y: (d: BHRGBoreLayer) =>
@@ -131,7 +133,7 @@ export function BHRGPlot({
         ),
         // Rooted indicator
         Plot.dot(
-          layers.filter(isRooted),
+          layers.filter((layer) => isRooted(layer)),
           {
             x: 1.1,
             y: (d: BHRGBoreLayer) =>
@@ -180,11 +182,13 @@ export function BHRGPlot({
     };
   }, [layers, width, height, t]);
 
-  const hasAnthropogenic = layers.some(isAnthropogenic);
-  const hasRooted = layers.some(isRooted);
+  const hasAnthropogenic = layers.some((layer) => isAnthropogenic(layer));
+  const hasRooted = layers.some((layer) => isRooted(layer));
 
   // Legend entries reflect only the soils actually present in this borehole.
-  const legendSoils = collectSoilLegend(layers.map(bhrgLithology));
+  const legendSoils = collectSoilLegend(
+    layers.map((layer) => bhrgLithology(layer)),
+  );
 
   return (
     <Card>

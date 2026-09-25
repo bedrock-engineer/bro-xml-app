@@ -19,6 +19,7 @@ import {
   isBHRGData,
   isBHRGTData,
   isCPTData,
+  getDissipationTests,
   getLayers,
   getRemovedLayers,
   getSurfaceLevel,
@@ -526,10 +527,9 @@ export function App() {
                   />
                 )}
 
-                {selectedFile.conePenetrometerSurvey.dissipationTest.length >
-                  0 && (
+                {getDissipationTests(selectedFile).length > 0 && (
                   <DissipationTestPlots
-                    tests={selectedFile.conePenetrometerSurvey.dissipationTest}
+                    tests={getDissipationTests(selectedFile)}
                     baseFilename={selectedFileName.replace(/\.xml$/i, "")}
                   />
                 )}
@@ -548,7 +548,9 @@ export function App() {
                   layers={getLayers(selectedFile)}
                   baseFilename={selectedFileName.replace(/\.xml$/i, "")}
                   analysis={selectedFile.analysis}
-                  groundwaterLevel={selectedFile.boring?.groundwaterLevel ?? null}
+                  groundwaterLevel={
+                    selectedFile.boring?.groundwaterLevel ?? null
+                  }
                   surfaceNap={getSurfaceLevel(selectedFile)}
                 />
                 {selectedFile.analysis && (

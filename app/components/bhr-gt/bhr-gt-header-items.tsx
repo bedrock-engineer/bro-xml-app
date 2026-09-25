@@ -1,9 +1,9 @@
 import type { TFunction } from "i18next";
 import { useTranslation } from "react-i18next";
-import type { BHRGTData } from "@bedrock-engineer/bro-xml-parser";
 import { getUniqueDeterminationTypes } from "./determination-types";
 import type { HeaderItem, HeaderSection } from "../../types/header-types";
 import {
+  type BHRGTData,
   getDescriptiveLog,
   getFinalDepth,
   getLayers,
@@ -131,7 +131,9 @@ function getBHRGTInfo(data: BHRGTData, t: TFunction): Array<HeaderItem> {
 
   const boringProcedure = formatCodes(boring.boringProcedure);
   const boringTechnique = formatCodes(
-    uniqueCodes(boring.boredInterval.map((i) => i.boringTechnique)),
+    uniqueCodes(
+      boring.boredInterval.map((interval) => interval.boringTechnique),
+    ),
   );
 
   if (boring.boringStartDate) {
@@ -174,7 +176,9 @@ function getSamplingInfo(data: BHRGTData, t: TFunction): Array<HeaderItem> {
   // Sampling details are recorded per sampled interval; show the first
   // interval's, as the header summarises the borehole as a whole.
   const interval = boring?.sampledInterval[0];
-  const sampler = boring?.sampledInterval.find((i) => i.sampler)?.sampler;
+  const sampler = boring?.sampledInterval.find(
+    (sampled) => sampled.sampler,
+  )?.sampler;
   const continuouslySampled = getDescriptiveLog(data)?.continuouslySampled;
 
   if (sampler?.samplerType) {

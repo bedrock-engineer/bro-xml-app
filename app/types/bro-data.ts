@@ -1,15 +1,44 @@
 import {
   BROParser,
   XMLAdapter,
-  type BHRGData,
-  type BHRGLayer,
-  type BHRGTData,
-  type BHRGTLayer,
-  type BROData as ParsedBROData,
-  type CPTData,
+  type BHRGData as ParsedBHRGData,
+  type BHRGTData as ParsedBHRGTData,
   type CPTMeasurement,
+  type CPTData as ParsedCPTData,
   type Location,
+  type ParseMeta,
 } from "@bedrock-engineer/bro-xml-parser";
+
+/**
+ * bro-xml-parser 0.6.0 parses an absent optional element to `null` (e.g. a
+ * layer's `rock`, a CPT's `additionalInvestigation`), but types every nested
+ * object as always present. Widen nested objects to `| null` so the compiler
+ * enforces the checks the runtime needs. Fields the library already types as
+ * nullable or optional (e.g. BHR-GT `analysis`) are left as they are. Remove
+ * once the library's types include the null.
+ */
+type WithNullableObjects<T> = {
+  [K in keyof T]: NullableObject<T[K]>;
+};
+
+type NullableObject<V> = null extends V
+  ? V
+  : undefined extends V
+    ? V
+    : V extends ReadonlyArray<infer Item>
+      ? Array<Item extends object ? WithNullableObjects<Item> : Item>
+      : V extends object
+        ? WithNullableObjects<V> | null
+        : V;
+
+type ParsedData<T extends { meta: ParseMeta }> = WithNullableObjects<
+  Omit<T, "meta">
+> & { meta: ParseMeta };
+
+export type CPTData = ParsedData<ParsedCPTData>;
+export type BHRGTData = ParsedData<ParsedBHRGTData>;
+export type BHRGData = ParsedData<ParsedBHRGData>;
+export type { CPTMeasurement } from "@bedrock-engineer/bro-xml-parser";
 
 /**
  * BRO data types this app can display. The parser also handles GMW and GLD,
@@ -33,21 +62,21 @@ export function parseBRO(xml: string): BROData {
 /**
  * Type guard for CPT data
  */
-export function isCPTData(data: ParsedBROData): data is CPTData {
+export function isCPTData(data: { meta: ParseMeta }): data is CPTData {
   return data.meta.dataType === "CPT";
 }
 
 /**
  * Type guard for BHR-GT (geotechnical borehole) data
  */
-export function isBHRGTData(data: ParsedBROData): data is BHRGTData {
+export function isBHRGTData(data: { meta: ParseMeta }): data is BHRGTData {
   return data.meta.dataType === "BHR-GT";
 }
 
 /**
  * Type guard for BHR-G (geological borehole) data
  */
-export function isBHRGData(data: ParsedBROData): data is BHRGData {
+export function isBHRGData(data: { meta: ParseMeta }): data is BHRGData {
   return data.meta.dataType === "BHR-G";
 }
 
@@ -66,7 +95,7 @@ export function getFileType(data: BROData): BROFileType {
  */
 export function getFinalDepth(data: BROData): number | null {
   if (isCPTData(data)) {
-    return data.conePenetrometerSurvey.trajectory.finalDepth;
+    return data.conePenetrometerSurvey?.trajectory?.finalDepth ?? null;
   }
   return data.boring?.finalDepthBoring ?? null;
 }
@@ -100,15 +129,35 @@ export function getVerticalDatum(data: BROData): string | null {
  * CPT measurement rows
  */
 export function getMeasurements(data: CPTData): Array<CPTMeasurement> {
-  return data.conePenetrometerSurvey.conePenetrationTest.measurements;
+  return (
+    data.conePenetrometerSurvey?.conePenetrationTest?.measurements ??
+    NO_MEASUREMENTS
+  );
 }
+
+const NO_MEASUREMENTS: Array<CPTMeasurement> = [];
+
+/**
+ * CPT dissipation tests
+ */
+export function getDissipationTests(data: CPTData): Array<DissipationTest> {
+  return data.conePenetrometerSurvey?.dissipationTest ?? NO_DISSIPATION_TESTS;
+}
+
+type DissipationTest = NonNullable<
+  CPTData["conePenetrometerSurvey"]
+>["dissipationTest"][number];
+
+const NO_DISSIPATION_TESTS: Array<DissipationTest> = [];
 
 /**
  * Layers removed before the CPT was performed (voorontgraving)
  */
 export function getRemovedLayers(data: CPTData): Array<RemovedLayer> {
   return memoize(removedLayerCache, data, () =>
-    (data.additionalInvestigation?.removedLayer ?? []).filter(hasBoundaries),
+    (data.additionalInvestigation?.removedLayer ?? []).filter((layer) =>
+      hasBoundaries(layer),
+    ),
   );
 }
 
@@ -143,7 +192,7 @@ export function getLayers(
   return memoize(layerCache, data, () => {
     const layers: Array<BHRGTLayer | BHRGLayer> =
       data.boreholeSampleDescription?.descriptiveBoreholeLog[0]?.layer ?? [];
-    return layers.filter(hasBoundaries);
+    return layers.filter((layer) => hasBoundaries(layer));
   }) as Array<BoreLayer> | Array<BHRGBoreLayer>;
 }
 
@@ -169,6 +218,9 @@ function memoize<K extends object, V>(
   return value;
 }
 
+type BHRGTLayer = BHRGTLog["layer"][number];
+type BHRGLayer = BHRGLog["layer"][number];
+
 /** A BHR-GT layer with known boundaries */
 export type BoreLayer = BoundedLayer<BHRGTLayer>;
 /** A BHR-G layer with known boundaries */
@@ -183,12 +235,12 @@ type BHRGLog = NonNullable<
 >["descriptiveBoreholeLog"][number];
 
 /** A layer with both boundaries known — required to draw it */
-export type BoundedLayer<T extends { upperBoundary: number | null }> = T & {
+type BoundedLayer<T extends { upperBoundary: number | null }> = T & {
   upperBoundary: number;
   lowerBoundary: number;
 };
 
-export function hasBoundaries<
+function hasBoundaries<
   T extends { upperBoundary: number | null; lowerBoundary: number | null },
 >(layer: T): layer is BoundedLayer<T> {
   return layer.upperBoundary !== null && layer.lowerBoundary !== null;

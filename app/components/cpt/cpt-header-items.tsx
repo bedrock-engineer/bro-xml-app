@@ -1,8 +1,9 @@
 import type { TFunction } from "i18next";
 import { useTranslation } from "react-i18next";
-import type { CPTData } from "@bedrock-engineer/bro-xml-parser";
 import type { HeaderItem, HeaderSection } from "../../types/header-types";
 import {
+  type CPTData,
+  getFinalDepth,
   getLocation,
   getMeasurements,
   getSurfaceLevel,
@@ -59,13 +60,13 @@ export function CompactCptHeader({ filename, data }: CompactCptHeaderProps) {
           offset={getSurfaceLevel(data)}
           datum={getVerticalDatum(data)}
         />
-        <DepthRow label={t("finalDepth")} depth={survey.trajectory.finalDepth} />
+        <DepthRow label={t("finalDepth")} depth={getFinalDepth(data)} />
         <WaterLevelRow
           level={data.additionalInvestigation?.groundwaterLevel ?? null}
         />
         <HeaderRow
           label={t("qualityClass")}
-          value={formatQualityClass(survey.qualityClass)}
+          value={formatQualityClass(survey?.qualityClass)}
         />
       </HeaderColumn>
     </CompactHeaderWrapper>
@@ -75,16 +76,17 @@ export function CompactCptHeader({ filename, data }: CompactCptHeaderProps) {
 function getCptSurveyInfo(data: CPTData, t: TFunction): Array<HeaderItem> {
   const items: Array<HeaderItem> = [];
   const survey = data.conePenetrometerSurvey;
-  const { predrilledDepth, finalDepth } = survey.trajectory;
+  const predrilledDepth = survey?.trajectory?.predrilledDepth ?? null;
+  const finalDepth = survey?.trajectory?.finalDepth ?? null;
   const groundwaterLevel = data.additionalInvestigation?.groundwaterLevel;
 
   if (data.cptStandard) {
     items.push(codeItem(t("cptStandard"), data.cptStandard));
   }
-  if (survey.cptMethod) {
+  if (survey?.cptMethod) {
     items.push(codeItem(t("cptMethod"), survey.cptMethod));
   }
-  if (survey.qualityClass) {
+  if (survey?.qualityClass) {
     items.push({
       label: t("qualityClass"),
       value: formatQualityClass(survey.qualityClass),
@@ -109,10 +111,10 @@ function getCptSurveyInfo(data: CPTData, t: TFunction): Array<HeaderItem> {
       value: `${groundwaterLevel.toFixed(2)} m`,
     });
   }
-  if (survey.stopCriterion) {
+  if (survey?.stopCriterion) {
     items.push(codeItem(t("stopCriterion"), survey.stopCriterion));
   }
-  if (survey.dissipationTestPerformed !== null) {
+  if (survey?.dissipationTestPerformed != null) {
     items.push({
       label: t("dissipationTest"),
       value: formatIndication(survey.dissipationTestPerformed, t),
@@ -128,7 +130,11 @@ function getCptLocationInfo(data: CPTData, t: TFunction): Array<HeaderItem> {
 
 function getCptEquipmentInfo(data: CPTData, t: TFunction): Array<HeaderItem> {
   const items: Array<HeaderItem> = [];
-  const cone = data.conePenetrometerSurvey.conePenetrometer;
+  const cone = data.conePenetrometerSurvey?.conePenetrometer;
+
+  if (!cone) {
+    return items;
+  }
 
   if (cone.description) {
     items.push({ label: t("description"), value: cone.description });
@@ -182,7 +188,7 @@ function getZeroLoadMeasurements(
 ): Array<HeaderItem> {
   const items: Array<HeaderItem> = [];
   const zlm =
-    data.conePenetrometerSurvey.conePenetrometer.zeroLoadMeasurement;
+    data.conePenetrometerSurvey?.conePenetrometer?.zeroLoadMeasurement;
 
   if (!zlm) {
     return items;
@@ -291,9 +297,9 @@ function getZeroLoadMeasurements(
 function getProcessingInfo(data: CPTData, t: TFunction): Array<HeaderItem> {
   const items: Array<HeaderItem> = [];
   const survey = data.conePenetrometerSurvey;
-  const procedure = survey.procedure;
+  const procedure = survey?.procedure;
 
-  if (survey.finalProcessingDate) {
+  if (survey?.finalProcessingDate) {
     items.push({
       label: t("finalProcessingDate"),
       value: formatDate(survey.finalProcessingDate),

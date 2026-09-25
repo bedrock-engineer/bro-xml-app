@@ -29,7 +29,7 @@ const SVG_NS = "http://www.w3.org/2000/svg";
  *  strings. Built from BHR-GT / BHR-G layers by {@link bhrgtLithology} and
  *  {@link bhrgLithology}, since the fields sit in different places per bore
  *  type. */
-export interface LithologyLayer {
+interface LithologyLayer {
   upperBoundary: number;
   lowerBoundary: number;
   soilName: string;

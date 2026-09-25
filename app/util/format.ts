@@ -30,16 +30,16 @@ export function formatCode(coded: Coded | null | undefined): string | null {
 export function formatCodes(
   codes: ReadonlyArray<Coded | null> | null | undefined,
 ): string | null {
-  const labels = (codes ?? []).map(formatCode).filter((l) => l !== null);
+  const labels = (codes ?? [])
+    .map((coded) => formatCode(coded))
+    .filter((l) => l !== null);
   return labels.length > 0 ? labels.join(", ") : null;
 }
 
 /**
  * Distinct coded values (by code), in first-seen order
  */
-export function uniqueCodes(
-  codes: ReadonlyArray<Coded | null>,
-): Array<Coded> {
+export function uniqueCodes(codes: ReadonlyArray<Coded | null>): Array<Coded> {
   const seen = new Map<string, Coded>();
   for (const coded of codes) {
     if (coded && !seen.has(coded.code)) {

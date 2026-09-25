@@ -1,6 +1,7 @@
 import type { SettlementCharacteristicsDetermination } from "@bedrock-engineer/bro-xml-parser";
 import { useRef } from "react";
 import { useTranslation } from "react-i18next";
+import { CodeValue } from "../code-value";
 import type { TranslateFunction } from "../../util/plot-config";
 import { PlotDownloadButtons } from "../plot-download-buttons";
 import { PlotFigure } from "../plot-figure";
@@ -26,7 +27,9 @@ export function SettlementCharacteristicsDisplay({
           {data.determinationMethod && (
             <>
               <dt className="text-gray-500">{t("method")}</dt>
-              <dd>{data.determinationMethod}</dd>
+              <dd>
+                <CodeValue coded={data.determinationMethod} />
+              </dd>
             </>
           )}
           {data.ringDiameter !== null && (

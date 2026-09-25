@@ -4,9 +4,10 @@
  * Utilities for detecting chart axes and formatting column metadata for visualization.
  */
 
-import type { CPTData, CPTMeasurement } from "@bedrock-engineer/bro-xml-parser";
 import type { TFunction } from "i18next";
 import {
+  type CPTData,
+  type CPTMeasurement,
   getMeasurements,
   getSurfaceLevel,
   getVerticalDatum,
@@ -94,7 +95,9 @@ function getAvailableColumns(
   t: TFunction,
 ): Array<ChartColumn> {
   const firstRow = data[0];
-  if (!firstRow) {return [];}
+  if (!firstRow) {
+    return [];
+  }
 
   const columns: Array<ChartColumn> = [];
 

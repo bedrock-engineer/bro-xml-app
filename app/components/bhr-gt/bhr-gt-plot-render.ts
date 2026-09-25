@@ -109,7 +109,9 @@ export function buildBhrgtPlot({
 
   // Split each layer into proportional soil-composition bands (main soil +
   // admixtures), coloured by soil type with a hatch overlay per band.
-  const soilBands = buildSoilBands(layers.map(bhrgtLithology));
+  const soilBands = buildSoilBands(
+    layers.map((layer) => bhrgtLithology(layer)),
+  );
   const hatchedBands = soilBands.filter((b) => b.hatchId);
 
   const plot = Plot.plot({
@@ -327,13 +329,16 @@ export function getLayerAttributes(
   };
 
   const pushCodes = (key: string, codes: ReadonlyArray<Coded | null>): void => {
-    const meaningful = codes.filter(isMeaningful);
+    const meaningful = codes.filter((coded) => isMeaningful(coded));
     if (meaningful.length > 0) {
       attributes.push({
         key,
         label: t(key),
         value: meaningful.map((c) => formatCode(c) ?? c.code).join(", "),
-        description: meaningful.map(describeCode).filter(Boolean).join("\n"),
+        description: meaningful
+          .map((coded) => describeCode(coded))
+          .filter(Boolean)
+          .join("\n"),
       });
     }
   };
@@ -374,10 +379,7 @@ export function getLayerAttributes(
   return attributes;
 }
 
-function formatBHRGTLayerTitle(
-  layer: BoreLayer,
-  t: TranslateFunction,
-): string {
+function formatBHRGTLayerTitle(layer: BoreLayer, t: TranslateFunction): string {
   const parts = [
     `${layer.upperBoundary.toFixed(2)} – ${layer.lowerBoundary.toFixed(2)} m`,
     layerSoilName(layer),

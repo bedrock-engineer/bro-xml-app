@@ -6,6 +6,11 @@
 
 import type { CPTData, CPTMeasurement } from "@bedrock-engineer/bro-xml-parser";
 import type { TFunction } from "i18next";
+import {
+  getMeasurements,
+  getSurfaceLevel,
+  getVerticalDatum,
+} from "~/types/bro-data";
 
 /**
  * A CPT measurement row extended with columns derived in-app. BRO XML only
@@ -113,23 +118,21 @@ function getAvailableColumns(
 /**
  * Augment measurement rows with elevation w.r.t. NAP when the file's vertical
  * position allows it: BRO XML has no per-row NAP column, only the elevation of
- * the reference point (`deliveredVerticalPositionOffset`), so
+ * the reference point (`deliveredVerticalPosition.offset`), so
  * elevationNAP = offset − depth (falling back to penetration length when the
  * file has no inclination-corrected depth column).
  */
 function withElevationNAP(cptData: CPTData): Array<CPTChartRow> {
-  const offset = cptData.deliveredVerticalPositionOffset;
-  if (
-    offset == null ||
-    cptData.deliveredVerticalPositionDatum?.toLowerCase() !== "nap"
-  ) {
-    return cptData.data;
+  const measurements = getMeasurements(cptData);
+  const offset = getSurfaceLevel(cptData);
+  if (offset == null || getVerticalDatum(cptData)?.toUpperCase() !== "NAP") {
+    return measurements;
   }
 
   const depthKey =
-    cptData.data[0]?.depth === undefined ? "penetrationLength" : "depth";
+    measurements[0]?.depth === undefined ? "penetrationLength" : "depth";
 
-  return cptData.data.map((row) => {
+  return measurements.map((row) => {
     const depth = row[depthKey];
     return { ...row, elevationNAP: depth == null ? null : offset - depth };
   });

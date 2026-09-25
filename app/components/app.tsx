@@ -1,4 +1,3 @@
-import { BROParser, XMLAdapter } from "@bedrock-engineer/bro-xml-parser";
 import * as Sentry from "@sentry/react-router/cloudflare";
 import type { TFunction } from "i18next";
 import {
@@ -20,6 +19,10 @@ import {
   isBHRGData,
   isBHRGTData,
   isCPTData,
+  getLayers,
+  getRemovedLayers,
+  getSurfaceLevel,
+  parseBRO,
 } from "~/types/bro-data";
 import { type BROLocationLayer, fetchBROObject } from "~/util/bro-api";
 import { detectChartAxes } from "~/util/chart-axes";
@@ -87,9 +90,8 @@ function translateError(error: string, t: TFunction): string {
  */
 async function parseBROFile(file: File): Promise<BROData> {
   const text = await file.text();
-  const parser = new BROParser(new XMLAdapter());
 
-  return parser.parse(text);
+  return parseBRO(text);
 }
 
 export function App() {
@@ -128,8 +130,7 @@ export function App() {
 
     try {
       const xml = await fetchBROObject(broId, layer);
-      const parser = new BROParser(new XMLAdapter());
-      const data = parser.parse(xml);
+      const data = parseBRO(xml);
 
       startTransition(() => {
         setBroData((previous) => ({ ...previous, [broId]: data }));
@@ -167,8 +168,6 @@ export function App() {
       "example_bhr_gt_max_undrained_shear_strength.xml",
     ];
 
-    const parser = new BROParser(new XMLAdapter());
-
     const parsedFiles = sampleFiles.map(async (filename) => {
       const response = await fetch(`/${filename}`);
       if (!response.ok) {
@@ -177,7 +176,7 @@ export function App() {
       const text = await response.text();
       return {
         filename,
-        data: parser.parse(text),
+        data: parseBRO(text),
         xml: new Blob([text], { type: "application/xml" }),
       };
     });
@@ -520,16 +519,17 @@ export function App() {
                   />
                 )}
 
-                {selectedFile.removedLayers.length > 0 && (
+                {getRemovedLayers(selectedFile).length > 0 && (
                   <RemovedLayersPlot
-                    layers={selectedFile.removedLayers}
+                    layers={getRemovedLayers(selectedFile)}
                     baseFilename={selectedFileName.replace(/\.xml$/i, "")}
                   />
                 )}
 
-                {selectedFile.dissipationTests.length > 0 && (
+                {selectedFile.conePenetrometerSurvey.dissipationTest.length >
+                  0 && (
                   <DissipationTestPlots
-                    tests={selectedFile.dissipationTests}
+                    tests={selectedFile.conePenetrometerSurvey.dissipationTest}
                     baseFilename={selectedFileName.replace(/\.xml$/i, "")}
                   />
                 )}
@@ -545,11 +545,11 @@ export function App() {
                   data={selectedFile}
                 />
                 <BHRGTPlot
-                  layers={selectedFile.data}
+                  layers={getLayers(selectedFile)}
                   baseFilename={selectedFileName.replace(/\.xml$/i, "")}
                   analysis={selectedFile.analysis}
-                  groundwaterLevel={selectedFile.groundwaterLevel}
-                  surfaceNap={selectedFile.deliveredVerticalPositionOffset}
+                  groundwaterLevel={selectedFile.boring?.groundwaterLevel ?? null}
+                  surfaceNap={getSurfaceLevel(selectedFile)}
                 />
                 {selectedFile.analysis && (
                   <LaboratoryAnalysis
@@ -568,7 +568,7 @@ export function App() {
                   data={selectedFile}
                 />
                 <BHRGPlot
-                  layers={selectedFile.data}
+                  layers={getLayers(selectedFile)}
                   baseFilename={selectedFileName.replace(/\.xml$/i, "")}
                 />
                 <DetailedBHRGHeaders data={selectedFile} />

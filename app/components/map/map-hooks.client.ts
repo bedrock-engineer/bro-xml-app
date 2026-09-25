@@ -1,6 +1,10 @@
 import type { TFunction } from "i18next";
 import type { MapGeoJSONFeature } from "maplibre-gl";
-import type { BROData, BROFileType } from "~/types/bro-data";
+import {
+  getFileType,
+  type BROData,
+  type BROFileType,
+} from "~/types/bro-data";
 import { type ToWgs84, getCoordSystemName } from "~/util/coordinates";
 
 export interface LocationInfo {
@@ -23,7 +27,8 @@ export function extractLocation(
   data: BROData,
   toWgs84: ToWgs84,
 ): LocationInfo | null {
-  const location = data.standardizedLocation ?? data.deliveredLocation;
+  const location =
+    data.standardizedLocation?.location ?? data.deliveredLocation?.location;
 
   if (!location) {
     return null;
@@ -50,7 +55,7 @@ export function extractLocation(
     filename,
     lat,
     lon,
-    fileType: data.meta.dataType,
+    fileType: getFileType(data),
     broId: data.broId,
     epsg: location.epsg,
     x: location.x,

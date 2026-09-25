@@ -1,7 +1,9 @@
 import * as Plot from "@observablehq/plot";
 import { max, min } from "d3-array";
 import { scaleBand } from "d3-scale";
-import type { BHRGTLayer, Grainshape } from "@bedrock-engineer/bro-xml-parser";
+import type { Coded } from "@bedrock-engineer/bro-xml-parser";
+import type { BoreLayer } from "../../types/bro-data";
+import { describeCode, formatCode } from "../../util/format";
 import {
   LAB_TEST_CATEGORIES,
   type LabTestCategory,
@@ -14,6 +16,7 @@ import {
   filterLayersByPixelHeight,
 } from "../../util/plot-config";
 import {
+  bhrgtLithology,
   buildSoilBands,
   injectHatchPatterns,
   type SoilBand,
@@ -51,7 +54,7 @@ export interface SampleLine {
 }
 
 interface BuildBhrgtPlotOptions {
-  layers: Array<BHRGTLayer>;
+  layers: Array<BoreLayer>;
   sampleLines: Array<SampleLine>;
   /** Groundwater depth during drilling (m below surface) */
   groundwaterLevel?: number | null;
@@ -106,7 +109,9 @@ export function buildBhrgtPlot({
 
   // Split each layer into proportional soil-composition bands (main soil +
   // admixtures), coloured by soil type with a hatch overlay per band.
-  const soilBands = buildSoilBands(layers, (l) => l.geotechnicalSoilName);
+  const soilBands = buildSoilBands(
+    layers.map((layer) => bhrgtLithology(layer)),
+  );
   const hatchedBands = soilBands.filter((b) => b.hatchId);
 
   const plot = Plot.plot({
@@ -156,7 +161,7 @@ export function buildBhrgtPlot({
         y1: "upperBoundary",
         y2: "lowerBoundary",
         fill: "transparent",
-        title: (d: BHRGTLayer) => formatBHRGTLayerTitle(d, t),
+        title: (d: BoreLayer) => formatBHRGTLayerTitle(d, t),
         tip: true,
       }),
       // Soil-name labels for layers tall enough in pixels. A white halo
@@ -164,16 +169,17 @@ export function buildBhrgtPlot({
       // narrow, dark soil bands instead of hard-truncating them.
       Plot.text(layersWithLabels, {
         x: 0.5,
-        y: (d: BHRGTLayer) =>
+        y: (d: BoreLayer) =>
           d.upperBoundary + (d.lowerBoundary - d.upperBoundary) / 2,
-        text: (d: BHRGTLayer) => d.geotechnicalSoilName,
+        text: (d: BoreLayer) => layerSoilName(d),
         fill: "black",
         stroke: "white",
         strokeWidth: 2,
         paintOrder: "stroke",
         fontSize: 9,
         textAnchor: "middle",
-        lineWidth: 8,
+        // ~the strip width (in ems) so readable multi-word names stay on one line
+        lineWidth: 15,
         lineHeight: 1,
       }),
       // Sample interval lines showing lab test locations
@@ -240,12 +246,14 @@ export function buildBhrgtPlot({
 }
 
 /** A labelled per-layer attribute, ready for the tooltip or the details table. */
-interface LayerAttribute {
+export interface LayerAttribute {
   /** Stable identifier (also the i18n key) — used to pivot attributes into
    *  the details-table columns. */
   key: string;
   label: string;
   value: string;
+  /** Official BRO description of a coded value, for hover text */
+  description?: string | null;
 }
 
 /**
@@ -270,13 +278,7 @@ export const LAYER_ATTRIBUTE_KEYS = [
   "mixed",
   "mottled",
   "roughness",
-] as const satisfies Array<
-  | keyof BHRGTLayer
-  | keyof Grainshape
-  | "layerColor"
-  | "sandMedian"
-  | "organicMatter"
->;
+] as const;
 
 // Codelist values that carry no information for the reader (negatives /
 // unknowns). Dropped from both the tooltip and the details table so rows
@@ -284,65 +286,104 @@ export const LAYER_ATTRIBUTE_KEYS = [
 // isMeaningful() filter in open-geotechniek-studio's bore strip-log.
 const NOISE_VALUES = new Set(["geen", "onbekend", "nietorganisch"]);
 
-function isMeaningful(value: string | null | undefined): value is string {
-  if (!value) {
+function isMeaningful(coded: Coded | null | undefined): coded is Coded {
+  if (!coded) {
     return false;
   }
-  const v = value.toLowerCase();
+  const v = coded.code.toLowerCase();
   return !NOISE_VALUES.has(v) && !v.startsWith("kalkloos");
+}
+
+/** Readable soil name of a layer; rock layers show their rock type. */
+export function layerSoilName(layer: BoreLayer): string {
+  return (
+    formatCode(
+      layer.soil?.geotechnicalSoilName ??
+        layer.soil?.soilNameNEN5104 ??
+        layer.rock?.rockType,
+    ) ?? ""
+  );
 }
 
 /**
  * Labelled secondary attributes of a layer, filtered to the meaningful ones.
- * Strings are kept as-is; booleans are included only when true (a "no" row
- * everywhere is noise). Shared by the hover tooltip and the HTML details table.
+ * Coded values show a readable label (official description on hover); flags
+ * are included only when set (a "no" row everywhere is noise). Shared by the
+ * hover tooltip and the HTML details table.
  */
 export function getLayerAttributes(
-  layer: BHRGTLayer,
+  layer: BoreLayer,
   t: TranslateFunction,
 ): Array<LayerAttribute> {
   const attributes: Array<LayerAttribute> = [];
+  const soil = layer.soil;
 
-  const pushString = (key: string, value: string | null | undefined): void => {
-    if (isMeaningful(value)) {
-      attributes.push({ key, label: t(key), value });
+  const pushCoded = (key: string, coded: Coded | null | undefined): void => {
+    if (isMeaningful(coded)) {
+      attributes.push({
+        key,
+        label: t(key),
+        value: formatCode(coded) ?? coded.code,
+        description: describeCode(coded),
+      });
     }
   };
-  
-  const pushFlag = (key: string, value: boolean | null | undefined): void => {
-    if (value === true) {
+
+  const pushCodes = (key: string, codes: ReadonlyArray<Coded | null>): void => {
+    const meaningful = codes.filter((coded) => isMeaningful(coded));
+    if (meaningful.length > 0) {
+      attributes.push({
+        key,
+        label: t(key),
+        value: meaningful.map((c) => formatCode(c) ?? c.code).join(", "),
+        description: meaningful
+          .map((coded) => describeCode(coded))
+          .filter(Boolean)
+          .join("\n"),
+      });
+    }
+  };
+
+  const pushFlag = (
+    key: string,
+    value: boolean | string | null | undefined,
+  ): void => {
+    if (value === true || value === "ja") {
       attributes.push({ key, label: t(key), value: t("yes") });
     }
   };
 
-  pushString("layerColor", layer.color);
-  pushString("organicMatter", layer.organicMatterContentClass);
-  pushString("carbonateContentClass", layer.carbonateContentClass);
-  pushString("sandMedian", layer.sandMedianClass);
-  pushString("tertiaryConstituent", layer.tertiaryConstituent);
-  pushString("fineSoilConsistency", layer.fineSoilConsistency);
-  pushString("organicSoilConsistency", layer.organicSoilConsistency);
-  pushString("organicSoilTexture", layer.organicSoilTexture);
-  pushString("peatTensileStrength", layer.peatTensileStrength);
-  pushString("angularity", layer.grainshape?.angularity);
-  pushString("sphericity", layer.grainshape?.sphericity);
-  pushString("roughness", layer.grainshape?.roughness);
-  pushFlag("dispersedInhomogeneity", layer.dispersedInhomogeneity);
+  pushCoded("layerColor", soil?.colour ?? layer.rock?.colour);
+  pushCoded("organicMatter", soil?.organicMatterContentClass);
+  pushCoded(
+    "carbonateContentClass",
+    soil?.carbonateContentClass ?? layer.rock?.carbonateContentClass,
+  );
+  pushCoded("sandMedian", soil?.sandMedianClass);
+  pushCodes("tertiaryConstituent", soil?.tertiaryConstituent ?? []);
+  pushCoded("fineSoilConsistency", soil?.fineSoilConsistency);
+  pushCoded("organicSoilConsistency", soil?.organicSoilConsistency);
+  pushCoded("organicSoilTexture", soil?.organicSoilTexture);
+  pushCoded("peatTensileStrength", soil?.peatTensileStrength);
+  pushCoded("angularity", soil?.grainshape?.angularity);
+  pushCoded("sphericity", soil?.grainshape?.sphericity);
+  pushCoded("roughness", soil?.grainshape?.roughness);
+  pushCodes(
+    "dispersedInhomogeneity",
+    soil?.dispersedInhomogeneity ?? layer.rock?.dispersedInhomogeneity ?? [],
+  );
   pushFlag("anthropogenic", layer.anthropogenic);
   pushFlag("bedded", layer.bedded);
-  pushFlag("mixed", layer.mixed);
-  pushFlag("mottled", layer.mottled);
+  pushFlag("mixed", soil?.mixed);
+  pushFlag("mottled", soil?.mottled);
 
   return attributes;
 }
 
-function formatBHRGTLayerTitle(
-  layer: BHRGTLayer,
-  t: TranslateFunction,
-): string {
+function formatBHRGTLayerTitle(layer: BoreLayer, t: TranslateFunction): string {
   const parts = [
     `${layer.upperBoundary.toFixed(2)} – ${layer.lowerBoundary.toFixed(2)} m`,
-    layer.geotechnicalSoilName,
+    layerSoilName(layer),
     ...getLayerAttributes(layer, t).map(
       ({ label, value }) => `${label}: ${value}`,
     ),

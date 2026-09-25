@@ -32,7 +32,11 @@ export function extractPeakData(
       let peakShearStress = 0;
       let normalStress = 0;
       for (const point of data) {
-        if (point.shearStress > peakShearStress) {
+        if (
+          point.shearStress != null &&
+          point.verticalStress != null &&
+          point.shearStress > peakShearStress
+        ) {
           peakShearStress = point.shearStress;
           normalStress = point.verticalStress;
         }
@@ -136,11 +140,13 @@ export function buildStressDisplacementPlot(
     }
 
     for (const point of data) {
-      allData.push({
-        displacement: point.horizontalDisplacement,
-        stress: point.shearStress,
-        testIndex,
-      });
+      if (point.horizontalDisplacement != null && point.shearStress != null) {
+        allData.push({
+          displacement: point.horizontalDisplacement,
+          stress: point.shearStress,
+          testIndex,
+        });
+      }
     }
   }
 
@@ -321,7 +327,7 @@ export function buildHeightChangePlot(
     }
 
     for (const point of data) {
-      if (point.heightChange != null) {
+      if (point.heightChange != null && point.horizontalDisplacement != null) {
         allData.push({
           displacement: point.horizontalDisplacement,
           heightChange: point.heightChange,

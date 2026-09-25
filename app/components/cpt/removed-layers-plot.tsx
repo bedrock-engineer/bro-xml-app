@@ -1,8 +1,8 @@
-import type { CPTData } from "@bedrock-engineer/bro-xml-parser";
 import * as Plot from "@observablehq/plot";
 import { max } from "d3-array";
 import { useEffect, useMemo, useRef } from "react";
 import { useTranslation } from "react-i18next";
+import type { RemovedLayer } from "../../types/bro-data";
 import {
   buildRemovedLayerBands,
   collectRemovedLayerLegend,
@@ -17,8 +17,6 @@ import {
 import { Card, CardTitle } from "../card";
 import { PlotDownloadButtons } from "../plot-download-buttons";
 import { SoilLegend } from "../soil-legend";
-
-type RemovedLayer = CPTData["removedLayers"][number];
 
 interface RemovedLayersPlotProps {
   layers: Array<RemovedLayer>;
@@ -46,7 +44,12 @@ export function RemovedLayersPlot({
   const containerRef = useRef<HTMLDivElement>(null);
 
   const sorted = useMemo(
-    () => [...layers].toSorted((a, b) => a.sequenceNumber - b.sequenceNumber),
+    () =>
+      [...layers].toSorted(
+        (a, b) =>
+          (a.sequenceNumber ?? a.upperBoundary) -
+          (b.sequenceNumber ?? b.upperBoundary),
+      ),
     [layers],
   );
 

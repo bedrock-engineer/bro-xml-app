@@ -32,7 +32,11 @@ export function computeMohrCircles(
       let porePressureAtFailure: number | null = null;
 
       for (const point of loadStageData) {
-        if (point.deviatorStress > maxDeviator) {
+        if (
+          point.deviatorStress != null &&
+          point.cellPressure != null &&
+          point.deviatorStress > maxDeviator
+        ) {
           maxDeviator = point.deviatorStress;
           sigma3 = point.cellPressure;
           porePressureAtFailure = point.porePressure ?? null;
@@ -143,12 +147,18 @@ export function buildTriaxialStressStrainPlot(
     }
 
     for (const point of loadStageData) {
-      allData.push({
-        strain: point.axialStrain,
-        stress: point.deviatorStress,
-        testIndex,
-        cellPressure: point.cellPressure,
-      });
+      if (
+        point.axialStrain != null &&
+        point.deviatorStress != null &&
+        point.cellPressure != null
+      ) {
+        allData.push({
+          strain: point.axialStrain,
+          stress: point.deviatorStress,
+          testIndex,
+          cellPressure: point.cellPressure,
+        });
+      }
     }
   }
 
@@ -419,7 +429,7 @@ export function buildPorePressureStrainPlot(
     }
 
     for (const point of loadStageData) {
-      if (point.porePressure != null) {
+      if (point.porePressure != null && point.axialStrain != null) {
         allData.push({
           strain: point.axialStrain,
           porePressure: point.porePressure,

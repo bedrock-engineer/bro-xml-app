@@ -1,6 +1,7 @@
 import type { SaturatedPermeabilityDetermination } from "@bedrock-engineer/bro-xml-parser";
 import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
+import { CodeValue } from "../code-value";
 import type { TranslateFunction } from "../../util/plot-config";
 import { PlotFigure } from "../plot-figure";
 import { buildPermeabilityPlot, type PermeabilityPoint } from "./permeability-plot";
@@ -31,7 +32,7 @@ export function PermeabilityDisplay({
 
       {data.determinationMethod && (
         <p className="text-sm text-gray-600 mb-3">
-          {t("method")}: {data.determinationMethod}
+          {t("method")}: <CodeValue coded={data.determinationMethod} />
         </p>
       )}
 

@@ -1,5 +1,6 @@
 import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
+import { formatCode } from "../../util/format";
 import { CHART_COLORS, type TranslateFunction } from "../../util/plot-config";
 import { PlotFigure } from "../plot-figure";
 import {
@@ -126,7 +127,7 @@ export function DirectShearDisplay({
               <span className="font-medium">
                 Test {index + 1}
                 {test.determinationMethod
-                  ? `: ${test.determinationMethod}`
+                  ? `: ${formatCode(test.determinationMethod)}`
                   : ""}
               </span>
             </div>

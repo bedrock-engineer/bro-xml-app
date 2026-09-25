@@ -52,6 +52,16 @@ export function isBHRGData(data: ParsedBROData): data is BHRGData {
 }
 
 /**
+ * The data type, narrowed to the types the app displays
+ */
+export function getFileType(data: BROData): BROFileType {
+  if (isCPTData(data)) {
+    return "CPT";
+  }
+  return isBHRGTData(data) ? "BHR-GT" : "BHR-G";
+}
+
+/**
  * Get the final depth from any BRO data type
  */
 export function getFinalDepth(data: BROData): number | null {

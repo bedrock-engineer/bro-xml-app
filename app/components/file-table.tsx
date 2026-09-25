@@ -22,7 +22,8 @@ import {
 } from "react-aria-components";
 import { useTranslation } from "react-i18next";
 import type { BROData, BROFileType } from "~/types/bro-data";
-import { getFinalDepth } from "~/types/bro-data";
+import { getFileType, getFinalDepth } from "~/types/bro-data";
+import { formatDate } from "~/util/format";
 
 interface SortIndicatorProps {
   column: string;
@@ -78,13 +79,14 @@ export function FileTable({
     return Object.entries(broData).map(([filename, data]) => {
       const reportDate = data.researchReportDate;
       const finalDepth = getFinalDepth(data);
-      const qualityRegime = data.qualityRegime ?? "IMBRO/A";
+      const qualityRegime: QualityRegime =
+        data.qualityRegime === "IMBRO" ? "IMBRO" : "IMBRO/A";
 
       return {
         id: filename,
         filename,
-        reportDate: reportDate?.toISOString().split("T")[0] ?? null,
-        type: data.meta.dataType,
+        reportDate: reportDate ? formatDate(reportDate) : null,
+        type: getFileType(data),
         qualityRegime,
         finalDepth,
       };

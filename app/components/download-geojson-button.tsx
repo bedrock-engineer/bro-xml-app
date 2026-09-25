@@ -3,15 +3,22 @@ import { DownloadIcon } from "lucide-react";
 import { Button } from "react-aria-components";
 import { useTranslation } from "react-i18next";
 import type { BROData } from "~/types/bro-data";
-import { getFinalDepth } from "~/types/bro-data";
+import {
+  getFileType,
+  getFinalDepth,
+  getSurfaceLevel,
+  getVerticalDatum,
+} from "~/types/bro-data";
 import { toWgs84 } from "~/util/coordinates";
 import { downloadFile } from "~/util/download";
+import { formatDate } from "~/util/format";
 
 function createGeoJSON(broData: Record<string, BROData>): FeatureCollection {
   const features: Array<Feature> = [];
 
   for (const [filename, data] of Object.entries(broData)) {
-    const location = data.standardizedLocation ?? data.deliveredLocation;
+    const location =
+      data.standardizedLocation?.location ?? data.deliveredLocation?.location;
     if (!location) {
       continue;
     }
@@ -31,12 +38,13 @@ function createGeoJSON(broData: Record<string, BROData>): FeatureCollection {
       properties: {
         filename,
         broId: data.broId,
-        fileType: data.meta.dataType,
+        fileType: getFileType(data),
         qualityRegime: data.qualityRegime,
-        reportDate:
-          data.researchReportDate?.toISOString().split("T")[0] ?? null,
-        surfaceElevation: data.deliveredVerticalPositionOffset,
-        verticalDatum: data.deliveredVerticalPositionDatum,
+        reportDate: data.researchReportDate
+          ? formatDate(data.researchReportDate)
+          : null,
+        surfaceElevation: getSurfaceLevel(data),
+        verticalDatum: getVerticalDatum(data),
         coordinateSystem: location.epsg,
         easting: location.x,
         northing: location.y,

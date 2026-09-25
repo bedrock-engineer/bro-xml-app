@@ -1,58 +1,56 @@
 import type { TFunction } from "i18next";
-import type { Location } from "@bedrock-engineer/bro-xml-parser";
+import type { BROData } from "../types/bro-data";
 import type { HeaderItem } from "../types/header-types";
-import { formatDeliveredLocation, formatStandardizedLocation } from "./format";
-
-interface LocationData {
-  deliveredLocation?: Location | null;
-  standardizedLocation?: Location | null;
-  deliveredVerticalPositionOffset: number | null;
-  deliveredVerticalPositionDatum?: string | null;
-  deliveredVerticalPositionReferencePoint?: string | null;
-}
+import {
+  codeItem,
+  formatDeliveredLocation,
+  formatStandardizedLocation,
+} from "./format";
 
 /**
  * Get location-related header items for any BRO data type
  */
 export function getLocationItems(
-  data: LocationData,
-  t: TFunction
+  data: BROData,
+  t: TFunction,
 ): Array<HeaderItem> {
   const items: Array<HeaderItem> = [];
+  const delivered = data.deliveredLocation;
+  const standardized = data.standardizedLocation;
+  const vertical = data.deliveredVerticalPosition;
 
-  if (data.deliveredLocation) {
+  if (delivered?.location) {
     items.push({
       label: t("deliveredLocation"),
-      value: formatDeliveredLocation(data.deliveredLocation),
+      value: formatDeliveredLocation(delivered.location),
     });
   }
 
-  if (data.standardizedLocation) {
+  if (standardized?.location) {
     items.push({
       label: t("standardizedLocation"),
-      value: formatStandardizedLocation(data.standardizedLocation),
+      value: formatStandardizedLocation(standardized.location),
     });
   }
 
-  if (data.deliveredVerticalPositionOffset !== null) {
+  if (vertical?.offset != null) {
     items.push({
       label: t("verticalOffset"),
-      value: `${data.deliveredVerticalPositionOffset.toFixed(2)} m`,
+      value: `${vertical.offset.toFixed(2)} m`,
     });
   }
 
-  if (data.deliveredVerticalPositionDatum) {
+  if (vertical?.verticalDatum) {
     items.push({
       label: t("verticalDatum"),
-      value: data.deliveredVerticalPositionDatum.toLocaleUpperCase(),
+      value: vertical.verticalDatum.code,
     });
   }
 
-  if (data.deliveredVerticalPositionReferencePoint) {
-    items.push({
-      label: t("referencePoint"),
-      value: data.deliveredVerticalPositionReferencePoint,
-    });
+  if (vertical?.localVerticalReferencePoint) {
+    items.push(
+      codeItem(t("referencePoint"), vertical.localVerticalReferencePoint),
+    );
   }
 
   return items;

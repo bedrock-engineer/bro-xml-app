@@ -129,6 +129,7 @@ export default {
     expertCorrectionPerformed: "Expertcorrectie uitgevoerd",
     yes: "Ja",
     no: "Nee",
+    unknown: "Onbekend",
 
     // Bore-specific
     boreholeInformation: "Boorinformatie",

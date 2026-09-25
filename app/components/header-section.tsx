@@ -37,7 +37,16 @@ export function HeaderSections({ sections }: HeaderSectionsProps) {
                 >
                   <dt className="text-gray-600">{item.label}</dt>
                   <dd className="text-gray-900 font-mono text-xs">
-                    {item.value}
+                    {item.description ? (
+                      <span
+                        title={item.description}
+                        className="underline decoration-dotted decoration-gray-400 cursor-help"
+                      >
+                        {item.value}
+                      </span>
+                    ) : (
+                      item.value
+                    )}
                   </dd>
                 </div>
               ))}

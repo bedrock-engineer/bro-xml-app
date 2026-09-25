@@ -135,7 +135,7 @@ export function QualityRegimeRow({ qualityRegime }: QualityRegimeRowProps) {
 }
 
 interface ReportDateRowProps {
-  date: Date | null | undefined;
+  date: string | null | undefined;
 }
 
 export function ReportDateRow({ date }: ReportDateRowProps) {

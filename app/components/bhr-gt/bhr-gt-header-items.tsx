@@ -3,7 +3,22 @@ import { useTranslation } from "react-i18next";
 import type { BHRGTData } from "@bedrock-engineer/bro-xml-parser";
 import { getUniqueDeterminationTypes } from "./determination-types";
 import type { HeaderItem, HeaderSection } from "../../types/header-types";
-import { formatDate } from "../../util/format";
+import {
+  getDescriptiveLog,
+  getFinalDepth,
+  getLayers,
+  getLocation,
+  getSurfaceLevel,
+  getVerticalDatum,
+} from "../../types/bro-data";
+import {
+  codeItem,
+  formatCode,
+  formatCodes,
+  formatDate,
+  formatIndication,
+  uniqueCodes,
+} from "../../util/format";
 import { getLocationItems } from "../../util/location-info";
 import { CardTitle } from "../card";
 import {
@@ -28,7 +43,6 @@ interface CompactBHRGTHeaderProps {
 
 export function CompactBHRGTHeader({ filename, data }: CompactBHRGTHeaderProps) {
   const { t } = useTranslation();
-  const location = data.deliveredLocation ?? data.standardizedLocation;
 
   return (
     <CompactHeaderWrapper testId={data.broId}>
@@ -42,13 +56,13 @@ export function CompactBHRGTHeader({ filename, data }: CompactBHRGTHeaderProps) 
 
       {/* Right column - Location and bore info */}
       <HeaderColumn>
-        <LocationDisplay location={location} />
+        <LocationDisplay location={getLocation(data)} />
         <SurfaceLevelRow
-          offset={data.deliveredVerticalPositionOffset}
-          datum={data.deliveredVerticalPositionDatum}
+          offset={getSurfaceLevel(data)}
+          datum={getVerticalDatum(data)}
         />
-        <DepthRow label={t("finalBoreDepth")} depth={data.finalBoreDepth} />
-        <WaterLevelRow level={data.groundwaterLevel} />
+        <DepthRow label={t("finalBoreDepth")} depth={getFinalDepth(data)} />
+        <WaterLevelRow level={data.boring?.groundwaterLevel ?? null} />
         {data.analysis && (
           <HeaderRow label={t("laboratoryAnalysis")} value={t("available")} />
         )}
@@ -59,45 +73,49 @@ export function CompactBHRGTHeader({ filename, data }: CompactBHRGTHeaderProps) 
 
 function getBHRGTSurveyInfo(data: BHRGTData, t: TFunction): Array<HeaderItem> {
   const items: Array<HeaderItem> = [];
+  const boring = data.boring;
+  const descriptionProcedure = formatCodes(
+    data.boreholeSampleDescription?.descriptionProcedure,
+  );
 
-  if (data.descriptionProcedure) {
+  if (descriptionProcedure) {
     items.push({
       label: t("descriptionProcedure"),
-      value: data.descriptionProcedure,
+      value: descriptionProcedure,
     });
   }
-  if (data.finalBoreDepth !== null) {
+  if (boring?.finalDepthBoring != null) {
     items.push({
       label: t("finalBoreDepth"),
-      value: `${data.finalBoreDepth.toFixed(2)} m`,
+      value: `${boring.finalDepthBoring.toFixed(2)} m`,
     });
   }
-  if (data.finalSampleDepth !== null) {
+  if (boring?.finalDepthSampling != null) {
     items.push({
       label: t("finalSampleDepth"),
-      value: `${data.finalSampleDepth.toFixed(2)} m`,
+      value: `${boring.finalDepthSampling.toFixed(2)} m`,
     });
   }
-  if (data.groundwaterLevel !== null) {
+  if (boring?.groundwaterLevel != null) {
     items.push({
       label: t("waterLevel"),
-      value: `${data.groundwaterLevel.toFixed(2)} m`,
+      value: `${boring.groundwaterLevel.toFixed(2)} m`,
     });
   }
-  if (data.boreRockReached !== null) {
+  if (boring?.rockReached != null) {
     items.push({
       label: t("rockReached"),
-      value: data.boreRockReached ? t("yes") : t("no"),
+      value: formatIndication(boring.rockReached, t),
     });
   }
-  if (data.boreHoleCompleted !== null) {
+  if (boring?.boreholeCompleted) {
     items.push({
       label: t("boreholeCompleted"),
-      value: data.boreHoleCompleted ? t("yes") : t("no"),
+      value: formatIndication(boring.boreholeCompleted, t),
     });
   }
-  if (data.stopCriterion) {
-    items.push({ label: t("stopCriterion"), value: data.stopCriterion });
+  if (boring?.stopCriterion) {
+    items.push(codeItem(t("stopCriterion"), boring.stopCriterion));
   }
 
   return items;
@@ -105,35 +123,45 @@ function getBHRGTSurveyInfo(data: BHRGTData, t: TFunction): Array<HeaderItem> {
 
 function getBHRGTInfo(data: BHRGTData, t: TFunction): Array<HeaderItem> {
   const items: Array<HeaderItem> = [];
+  const boring = data.boring;
 
-  if (data.boringStartDate) {
+  if (!boring) {
+    return items;
+  }
+
+  const boringProcedure = formatCodes(boring.boringProcedure);
+  const boringTechnique = formatCodes(
+    uniqueCodes(boring.boredInterval.map((i) => i.boringTechnique)),
+  );
+
+  if (boring.boringStartDate) {
     items.push({
       label: t("boringStartDate"),
-      value: formatDate(data.boringStartDate),
+      value: formatDate(boring.boringStartDate),
     });
   }
-  if (data.boringEndDate) {
+  if (boring.boringEndDate) {
     items.push({
       label: t("boringEndDate"),
-      value: formatDate(data.boringEndDate),
+      value: formatDate(boring.boringEndDate),
     });
   }
-  if (data.boringProcedure) {
-    items.push({ label: t("boringProcedure"), value: data.boringProcedure });
+  if (boringProcedure) {
+    items.push({ label: t("boringProcedure"), value: boringProcedure });
   }
-  if (data.boringTechnique) {
-    items.push({ label: t("boringTechnique"), value: data.boringTechnique });
+  if (boringTechnique) {
+    items.push({ label: t("boringTechnique"), value: boringTechnique });
   }
-  if (data.trajectoryExcavated !== null) {
+  if (boring.trajectoryExcavated !== null) {
     items.push({
       label: t("trajectoryExcavated"),
-      value: data.trajectoryExcavated ? t("yes") : t("no"),
+      value: formatIndication(boring.trajectoryExcavated, t),
     });
   }
-  if (data.subsurfaceContaminated !== null) {
+  if (boring.subsurfaceContaminated !== null) {
     items.push({
       label: t("subsurfaceContaminated"),
-      value: data.subsurfaceContaminated ? t("yes") : t("no"),
+      value: formatIndication(boring.subsurfaceContaminated, t),
     });
   }
 
@@ -142,92 +170,100 @@ function getBHRGTInfo(data: BHRGTData, t: TFunction): Array<HeaderItem> {
 
 function getSamplingInfo(data: BHRGTData, t: TFunction): Array<HeaderItem> {
   const items: Array<HeaderItem> = [];
+  const boring = data.boring;
+  // Sampling details are recorded per sampled interval; show the first
+  // interval's, as the header summarises the borehole as a whole.
+  const interval = boring?.sampledInterval[0];
+  const sampler = boring?.sampledInterval.find((i) => i.sampler)?.sampler;
+  const continuouslySampled = getDescriptiveLog(data)?.continuouslySampled;
 
-  if (data.samplerType) {
-    items.push({ label: t("samplerType"), value: data.samplerType });
+  if (sampler?.samplerType) {
+    items.push(codeItem(t("samplerType"), sampler.samplerType));
   }
-  if (data.samplingProcedure) {
-    items.push({
-      label: t("samplingProcedure"),
-      value: data.samplingProcedure,
-    });
+  if (boring?.samplingProcedure) {
+    items.push(codeItem(t("samplingProcedure"), boring.samplingProcedure));
   }
-  if (data.samplingMethod) {
-    items.push({ label: t("samplingMethod"), value: data.samplingMethod });
+  if (interval?.samplingMethod) {
+    items.push(codeItem(t("samplingMethod"), interval.samplingMethod));
   }
-  if (data.samplingQuality) {
-    items.push({ label: t("samplingQuality"), value: data.samplingQuality });
+  if (interval?.samplingQuality) {
+    items.push(codeItem(t("samplingQuality"), interval.samplingQuality));
   }
-  if (data.orientatedSampled !== null) {
+  if (interval?.orientatedSampled != null) {
     items.push({
       label: t("orientatedSampled"),
-      value: data.orientatedSampled ? t("yes") : t("no"),
+      value: formatIndication(interval.orientatedSampled, t),
     });
   }
-  if (data.continuouslySampled !== null) {
+  if (continuouslySampled) {
     items.push({
       label: t("continuouslySampled"),
-      value: data.continuouslySampled ? t("yes") : t("no"),
+      value: formatIndication(continuouslySampled, t),
     });
   }
-  if (data.sampleContainerDiameter !== null) {
+
+  if (!sampler) {
+    return items;
+  }
+
+  if (sampler.sampleContainerDiameter !== null) {
     items.push({
       label: t("sampleContainerDiameter"),
-      value: `${data.sampleContainerDiameter} mm`,
+      value: `${sampler.sampleContainerDiameter} mm`,
     });
   }
-  if (data.sampleContainerLength !== null) {
+  if (sampler.sampleContainerLength !== null) {
     items.push({
       label: t("sampleContainerLength"),
-      value: `${data.sampleContainerLength} mm`,
+      value: `${sampler.sampleContainerLength} mm`,
     });
   }
-  if (data.pistonPresent !== null) {
+  if (sampler.pistonPresent !== null) {
     items.push({
       label: t("pistonPresent"),
-      value: data.pistonPresent ? t("yes") : t("no"),
+      value: formatIndication(sampler.pistonPresent, t),
     });
   }
-  if (data.coreCatcherPresent !== null) {
+  if (sampler.coreCatcherPresent !== null) {
     items.push({
       label: t("coreCatcherPresent"),
-      value: data.coreCatcherPresent ? t("yes") : t("no"),
+      value: formatIndication(sampler.coreCatcherPresent, t),
     });
   }
-  if (data.stockingUsed !== null) {
+  if (sampler.stockingUsed !== null) {
     items.push({
       label: t("stockingUsed"),
-      value: data.stockingUsed ? t("yes") : t("no"),
+      value: formatIndication(sampler.stockingUsed, t),
     });
   }
-  if (data.lubricationFluidUsed !== null) {
+  if (sampler.lubricationFluidUsed !== null) {
     items.push({
       label: t("lubricationFluidUsed"),
-      value: data.lubricationFluidUsed ? t("yes") : t("no"),
+      value: formatIndication(sampler.lubricationFluidUsed, t),
     });
   }
-  if (data.rightAngledCuttingShoe !== null) {
+  if (sampler.rightAngledCuttingShoe !== null) {
     items.push({
       label: t("rightAngledCuttingShoe"),
-      value: data.rightAngledCuttingShoe ? t("yes") : t("no"),
+      value: formatIndication(sampler.rightAngledCuttingShoe, t),
     });
   }
-  if (data.cuttingShoeInsideDiameter !== null) {
+  if (sampler.cuttingShoeInsideDiameter !== null) {
     items.push({
       label: t("cuttingShoeInsideDiameter"),
-      value: `${data.cuttingShoeInsideDiameter} mm`,
+      value: `${sampler.cuttingShoeInsideDiameter} mm`,
     });
   }
-  if (data.cuttingShoeOutsideDiameter !== null) {
+  if (sampler.cuttingShoeOutsideDiameter !== null) {
     items.push({
       label: t("cuttingShoeOutsideDiameter"),
-      value: `${data.cuttingShoeOutsideDiameter} mm`,
+      value: `${sampler.cuttingShoeOutsideDiameter} mm`,
     });
   }
-  if (data.taperAngle !== null) {
+  if (sampler.taperAngle !== null) {
     items.push({
       label: t("taperAngle"),
-      value: `${data.taperAngle}°`,
+      value: `${sampler.taperAngle}°`,
     });
   }
 
@@ -236,38 +272,31 @@ function getSamplingInfo(data: BHRGTData, t: TFunction): Array<HeaderItem> {
 
 function getDescriptionInfo(data: BHRGTData, t: TFunction): Array<HeaderItem> {
   const items: Array<HeaderItem> = [];
+  const description = data.boreholeSampleDescription;
+  const log = getDescriptiveLog(data);
 
-  if (data.descriptionQuality) {
-    items.push({
-      label: t("descriptionQuality"),
-      value: data.descriptionQuality,
-    });
+  if (log?.descriptionQuality) {
+    items.push(codeItem(t("descriptionQuality"), log.descriptionQuality));
   }
-  if (data.descriptionLocation) {
-    items.push({
-      label: t("descriptionLocation"),
-      value: data.descriptionLocation,
-    });
+  if (log?.descriptionLocation) {
+    items.push(codeItem(t("descriptionLocation"), log.descriptionLocation));
   }
-  if (data.descriptionReportDate) {
+  if (description?.descriptionReportDate) {
     items.push({
       label: t("descriptionReportDate"),
-      value: formatDate(data.descriptionReportDate),
+      value: formatDate(description.descriptionReportDate),
     });
   }
-  if (data.describedMaterial) {
-    items.push({
-      label: t("describedMaterial"),
-      value: data.describedMaterial,
-    });
+  if (log?.describedMaterial) {
+    items.push(codeItem(t("describedMaterial"), log.describedMaterial));
   }
-  if (data.sampleMoistness) {
-    items.push({ label: t("sampleMoistness"), value: data.sampleMoistness });
+  if (log?.sampleMoistness) {
+    items.push(codeItem(t("sampleMoistness"), log.sampleMoistness));
   }
-  if (data.boreholeLogChecked !== null) {
+  if (log?.boreholeLogChecked != null) {
     items.push({
       label: t("boreholeLogChecked"),
-      value: data.boreholeLogChecked ? t("yes") : t("no"),
+      value: formatIndication(log.boreholeLogChecked, t),
     });
   }
 
@@ -278,21 +307,21 @@ function getSurveyContext(data: BHRGTData, t: TFunction): Array<HeaderItem> {
   const items: Array<HeaderItem> = [];
 
   if (data.deliveryContext) {
-    items.push({ label: t("deliveryContext"), value: data.deliveryContext });
+    items.push(codeItem(t("deliveryContext"), data.deliveryContext));
   }
   if (data.surveyPurpose) {
-    items.push({ label: t("surveyPurpose"), value: data.surveyPurpose });
+    items.push(codeItem(t("surveyPurpose"), data.surveyPurpose));
   }
   if (data.discipline) {
-    items.push({ label: t("discipline"), value: data.discipline });
+    items.push(codeItem(t("discipline"), data.discipline));
   }
   if (data.surveyProcedure) {
-    items.push({ label: t("surveyProcedure"), value: data.surveyProcedure });
+    items.push(codeItem(t("surveyProcedure"), data.surveyProcedure));
   }
   if (data.siteCharacteristicDetermined !== null) {
     items.push({
       label: t("siteCharacteristicDetermined"),
-      value: data.siteCharacteristicDetermined ? t("yes") : t("no"),
+      value: formatIndication(data.siteCharacteristicDetermined, t),
     });
   }
 
@@ -301,29 +330,31 @@ function getSurveyContext(data: BHRGTData, t: TFunction): Array<HeaderItem> {
 
 function getIntervalData(data: BHRGTData, t: TFunction): Array<HeaderItem> {
   const items: Array<HeaderItem> = [];
+  const boring = data.boring;
+  const notDescribed = getDescriptiveLog(data)?.notDescribedInterval ?? [];
 
-  if (data.boredIntervals.length > 0) {
+  if (boring && boring.boredInterval.length > 0) {
     items.push({
       label: t("boredIntervals"),
-      value: data.boredIntervals.length,
+      value: boring.boredInterval.length,
     });
   }
-  if (data.sampledIntervals.length > 0) {
+  if (boring && boring.sampledInterval.length > 0) {
     items.push({
       label: t("sampledIntervals"),
-      value: data.sampledIntervals.length,
+      value: boring.sampledInterval.length,
     });
   }
-  if (data.completedIntervals.length > 0) {
+  if (boring && boring.completedInterval.length > 0) {
     items.push({
       label: t("completedIntervals"),
-      value: data.completedIntervals.length,
+      value: boring.completedInterval.length,
     });
   }
-  if (data.notDescribedIntervals.length > 0) {
+  if (notDescribed.length > 0) {
     items.push({
       label: t("notDescribedIntervals"),
-      value: data.notDescribedIntervals.length,
+      value: notDescribed.length,
     });
   }
 
@@ -336,10 +367,7 @@ function getRegistrationInfo(data: BHRGTData, t: TFunction): Array<HeaderItem> {
   if (data.registrationHistory) {
     const history = data.registrationHistory;
     if (history.registrationStatus) {
-      items.push({
-        label: t("registrationStatus"),
-        value: history.registrationStatus,
-      });
+      items.push(codeItem(t("registrationStatus"), history.registrationStatus));
     }
     if (history.objectRegistrationTime) {
       items.push({
@@ -356,13 +384,13 @@ function getRegistrationInfo(data: BHRGTData, t: TFunction): Array<HeaderItem> {
     if (history.corrected !== null) {
       items.push({
         label: t("corrected"),
-        value: history.corrected ? t("yes") : t("no"),
+        value: formatIndication(history.corrected, t),
       });
     }
     if (history.underReview !== null) {
       items.push({
         label: t("underReview"),
-        value: history.underReview ? t("yes") : t("no"),
+        value: formatIndication(history.underReview, t),
       });
     }
   }
@@ -387,15 +415,15 @@ function getRegistrationInfo(data: BHRGTData, t: TFunction): Array<HeaderItem> {
 }
 
 function getBHRGTLayerInfo(data: BHRGTData, t: TFunction): Array<HeaderItem> {
+  const layers = getLayers(data);
   const items: Array<HeaderItem> = [{
     label: t("numberOfLayers"),
-    value: data.data.length,
+    value: layers.length,
   }];
 
-
-  if (data.data.length > 0) {
-    const firstLayer = data.data[0];
-    const lastLayer = data.data.at(-1);
+  if (layers.length > 0) {
+    const firstLayer = layers[0];
+    const lastLayer = layers.at(-1);
 
     items.push({
       label: t("depthRange"),
@@ -404,7 +432,11 @@ function getBHRGTLayerInfo(data: BHRGTData, t: TFunction): Array<HeaderItem> {
 
     // List unique soil names
     const soilNames = [
-      ...new Set(data.data.map((l) => l.geotechnicalSoilName)),
+      ...new Set(
+        layers
+          .map((l) => formatCode(l.soil?.geotechnicalSoilName))
+          .filter((name) => name !== null),
+      ),
     ];
     if (soilNames.length > 0) {
       items.push({
@@ -436,10 +468,7 @@ function getBHRGTAnalysisInfo(data: BHRGTData, t: TFunction): Array<HeaderItem> 
   }
 
   if (analysis.analysisProcedure) {
-    items.push({
-      label: t("analysisProcedure"),
-      value: analysis.analysisProcedure,
-    });
+    items.push(codeItem(t("analysisProcedure"), analysis.analysisProcedure));
   }
 
   items.push({

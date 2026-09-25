@@ -1,10 +1,8 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { ToggleButton, ToggleButtonGroup } from "react-aria-components";
-import type {
-  BHRGTLayer,
-  BoreholeSampleAnalysis,
-} from "@bedrock-engineer/bro-xml-parser";
+import type { BoreholeSampleAnalysis } from "@bedrock-engineer/bro-xml-parser";
+import type { BoreLayer } from "~/types/bro-data";
 import {
   LAB_TEST_CATEGORIES,
   getLabTestCategories,
@@ -25,12 +23,12 @@ import {
 } from "./bhr-gt-plot-render";
 
 import { SoilLegend } from "../soil-legend";
-import { collectSoilLegend } from "~/util/bro-lithology";
+import { bhrgtLithology, collectSoilLegend } from "~/util/bro-lithology";
 
 const id = "boreplot";
 
 interface BhrgtPlotProps {
-  layers: Array<BHRGTLayer>;
+  layers: Array<BoreLayer>;
   baseFilename: string;
   analysis?: BoreholeSampleAnalysis;
   /** Groundwater depth during drilling (m below surface) */
@@ -118,7 +116,7 @@ export function BHRGTPlot({
   const canShowNap = surfaceNap != null;
 
   // Legend entries reflect only the soils actually present in this borehole.
-  const legendSoils = collectSoilLegend(layers, (l) => l.geotechnicalSoilName);
+  const legendSoils = collectSoilLegend(layers.map(bhrgtLithology));
 
   return (
     <Card>

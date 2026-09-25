@@ -35,6 +35,21 @@ export function formatCodes(
 }
 
 /**
+ * Distinct coded values (by code), in first-seen order
+ */
+export function uniqueCodes(
+  codes: ReadonlyArray<Coded | null>,
+): Array<Coded> {
+  const seen = new Map<string, Coded>();
+  for (const coded of codes) {
+    if (coded && !seen.has(coded.code)) {
+      seen.set(coded.code, coded);
+    }
+  }
+  return [...seen.values()];
+}
+
+/**
  * Official (Dutch) BRO description of a coded value
  */
 export function describeCode(coded: Coded | null | undefined): string | null {

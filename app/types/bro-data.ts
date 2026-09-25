@@ -97,10 +97,12 @@ export function getMeasurements(data: CPTData): Array<CPTMeasurement> {
  * Layers removed before the CPT was performed (voorontgraving)
  */
 export function getRemovedLayers(data: CPTData): Array<RemovedLayer> {
-  return (data.additionalInvestigation?.removedLayer ?? []).filter(
-    hasBoundaries,
+  return memoize(removedLayerCache, data, () =>
+    (data.additionalInvestigation?.removedLayer ?? []).filter(hasBoundaries),
   );
 }
+
+const removedLayerCache = new WeakMap<CPTData, Array<RemovedLayer>>();
 
 export type RemovedLayer = BoundedLayer<
   NonNullable<CPTData["additionalInvestigation"]>["removedLayer"][number]
@@ -128,9 +130,33 @@ export function getLayers(data: BHRGData): Array<BHRGBoreLayer>;
 export function getLayers(
   data: BHRGTData | BHRGData,
 ): Array<BoreLayer> | Array<BHRGBoreLayer> {
-  const layers: Array<BHRGTLayer | BHRGLayer> =
-    data.boreholeSampleDescription?.descriptiveBoreholeLog[0]?.layer ?? [];
-  return layers.filter(hasBoundaries) as Array<BoreLayer> | Array<BHRGBoreLayer>;
+  return memoize(layerCache, data, () => {
+    const layers: Array<BHRGTLayer | BHRGLayer> =
+      data.boreholeSampleDescription?.descriptiveBoreholeLog[0]?.layer ?? [];
+    return layers.filter(hasBoundaries);
+  }) as Array<BoreLayer> | Array<BHRGBoreLayer>;
+}
+
+const layerCache = new WeakMap<
+  BHRGTData | BHRGData,
+  Array<BoundedLayer<BHRGTLayer | BHRGLayer>>
+>();
+
+/**
+ * Derived arrays are cached per parsed object so their identity is stable
+ * across renders (they feed effect and memo dependencies).
+ */
+function memoize<K extends object, V>(
+  cache: WeakMap<K, V>,
+  key: K,
+  compute: () => V,
+): V {
+  let value = cache.get(key);
+  if (value === undefined) {
+    value = compute();
+    cache.set(key, value);
+  }
+  return value;
 }
 
 /** A BHR-GT layer with known boundaries */

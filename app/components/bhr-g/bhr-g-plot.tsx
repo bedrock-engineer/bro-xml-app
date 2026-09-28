@@ -1,9 +1,12 @@
-import type { BHRGLayer } from "@bedrock-engineer/bro-xml-parser";
 import * as Plot from "@observablehq/plot";
-import { max, min } from "d3-array";
 import { useEffect, useRef } from "react";
 import { useTranslation } from "react-i18next";
+import type { BHRGBoreLayer, BHRGData } from "../../types/bro-data";
+import { getLayers } from "../../types/bro-data";
+import { formatCode } from "../../util/format";
+import { LogSelector, useLogSelection } from "../bore-log";
 import {
+  bhrgLithology,
   buildSoilBands,
   collectSoilLegend,
   injectHatchPatterns,
@@ -22,32 +25,39 @@ import { SoilLegend } from "../soil-legend";
 const id = "bhrg-plot";
 
 /** BHR-G layers carry their BRO soil name in the NEN5104 field. */
-const soilNameOf = (layer: BHRGLayer): string => layer.soilNameNEN5104;
+const soilNameOf = (layer: BHRGBoreLayer): string =>
+  formatCode(layer.soil?.soilNameNEN5104) ?? "";
+
+const isAnthropogenic = (layer: BHRGBoreLayer): boolean =>
+  layer.anthropogenic === "ja";
+const isRooted = (layer: BHRGBoreLayer): boolean => layer.rooted === "ja";
 
 interface BHRGPlotProps {
-  layers: Array<BHRGLayer>;
+  data: BHRGData;
   baseFilename: string;
   width?: number;
   height?: number;
 }
 
 export function BHRGPlot({
-  layers,
+  data,
   width = 350,
   height = 800,
   baseFilename,
 }: BHRGPlotProps) {
   const { t } = useTranslation();
   const containerRef = useRef<HTMLDivElement>(null);
+  const { logs, activeLogIndex, setLogIndex, depthRange } =
+    useLogSelection(data);
+  const layers = getLayers(data, activeLogIndex);
+  // Depth axis spans all logs, so switching logs keeps the scale fixed.
+  const [minDepth, maxDepth] = depthRange;
 
   useEffect(() => {
     if (containerRef.current === null || layers.length === 0) {
       return;
     }
 
-    // Calculate the depth range
-    const minDepth = min(layers.map((l) => l.upperBoundary)) ?? 0;
-    const maxDepth = max(layers.map((l) => l.lowerBoundary)) ?? 0;
     const plotHeight = height - PLOT_MARGINS.top - PLOT_MARGINS.bottom - 20;
 
     // Filter layers that are tall enough in pixels to show labels
@@ -61,7 +71,9 @@ export function BHRGPlot({
     // Split each layer into proportional soil-composition bands (main soil +
     // admixtures), coloured by soil type with a hatch overlay per band — the
     // same scheme as the BHR-GT bore plot.
-    const soilBands = buildSoilBands(layers, soilNameOf);
+    const soilBands = buildSoilBands(
+      layers.map((layer) => bhrgLithology(layer)),
+    );
     const hatchedBands = soilBands.filter((b) => b.hatchId);
 
     const plot = Plot.plot({
@@ -77,7 +89,7 @@ export function BHRGPlot({
       // Pass fill values verbatim (hex colours and url(#pattern) refs)
       color: { type: "identity" },
       x: hiddenXAxisConfig,
-      y: depthYAxisConfig,
+      y: { ...depthYAxisConfig, domain: [minDepth, maxDepth] },
       marks: [
         // Soil composition bands
         Plot.rect(soilBands, {
@@ -110,10 +122,10 @@ export function BHRGPlot({
         }),
         // Anthropogenic indicator (hatching pattern simulation with dots)
         Plot.dot(
-          layers.filter((l) => l.anthropogenic),
+          layers.filter((layer) => isAnthropogenic(layer)),
           {
             x: 1.2,
-            y: (d: BHRGLayer) =>
+            y: (d: BHRGBoreLayer) =>
               d.upperBoundary + (d.lowerBoundary - d.upperBoundary) / 2,
             fill: "#a0522d",
             r: 4,
@@ -124,10 +136,10 @@ export function BHRGPlot({
         ),
         // Rooted indicator
         Plot.dot(
-          layers.filter((l) => l.rooted),
+          layers.filter((layer) => isRooted(layer)),
           {
             x: 1.1,
-            y: (d: BHRGLayer) =>
+            y: (d: BHRGBoreLayer) =>
               d.upperBoundary + (d.lowerBoundary - d.upperBoundary) / 2,
             fill: "#228b22",
             r: 3,
@@ -141,9 +153,9 @@ export function BHRGPlot({
         // the narrow, dark soil bands, matching the BHR-GT plot.
         Plot.text(layersWithLabels, {
           x: 0.5,
-          y: (d: BHRGLayer) =>
+          y: (d: BHRGBoreLayer) =>
             d.upperBoundary + (d.lowerBoundary - d.upperBoundary) / 2,
-          text: (d: BHRGLayer) => d.soilNameNEN5104,
+          text: soilNameOf,
           fill: "black",
           stroke: "white",
           strokeWidth: 2,
@@ -171,17 +183,21 @@ export function BHRGPlot({
     return () => {
       plot.remove();
     };
-  }, [layers, width, height, t]);
+  }, [layers, minDepth, maxDepth, width, height, t]);
 
-  const hasAnthropogenic = layers.some((l) => l.anthropogenic);
-  const hasRooted = layers.some((l) => l.rooted);
+  const hasAnthropogenic = layers.some((layer) => isAnthropogenic(layer));
+  const hasRooted = layers.some((layer) => isRooted(layer));
 
   // Legend entries reflect only the soils actually present in this borehole.
-  const legendSoils = collectSoilLegend(layers, soilNameOf);
+  const legendSoils = collectSoilLegend(
+    layers.map((layer) => bhrgLithology(layer)),
+  );
 
   return (
     <Card>
       <CardTitle>{t("geologicalBoreLog")}</CardTitle>
+
+      <LogSelector logs={logs} value={activeLogIndex} onChange={setLogIndex} />
 
       <div className="flex justify-center">
         <div id={id} ref={containerRef}></div>
@@ -223,38 +239,27 @@ export function BHRGPlot({
   );
 }
 
-function formatBHRGLayerTitle(layer: BHRGLayer): string {
+function formatBHRGLayerTitle(layer: BHRGBoreLayer): string {
+  const soil = layer.soil;
   const parts = [
     `${layer.upperBoundary.toFixed(2)} – ${layer.lowerBoundary.toFixed(2)} m`,
-    `NEN5104: ${layer.soilNameNEN5104}`,
+    `NEN5104: ${soilNameOf(layer)}`,
   ];
 
-  if (layer.color) {
-    parts.push(`Color: ${layer.color}`);
-  }
+  const optional: Array<[string, string | null]> = [
+    ["Color", formatCode(soil?.colour)],
+    ["Anthropogenic", layer.anthropogenic],
+    ["Rooted", layer.rooted],
+    ["Organic matter", formatCode(soil?.organicMatterContentClassNEN5104)],
+    ["Carbonate", formatCode(soil?.carbonateContentClass)],
+    ["Gravel", formatCode(soil?.gravelContentClass)],
+    ["Sand median", formatCode(soil?.sandFraction?.sandMedianClass)],
+  ];
 
-  if (layer.anthropogenic) {
-    parts.push(`Anthropogenic: ${layer.anthropogenic}`);
-  }
-
-  if (layer.rooted) {
-    parts.push(`Rooted: ${layer.rooted}`);
-  }
-
-  if (layer.organicMatterContentClassNEN5104) {
-    parts.push(`Organic matter: ${layer.organicMatterContentClassNEN5104}`);
-  }
-
-  if (layer.carbonateContentClass) {
-    parts.push(`Carbonate: ${layer.carbonateContentClass}`);
-  }
-
-  if (layer.gravelContentClass) {
-    parts.push(`Gravel: ${layer.gravelContentClass}`);
-  }
-
-  if (layer.sandMedianClass) {
-    parts.push(`Sand median: ${layer.sandMedianClass}`);
+  for (const [label, value] of optional) {
+    if (value) {
+      parts.push(`${label}: ${value}`);
+    }
   }
 
   return parts.join("\n");

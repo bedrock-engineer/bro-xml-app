@@ -14,6 +14,8 @@ import {
 } from "react-aria-components";
 import { useTranslation } from "react-i18next";
 import { Card, CardTitle } from "../card";
+import { CodeValue } from "../code-value";
+import { formatCode, formatDate } from "../../util/format";
 import { BasicDeterminationsDepthPlots } from "../lab/basic-determinations-depth-plots";
 import { ConsistencyLimitsDisplay } from "../lab/consistency-limits-display";
 import { ParticleSizeDistributionPlot } from "../lab/particle-size-distribution-plot";
@@ -34,7 +36,7 @@ export function LaboratoryAnalysis({
   const { t } = useTranslation();
   const [selectedInterval, setSelectedInterval] = useState(0);
 
-  const intervals = analysis.investigatedIntervals;
+  const intervals = analysis.investigatedInterval;
   const currentInterval = intervals[selectedInterval];
 
   if (!currentInterval) {
@@ -51,13 +53,15 @@ export function LaboratoryAnalysis({
           {analysis.analysisReportDate && (
             <>
               <dt className="text-gray-500">{t("analysisReportDate")}</dt>
-              <dd>{analysis.analysisReportDate.toISOString().split("T")[0]}</dd>
+              <dd>{formatDate(analysis.analysisReportDate)}</dd>
             </>
           )}
           {analysis.analysisProcedure && (
             <>
               <dt className="text-gray-500">{t("analysisProcedure")}</dt>
-              <dd>{analysis.analysisProcedure}</dd>
+              <dd>
+                <CodeValue coded={analysis.analysisProcedure} />
+              </dd>
             </>
           )}
           <dt className="text-gray-500">{t("investigatedIntervals")}</dt>
@@ -97,8 +101,9 @@ export function LaboratoryAnalysis({
                   id={index}
                   className="px-3 py-2 text-sm text-gray-700 cursor-pointer hover:bg-blue-50 rounded data-selected:bg-blue-100"
                 >
-                  {interval.beginDepth.toFixed(2)} –{" "}
-                  {interval.endDepth.toFixed(2)} m {interval.analysisType}
+                  {interval.beginDepth?.toFixed(2) ?? "–"} –{" "}
+                  {interval.endDepth?.toFixed(2) ?? "–"} m{" "}
+                  {formatCode(interval.analysisType)}
                 </ListBoxItem>
               ))}
             </ListBox>
@@ -134,20 +139,24 @@ function IntervalDetails({
       {/* Interval header */}
       <div className="p-3 bg-blue-50 rounded text-sm">
         <h4 className="font-medium mb-2">
-          {t("interval")}: {interval.beginDepth.toFixed(2)} -{" "}
-          {interval.endDepth.toFixed(2)} m
+          {t("interval")}: {interval.beginDepth?.toFixed(2) ?? "–"} -{" "}
+          {interval.endDepth?.toFixed(2) ?? "–"} m
         </h4>
         <dl className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-1">
           {interval.sampleQuality && (
             <>
               <dt className="text-gray-500">{t("sampleQuality")}</dt>
-              <dd>{interval.sampleQuality}</dd>
+              <dd>
+                <CodeValue coded={interval.sampleQuality} />
+              </dd>
             </>
           )}
           {interval.analysisType && (
             <>
               <dt className="text-gray-500">{t("analysisType")}</dt>
-              <dd>{interval.analysisType}</dd>
+              <dd>
+                <CodeValue coded={interval.analysisType} />
+              </dd>
             </>
           )}
         </dl>

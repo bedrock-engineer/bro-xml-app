@@ -7,7 +7,8 @@
  * ..."), so we parse the range straight from the parser's authoritative
  * codelist — no hand-maintained table to drift out of sync.
  */
-import { getBhrgtSandMedianClassDescription } from "@bedrock-engineer/bro-xml-parser/reference-codes";
+import type { Coded } from "@bedrock-engineer/bro-xml-parser";
+import { describe } from "@bedrock-engineer/bro-xml-parser/reference-codes";
 
 /** Sand grain-size axis domain (µm) — the NEN-EN-ISO 14688 sand range. */
 export const SAND_MEDIAN_DOMAIN: [number, number] = [63, 2000];
@@ -33,12 +34,9 @@ const RANGE_RE = /tussen\s+(\d+)\s+en\s+(\d+)/i;
  * whose description carries no µm range.
  */
 export function sandMedianRange(
-  code: string | null | undefined,
+  sandMedianClass: Coded | null | undefined,
 ): GrainSizeRange | null {
-  if (!code) {
-    return null;
-  }
-  const description = getBhrgtSandMedianClassDescription(code);
+  const description = describe(sandMedianClass);
   const match = description ? RANGE_RE.exec(description) : null;
   if (!match) {
     return null;

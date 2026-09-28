@@ -20,6 +20,8 @@ It also let's you download data from the BRO/XML files as CSV or JSON, and the l
 - BHR-G (Geological boreholes)
 - BHR-GT + BHR-GT-BMA (Geotechnical boreholes and geotechnical lab samples)
 - CPT (Cone Penetration tests)
+- GMW (Groundwater monitoring wells)
+- GLD (Groundwater level data)
 
 ## Technology Stack
 

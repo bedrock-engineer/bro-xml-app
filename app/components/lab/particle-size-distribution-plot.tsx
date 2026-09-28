@@ -1,6 +1,7 @@
 import type { ParticleSizeDistributionDetermination } from "@bedrock-engineer/bro-xml-parser";
 import { useRef } from "react";
 import { useTranslation } from "react-i18next";
+import { CodeValue } from "../code-value";
 import type { TranslateFunction } from "../../util/plot-config";
 import { PlotDownloadButtons } from "../plot-download-buttons";
 import { PlotFigure } from "../plot-figure";
@@ -33,7 +34,7 @@ export function ParticleSizeDistributionPlot({
       <div className="mt-3 text-sm text-gray-600">
         {data.determinationMethod && (
           <p>
-            {t("method")}: {data.determinationMethod}
+            {t("method")}: <CodeValue coded={data.determinationMethod} />
           </p>
         )}
         {data.fractionSmaller63um !== null && (

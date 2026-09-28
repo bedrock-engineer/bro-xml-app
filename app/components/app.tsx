@@ -1,4 +1,3 @@
-import { BROParser, XMLAdapter } from "@bedrock-engineer/bro-xml-parser";
 import * as Sentry from "@sentry/react-router/cloudflare";
 import type { TFunction } from "i18next";
 import {
@@ -10,7 +9,7 @@ import {
   TrashIcon,
   UploadIcon,
 } from "lucide-react";
-import { Suspense, useEffect, useMemo, useState, useTransition } from "react";
+import { lazy, Suspense, useEffect, useMemo, useState, useTransition } from "react";
 import { Button, FileTrigger } from "react-aria-components";
 import { ErrorBoundary } from "react-error-boundary";
 import { useTranslation } from "react-i18next";
@@ -20,6 +19,12 @@ import {
   isBHRGData,
   isBHRGTData,
   isCPTData,
+  isGLDData,
+  isGMWData,
+  getDissipationTests,
+  getRemovedLayers,
+  getSurfaceLevel,
+  parseBRO,
 } from "~/types/bro-data";
 import { type BROLocationLayer, fetchBROObject } from "~/util/bro-api";
 import { detectChartAxes } from "~/util/chart-axes";
@@ -42,8 +47,23 @@ import { DissipationTestPlots } from "./cpt/dissipation-test-plot";
 import { RemovedLayersPlot } from "./cpt/removed-layers-plot";
 import { DownloadGeoJSONButton } from "./download-geojson-button";
 import { FileTable } from "./file-table";
+import {
+  CompactGldHeader,
+  DetailedGldHeaders,
+} from "./gld/gld-header-items";
+import { GldChart } from "./gld/gld-chart";
+import {
+  CompactGmwHeader,
+  DetailedGmwHeaders,
+} from "./gmw/gmw-header-items";
+import { GmwSchematic } from "./gmw/gmw-schematic";
 import { InstallInstructions } from "./install-instructions";
-import { BROMap } from "./map/map.client";
+
+// Lazy-loaded so maplibre-gl (~1 MB) is split out of the initial bundle. The
+// map is already gated behind a client check + Suspense boundary below.
+const BROMap = lazy(() =>
+  import("./map/map.client").then((module) => ({ default: module.BROMap })),
+);
 
 function translateWarning(warning: string, t: TFunction): string {
   const parts = warning.split(":");
@@ -87,9 +107,8 @@ function translateError(error: string, t: TFunction): string {
  */
 async function parseBROFile(file: File): Promise<BROData> {
   const text = await file.text();
-  const parser = new BROParser(new XMLAdapter());
 
-  return parser.parse(text);
+  return parseBRO(text);
 }
 
 export function App() {
@@ -128,8 +147,7 @@ export function App() {
 
     try {
       const xml = await fetchBROObject(broId, layer);
-      const parser = new BROParser(new XMLAdapter());
-      const data = parser.parse(xml);
+      const data = await parseBRO(xml);
 
       startTransition(() => {
         setBroData((previous) => ({ ...previous, [broId]: data }));
@@ -161,13 +179,12 @@ export function App() {
       "example_cpt.xml",
       "example_bhr_gt.xml",
       "example_bhr_g.xml",
-      "example_bhr_gt_triaxial.xml",
+      "example_gmw.xml",
+      "example_gld.xml",
       "example_bhr_gt_triaxial.xml",
       "example_bhr_gt_vol_mass_density_solids.xml",
       "example_bhr_gt_max_undrained_shear_strength.xml",
     ];
-
-    const parser = new BROParser(new XMLAdapter());
 
     const parsedFiles = sampleFiles.map(async (filename) => {
       const response = await fetch(`/${filename}`);
@@ -177,7 +194,7 @@ export function App() {
       const text = await response.text();
       return {
         filename,
-        data: parser.parse(text),
+        data: await parseBRO(text),
         xml: new Blob([text], { type: "application/xml" }),
       };
     });
@@ -520,16 +537,16 @@ export function App() {
                   />
                 )}
 
-                {selectedFile.removedLayers.length > 0 && (
+                {getRemovedLayers(selectedFile).length > 0 && (
                   <RemovedLayersPlot
-                    layers={selectedFile.removedLayers}
+                    layers={getRemovedLayers(selectedFile)}
                     baseFilename={selectedFileName.replace(/\.xml$/i, "")}
                   />
                 )}
 
-                {selectedFile.dissipationTests.length > 0 && (
+                {getDissipationTests(selectedFile).length > 0 && (
                   <DissipationTestPlots
-                    tests={selectedFile.dissipationTests}
+                    tests={getDissipationTests(selectedFile)}
                     baseFilename={selectedFileName.replace(/\.xml$/i, "")}
                   />
                 )}
@@ -545,15 +562,17 @@ export function App() {
                   data={selectedFile}
                 />
                 <BHRGTPlot
-                  layers={selectedFile.data}
+                  data={selectedFile}
                   baseFilename={selectedFileName.replace(/\.xml$/i, "")}
-                  analysis={selectedFile.analysis}
-                  groundwaterLevel={selectedFile.groundwaterLevel}
-                  surfaceNap={selectedFile.deliveredVerticalPositionOffset}
+                  analysis={selectedFile.boreholeSampleAnalysis}
+                  groundwaterLevel={
+                    selectedFile.boring?.groundwaterLevel ?? null
+                  }
+                  surfaceNap={getSurfaceLevel(selectedFile)}
                 />
-                {selectedFile.analysis && (
+                {selectedFile.boreholeSampleAnalysis && (
                   <LaboratoryAnalysis
-                    analysis={selectedFile.analysis}
+                    analysis={selectedFile.boreholeSampleAnalysis}
                     baseFilename={selectedFileName.replace(/\.xml$/i, "")}
                   />
                 )}
@@ -568,10 +587,38 @@ export function App() {
                   data={selectedFile}
                 />
                 <BHRGPlot
-                  layers={selectedFile.data}
+                  data={selectedFile}
                   baseFilename={selectedFileName.replace(/\.xml$/i, "")}
                 />
                 <DetailedBHRGHeaders data={selectedFile} />
+              </>
+            )}
+
+            {isGMWData(selectedFile) && (
+              <>
+                <CompactGmwHeader
+                  filename={selectedFileName}
+                  data={selectedFile}
+                />
+                <GmwSchematic
+                  data={selectedFile}
+                  baseFilename={selectedFileName.replace(/\.xml$/i, "")}
+                />
+                <DetailedGmwHeaders data={selectedFile} />
+              </>
+            )}
+
+            {isGLDData(selectedFile) && (
+              <>
+                <CompactGldHeader
+                  filename={selectedFileName}
+                  data={selectedFile}
+                />
+                <GldChart
+                  observations={selectedFile.observation}
+                  baseFilename={selectedFileName.replace(/\.xml$/i, "")}
+                />
+                <DetailedGldHeaders data={selectedFile} />
               </>
             )}
           </div>

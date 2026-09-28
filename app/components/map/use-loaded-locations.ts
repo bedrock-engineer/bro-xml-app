@@ -1,4 +1,4 @@
-import type { BROData } from "@bedrock-engineer/bro-xml-parser";
+import type { BROData } from "~/types/bro-data";
 import { type Map as MaplibreMap } from "maplibre-gl";
 import { LngLatBounds, type GeoJSONSource } from "maplibre-gl";
 import { type RefObject, useEffect, useMemo, useRef } from "react";

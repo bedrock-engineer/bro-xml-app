@@ -275,6 +275,8 @@ export function createMapStyle(pmtilesUrl: string): StyleSpecification {
               typeColors["BHR-GT"],
               "BHR-G",
               typeColors["BHR-G"],
+              "GMW",
+              typeColors.GMW,
               typeColors["BHR-GT"],
             ],
           ],

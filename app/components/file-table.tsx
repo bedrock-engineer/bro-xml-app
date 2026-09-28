@@ -22,7 +22,8 @@ import {
 } from "react-aria-components";
 import { useTranslation } from "react-i18next";
 import type { BROData, BROFileType } from "~/types/bro-data";
-import { getFinalDepth } from "~/types/bro-data";
+import { getFileType, getFinalDepth } from "~/types/bro-data";
+import { formatDate } from "~/util/format";
 
 interface SortIndicatorProps {
   column: string;
@@ -76,15 +77,17 @@ export function FileTable({
 
   const rows: Array<FileRow> = useMemo(() => {
     return Object.entries(broData).map(([filename, data]) => {
-      const reportDate = data.researchReportDate;
+      const reportDate =
+        "researchReportDate" in data ? data.researchReportDate : null;
       const finalDepth = getFinalDepth(data);
-      const qualityRegime = data.qualityRegime ?? "IMBRO/A";
+      const qualityRegime: QualityRegime =
+        data.qualityRegime === "IMBRO" ? "IMBRO" : "IMBRO/A";
 
       return {
         id: filename,
         filename,
-        reportDate: reportDate?.toISOString().split("T")[0] ?? null,
-        type: data.meta.dataType,
+        reportDate: reportDate ? formatDate(reportDate) : null,
+        type: getFileType(data),
         qualityRegime,
         finalDepth,
       };
@@ -270,6 +273,8 @@ const badgeClassNames: Record<BROFileType, string> = {
   "BHR-GT": "bg-orange-300 text-orange-800",
   "BHR-G": "bg-green-300 text-green-800",
   CPT: "bg-blue-300 text-blue-800",
+  GMW: "bg-cyan-300 text-cyan-800",
+  GLD: "bg-teal-300 text-teal-800",
 };
 
 const TypeBadge = ({ type }: { type: BROFileType }) => (

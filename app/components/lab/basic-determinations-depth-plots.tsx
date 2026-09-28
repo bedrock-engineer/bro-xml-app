@@ -164,8 +164,8 @@ function SummaryTable({ intervals, determinations }: SummaryTableProps) {
           {intervalsWithData.map((interval, index) => (
             <tr key={index} className="border-b border-gray-100">
               <td className="py-2 px-2 font-mono text-gray-700">
-                {interval.beginDepth.toFixed(2)} –{" "}
-                {interval.endDepth.toFixed(2)}
+                {interval.beginDepth?.toFixed(2) ?? "–"} –{" "}
+                {interval.endDepth?.toFixed(2) ?? "–"}
               </td>
               {determinations.map((det) => {
                 const value = det.getValue(interval);

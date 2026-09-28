@@ -15,6 +15,12 @@ export interface DeterminationConfig {
   ticks: number;
 }
 
+/** An interval that can be placed on the depth axis: both depths present. */
+type PlottableInterval = InvestigatedInterval & {
+  beginDepth: number;
+  endDepth: number;
+};
+
 const FIRST_COL_WIDTH = 200;
 const OTHER_COL_WIDTH = 160;
 const FIRST_MARGIN_LEFT = 50;
@@ -53,6 +59,8 @@ export function buildDepthProfilesPlot({
   svg.setAttribute("height", String(PLOT_HEIGHT));
   svg.setAttribute("viewBox", `0 0 ${totalWidth} ${PLOT_HEIGHT}`);
   svg.style.backgroundColor = "white";
+  // Allow tooltips from the outer columns to paint past the parent viewport too.
+  svg.style.overflow = "visible";
 
   let xOffset = 0;
 
@@ -61,7 +69,10 @@ export function buildDepthProfilesPlot({
     const colWidth = isFirst ? FIRST_COL_WIDTH : OTHER_COL_WIDTH;
 
     const dataPoints = intervals.filter(
-      (interval) => det.getValue(interval) != null,
+      (interval): interval is PlottableInterval =>
+        det.getValue(interval) != null &&
+        interval.beginDepth != null &&
+        interval.endDepth != null,
     );
 
     if (dataPoints.length === 0) {
@@ -97,11 +108,11 @@ export function buildDepthProfilesPlot({
         Plot.frame(),
         Plot.dot(dataPoints, {
           x: det.getValue,
-          y: (d: InvestigatedInterval) => (d.endDepth + d.beginDepth) / 2,
+          y: (d: PlottableInterval) => (d.endDepth + d.beginDepth) / 2,
           symbol: "times",
           stroke: "#2563eb",
           strokeWidth: 2,
-          title: (d: InvestigatedInterval) => {
+          title: (d: PlottableInterval) => {
             const value = det.getValue(d);
             return `${d.beginDepth.toFixed(2)} – ${d.endDepth.toFixed(2)} m\n${det.label}: ${value?.toFixed(2)} ${det.unit}`;
           },
@@ -116,6 +127,16 @@ export function buildDepthProfilesPlot({
     childSvg.setAttribute("x", String(xOffset));
     childSvg.setAttribute("y", "0");
     childSvg.removeAttribute("viewBox");
+    // Nested <svg> viewports clip their overflow by default (UA stylesheet
+    // `svg:not(:root) { overflow: hidden }`), which cuts off any tooltip wider
+    // than this narrow column. Let the tip paint past the column edge instead.
+    childSvg.style.overflow = "visible";
+    // Later columns paint on top, so a hovered column's tip would be covered by
+    // its right-hand neighbours. Raise the column to the end of the paint order
+    // while it's hovered so its tip stays on top.
+    childSvg.addEventListener("pointerenter", () => {
+      svg.append(childSvg);
+    });
     svg.append(childSvg);
 
     xOffset += colWidth;

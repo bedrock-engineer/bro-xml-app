@@ -1,12 +1,10 @@
-import {
-  BROParser,
-  XMLAdapter,
-  type BHRGData as ParsedBHRGData,
-  type BHRGTData as ParsedBHRGTData,
-  type CPTMeasurement,
-  type CPTData as ParsedCPTData,
-  type Location,
-  type ParseMeta,
+import type {
+  BHRGData as ParsedBHRGData,
+  BHRGTData as ParsedBHRGTData,
+  CPTMeasurement,
+  CPTData as ParsedCPTData,
+  Location,
+  ParseMeta,
 } from "@bedrock-engineer/bro-xml-parser";
 
 /**
@@ -51,7 +49,12 @@ export type BROFileType = "CPT" | "BHR-GT" | "BHR-G";
  * Parse BRO XML into one of the data types the app can display.
  * Throws "unknownBROFileType" for other (valid) BRO types.
  */
-export function parseBRO(xml: string): BROData {
+export async function parseBRO(xml: string): Promise<BROData> {
+  // Dynamically imported so the ~900 KB parser (schemas + resolvers) is split
+  // out of the initial bundle and only fetched when a file is actually parsed.
+  const { BROParser, XMLAdapter } = await import(
+    "@bedrock-engineer/bro-xml-parser"
+  );
   const data = new BROParser(new XMLAdapter()).parse(xml);
   if (isCPTData(data) || isBHRGTData(data) || isBHRGData(data)) {
     return data;

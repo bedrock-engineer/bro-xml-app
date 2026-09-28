@@ -9,7 +9,7 @@ import {
   TrashIcon,
   UploadIcon,
 } from "lucide-react";
-import { Suspense, useEffect, useMemo, useState, useTransition } from "react";
+import { lazy, Suspense, useEffect, useMemo, useState, useTransition } from "react";
 import { Button, FileTrigger } from "react-aria-components";
 import { ErrorBoundary } from "react-error-boundary";
 import { useTranslation } from "react-i18next";
@@ -47,7 +47,12 @@ import { RemovedLayersPlot } from "./cpt/removed-layers-plot";
 import { DownloadGeoJSONButton } from "./download-geojson-button";
 import { FileTable } from "./file-table";
 import { InstallInstructions } from "./install-instructions";
-import { BROMap } from "./map/map.client";
+
+// Lazy-loaded so maplibre-gl (~1 MB) is split out of the initial bundle. The
+// map is already gated behind a client check + Suspense boundary below.
+const BROMap = lazy(() =>
+  import("./map/map.client").then((module) => ({ default: module.BROMap })),
+);
 
 function translateWarning(warning: string, t: TFunction): string {
   const parts = warning.split(":");
@@ -131,7 +136,7 @@ export function App() {
 
     try {
       const xml = await fetchBROObject(broId, layer);
-      const data = parseBRO(xml);
+      const data = await parseBRO(xml);
 
       startTransition(() => {
         setBroData((previous) => ({ ...previous, [broId]: data }));
@@ -177,7 +182,7 @@ export function App() {
       const text = await response.text();
       return {
         filename,
-        data: parseBRO(text),
+        data: await parseBRO(text),
         xml: new Blob([text], { type: "application/xml" }),
       };
     });

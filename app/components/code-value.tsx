@@ -1,5 +1,6 @@
 import type { Coded } from "@bedrock-engineer/bro-xml-parser";
 import { describeCode, formatCode } from "../util/format";
+import { CodeTooltip } from "./code-tooltip";
 
 interface CodeValueProps {
   coded: Coded | null | undefined;
@@ -13,18 +14,9 @@ export function CodeValue({ coded }: CodeValueProps) {
     return null;
   }
 
-  const description = describeCode(coded);
-
   return (
-    <span
-      title={description ?? undefined}
-      className={
-        description
-          ? "underline decoration-dotted decoration-gray-400 cursor-help"
-          : undefined
-      }
-    >
+    <CodeTooltip description={describeCode(coded)}>
       {formatCode(coded)}
-    </span>
+    </CodeTooltip>
   );
 }

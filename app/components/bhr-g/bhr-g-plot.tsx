@@ -1,9 +1,10 @@
 import * as Plot from "@observablehq/plot";
-import { max, min } from "d3-array";
 import { useEffect, useRef } from "react";
 import { useTranslation } from "react-i18next";
-import type { BHRGBoreLayer } from "../../types/bro-data";
+import type { BHRGBoreLayer, BHRGData } from "../../types/bro-data";
+import { getLayers } from "../../types/bro-data";
 import { formatCode } from "../../util/format";
+import { LogSelector, useLogSelection } from "../bore-log";
 import {
   bhrgLithology,
   buildSoilBands,
@@ -32,29 +33,31 @@ const isAnthropogenic = (layer: BHRGBoreLayer): boolean =>
 const isRooted = (layer: BHRGBoreLayer): boolean => layer.rooted === "ja";
 
 interface BHRGPlotProps {
-  layers: Array<BHRGBoreLayer>;
+  data: BHRGData;
   baseFilename: string;
   width?: number;
   height?: number;
 }
 
 export function BHRGPlot({
-  layers,
+  data,
   width = 350,
   height = 800,
   baseFilename,
 }: BHRGPlotProps) {
   const { t } = useTranslation();
   const containerRef = useRef<HTMLDivElement>(null);
+  const { logs, activeLogIndex, setLogIndex, depthRange } =
+    useLogSelection(data);
+  const layers = getLayers(data, activeLogIndex);
+  // Depth axis spans all logs, so switching logs keeps the scale fixed.
+  const [minDepth, maxDepth] = depthRange;
 
   useEffect(() => {
     if (containerRef.current === null || layers.length === 0) {
       return;
     }
 
-    // Calculate the depth range
-    const minDepth = min(layers.map((l) => l.upperBoundary)) ?? 0;
-    const maxDepth = max(layers.map((l) => l.lowerBoundary)) ?? 0;
     const plotHeight = height - PLOT_MARGINS.top - PLOT_MARGINS.bottom - 20;
 
     // Filter layers that are tall enough in pixels to show labels
@@ -86,7 +89,7 @@ export function BHRGPlot({
       // Pass fill values verbatim (hex colours and url(#pattern) refs)
       color: { type: "identity" },
       x: hiddenXAxisConfig,
-      y: depthYAxisConfig,
+      y: { ...depthYAxisConfig, domain: [minDepth, maxDepth] },
       marks: [
         // Soil composition bands
         Plot.rect(soilBands, {
@@ -180,7 +183,7 @@ export function BHRGPlot({
     return () => {
       plot.remove();
     };
-  }, [layers, width, height, t]);
+  }, [layers, minDepth, maxDepth, width, height, t]);
 
   const hasAnthropogenic = layers.some((layer) => isAnthropogenic(layer));
   const hasRooted = layers.some((layer) => isRooted(layer));
@@ -193,6 +196,8 @@ export function BHRGPlot({
   return (
     <Card>
       <CardTitle>{t("geologicalBoreLog")}</CardTitle>
+
+      <LogSelector logs={logs} value={activeLogIndex} onChange={setLogIndex} />
 
       <div className="flex justify-center">
         <div id={id} ref={containerRef}></div>

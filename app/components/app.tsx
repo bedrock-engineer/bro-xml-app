@@ -19,8 +19,9 @@ import {
   isBHRGData,
   isBHRGTData,
   isCPTData,
+  isGLDData,
+  isGMWData,
   getDissipationTests,
-  getLayers,
   getRemovedLayers,
   getSurfaceLevel,
   parseBRO,
@@ -46,6 +47,16 @@ import { DissipationTestPlots } from "./cpt/dissipation-test-plot";
 import { RemovedLayersPlot } from "./cpt/removed-layers-plot";
 import { DownloadGeoJSONButton } from "./download-geojson-button";
 import { FileTable } from "./file-table";
+import {
+  CompactGldHeader,
+  DetailedGldHeaders,
+} from "./gld/gld-header-items";
+import { GldChart } from "./gld/gld-chart";
+import {
+  CompactGmwHeader,
+  DetailedGmwHeaders,
+} from "./gmw/gmw-header-items";
+import { GmwSchematic } from "./gmw/gmw-schematic";
 import { InstallInstructions } from "./install-instructions";
 
 // Lazy-loaded so maplibre-gl (~1 MB) is split out of the initial bundle. The
@@ -168,7 +179,8 @@ export function App() {
       "example_cpt.xml",
       "example_bhr_gt.xml",
       "example_bhr_g.xml",
-      "example_bhr_gt_triaxial.xml",
+      "example_gmw.xml",
+      "example_gld.xml",
       "example_bhr_gt_triaxial.xml",
       "example_bhr_gt_vol_mass_density_solids.xml",
       "example_bhr_gt_max_undrained_shear_strength.xml",
@@ -550,17 +562,17 @@ export function App() {
                   data={selectedFile}
                 />
                 <BHRGTPlot
-                  layers={getLayers(selectedFile)}
+                  data={selectedFile}
                   baseFilename={selectedFileName.replace(/\.xml$/i, "")}
-                  analysis={selectedFile.analysis}
+                  analysis={selectedFile.boreholeSampleAnalysis}
                   groundwaterLevel={
                     selectedFile.boring?.groundwaterLevel ?? null
                   }
                   surfaceNap={getSurfaceLevel(selectedFile)}
                 />
-                {selectedFile.analysis && (
+                {selectedFile.boreholeSampleAnalysis && (
                   <LaboratoryAnalysis
-                    analysis={selectedFile.analysis}
+                    analysis={selectedFile.boreholeSampleAnalysis}
                     baseFilename={selectedFileName.replace(/\.xml$/i, "")}
                   />
                 )}
@@ -575,10 +587,38 @@ export function App() {
                   data={selectedFile}
                 />
                 <BHRGPlot
-                  layers={getLayers(selectedFile)}
+                  data={selectedFile}
                   baseFilename={selectedFileName.replace(/\.xml$/i, "")}
                 />
                 <DetailedBHRGHeaders data={selectedFile} />
+              </>
+            )}
+
+            {isGMWData(selectedFile) && (
+              <>
+                <CompactGmwHeader
+                  filename={selectedFileName}
+                  data={selectedFile}
+                />
+                <GmwSchematic
+                  data={selectedFile}
+                  baseFilename={selectedFileName.replace(/\.xml$/i, "")}
+                />
+                <DetailedGmwHeaders data={selectedFile} />
+              </>
+            )}
+
+            {isGLDData(selectedFile) && (
+              <>
+                <CompactGldHeader
+                  filename={selectedFileName}
+                  data={selectedFile}
+                />
+                <GldChart
+                  observations={selectedFile.observation}
+                  baseFilename={selectedFileName.replace(/\.xml$/i, "")}
+                />
+                <DetailedGldHeaders data={selectedFile} />
               </>
             )}
           </div>

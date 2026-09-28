@@ -109,8 +109,8 @@ function getBHRGSurveyInfo(data: BHRGData, t: TFunction): Array<HeaderItem> {
   if (boring?.stopCriterion) {
     items.push(codeItem(t("stopCriterion"), boring.stopCriterion));
   }
-  if (data.nITGCode) {
-    items.push({ label: t("nitgCode"), value: data.nITGCode });
+  if (data.nitgCode) {
+    items.push({ label: t("nitgCode"), value: data.nitgCode });
   }
 
   return items;

@@ -15,9 +15,13 @@ export function getLocationItems(
   t: TFunction,
 ): Array<HeaderItem> {
   const items: Array<HeaderItem> = [];
-  const delivered = data.deliveredLocation;
-  const standardized = data.standardizedLocation;
-  const vertical = data.deliveredVerticalPosition;
+  const delivered = "deliveredLocation" in data ? data.deliveredLocation : null;
+  const standardized =
+    "standardizedLocation" in data ? data.standardizedLocation : null;
+  const vertical =
+    "deliveredVerticalPosition" in data
+      ? data.deliveredVerticalPosition
+      : null;
 
   if (delivered?.location) {
     items.push({

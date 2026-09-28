@@ -24,6 +24,10 @@ export const typeColors: Record<BROFileType, string> = {
   CPT: "#2563eb", // blue
   "BHR-GT": "#ea580c", // orange
   "BHR-G": "#16a34a", // green
+  GMW: "#0891b2", // cyan
+  // GLD has no location of its own (it references a GMW well) so it never
+  // appears on the map; a colour is required only to keep the map exhaustive.
+  GLD: "#0d9488", // teal
 };
 
 export const selectedColor = "#dc2626"; // red

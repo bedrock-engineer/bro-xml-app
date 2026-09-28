@@ -2,7 +2,9 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { ToggleButton, ToggleButtonGroup } from "react-aria-components";
 import type { BoreholeSampleAnalysis } from "@bedrock-engineer/bro-xml-parser";
-import type { BoreLayer } from "~/types/bro-data";
+import type { BHRGTData } from "~/types/bro-data";
+import { getLayers } from "~/types/bro-data";
+import { LogSelector, useLogSelection } from "../bore-log";
 import {
   LAB_TEST_CATEGORIES,
   getLabTestCategories,
@@ -28,7 +30,7 @@ import { bhrgtLithology, collectSoilLegend } from "~/util/bro-lithology";
 const id = "boreplot";
 
 interface BhrgtPlotProps {
-  layers: Array<BoreLayer>;
+  data: BHRGTData;
   baseFilename: string;
   analysis?: BoreholeSampleAnalysis;
   /** Groundwater depth during drilling (m below surface) */
@@ -40,7 +42,7 @@ interface BhrgtPlotProps {
 }
 
 export function BHRGTPlot({
-  layers,
+  data,
   width = 300,
   height = 800,
   baseFilename,
@@ -51,16 +53,24 @@ export function BHRGTPlot({
   const { t } = useTranslation();
   const [napMode, setNapMode] = useState(false);
   const [tableLayout, setTableLayout] = useState<DetailsTableLayout>("scaled");
+  const { logs, activeLogIndex, setLogIndex, depthRange } =
+    useLogSelection(data);
+  const layers = getLayers(data, activeLogIndex);
+  const [minDepth, maxDepth] = depthRange;
 
   // Build sample lines from analysis data
   const sampleLines: Array<SampleLine> = useMemo(() => {
     const sampleLines: Array<SampleLine> = [];
 
-    if (analysis?.investigatedIntervals) {
+    if (analysis?.investigatedInterval) {
       for (const [
         intervalIndex,
         interval,
-      ] of analysis.investigatedIntervals.entries()) {
+      ] of analysis.investigatedInterval.entries()) {
+        // A sample line is drawn between two depths; skip intervals lacking either.
+        if (interval.beginDepth == null || interval.endDepth == null) {
+          continue;
+        }
         const categories = getLabTestCategories(interval);
         for (const category of categories) {
           sampleLines.push({
@@ -86,6 +96,7 @@ export function BHRGTPlot({
     const plot = buildBhrgtPlot({
       layers,
       sampleLines,
+      depthRange: [minDepth, maxDepth],
       groundwaterLevel,
       surfaceNap,
       napMode,
@@ -108,6 +119,8 @@ export function BHRGTPlot({
     height,
     t,
     sampleLines,
+    minDepth,
+    maxDepth,
     groundwaterLevel,
     surfaceNap,
     napMode,
@@ -179,6 +192,12 @@ export function BHRGTPlot({
         </div>
       </div>
 
+      <LogSelector
+        logs={logs}
+        value={activeLogIndex}
+        onChange={setLogIndex}
+      />
+
       <div className="flex flex-wrap items-start justify-center gap-2">
         {/* Spacer matches the table's header band so the chart's flush plot
             frame lines up with the table body on the same depths. */}
@@ -196,6 +215,7 @@ export function BHRGTPlot({
         <BhrgtDetailsTable
           layers={layers}
           height={height}
+          depthRange={depthRange}
           surfaceNap={surfaceNap}
           napMode={napMode}
           layout={tableLayout}

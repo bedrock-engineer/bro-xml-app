@@ -55,6 +55,10 @@ export default function InfoPage() {
               <li>{t("featureLab")}</li>
 
               <li>{t("featureBhrG")}</li>
+
+              <li>{t("featureGmw")}</li>
+
+              <li>{t("featureGld")}</li>
             </ul>
             <p className="text-gray-500 text-sm mt-4 italic">
               {t("otherBroTypesNote")}

@@ -63,7 +63,7 @@ export function CompactBHRGTHeader({ filename, data }: CompactBHRGTHeaderProps) 
         />
         <DepthRow label={t("finalBoreDepth")} depth={getFinalDepth(data)} />
         <WaterLevelRow level={data.boring?.groundwaterLevel ?? null} />
-        {data.analysis && (
+        {data.boreholeSampleAnalysis && (
           <HeaderRow label={t("laboratoryAnalysis")} value={t("available")} />
         )}
       </HeaderColumn>
@@ -458,11 +458,11 @@ function getBHRGTLayerInfo(data: BHRGTData, t: TFunction): Array<HeaderItem> {
 function getBHRGTAnalysisInfo(data: BHRGTData, t: TFunction): Array<HeaderItem> {
   const items: Array<HeaderItem> = [];
 
-  if (!data.analysis) {
+  if (!data.boreholeSampleAnalysis) {
     return items;
   }
 
-  const analysis = data.analysis;
+  const analysis = data.boreholeSampleAnalysis;
 
   if (analysis.analysisReportDate) {
     items.push({
@@ -477,11 +477,11 @@ function getBHRGTAnalysisInfo(data: BHRGTData, t: TFunction): Array<HeaderItem> 
 
   items.push({
     label: t("investigatedIntervals"),
-    value: analysis.investigatedIntervals.length,
+    value: analysis.investigatedInterval.length,
   });
 
   const uniqueTypes = getUniqueDeterminationTypes(
-    analysis.investigatedIntervals,
+    analysis.investigatedInterval,
   );
 
   if (uniqueTypes.length > 0) {

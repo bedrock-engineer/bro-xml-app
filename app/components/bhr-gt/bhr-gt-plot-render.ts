@@ -56,6 +56,9 @@ export interface SampleLine {
 interface BuildBhrgtPlotOptions {
   layers: Array<BoreLayer>;
   sampleLines: Array<SampleLine>;
+  /** Depth axis extent [min, max]. Defaults to this log's own layers; pass the
+   *  range across all logs so switching logs keeps the axis fixed. */
+  depthRange?: [number, number];
   /** Groundwater depth during drilling (m below surface) */
   groundwaterLevel?: number | null;
   /** Surface elevation (m NAP). When set and napMode is on, the depth axis is
@@ -75,6 +78,7 @@ interface BuildBhrgtPlotOptions {
 export function buildBhrgtPlot({
   layers,
   sampleLines,
+  depthRange,
   groundwaterLevel,
   surfaceNap,
   napMode,
@@ -86,9 +90,11 @@ export function buildBhrgtPlot({
     return null;
   }
 
-  // Calculate the depth range
-  const minDepth = min(layers.map((l) => l.upperBoundary)) ?? 0;
-  const maxDepth = max(layers.map((l) => l.lowerBoundary)) ?? 0;
+  // Depth range: the shared across-logs extent when given, else this log's own.
+  const [minDepth, maxDepth] = depthRange ?? [
+    min(layers.map((l) => l.upperBoundary)) ?? 0,
+    max(layers.map((l) => l.lowerBoundary)) ?? 0,
+  ];
   const plotHeight = height - PLOT_MARGINS.top - PLOT_MARGINS.bottom - 20;
 
   // In NAP mode the y axis still positions by depth, but tick labels show the

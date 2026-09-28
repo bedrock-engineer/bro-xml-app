@@ -11,6 +11,7 @@ import {
   type TranslateFunction,
 } from "./bhr-gt-plot-render";
 import { GrainAxis, GrainCell } from "./grain-cell";
+import { CodeTooltip } from "../code-tooltip";
 
 /** Height of the table's header band. The chart reserves a matching spacer
  *  above its (flush) plot frame so the bodies line up on the same depths. */
@@ -50,6 +51,9 @@ interface BhrgtDetailsTableProps {
   layers: Array<BoreLayer>;
   /** Must match the height passed to buildBhrgtPlot so rows align with the SVG. */
   height: number;
+  /** Depth axis extent [min, max]; must match the plot's so rows line up.
+   *  Defaults to this log's own layers. */
+  depthRange?: [number, number];
   /** Surface elevation (m NAP); enables the NAP depth labels when napMode is on. */
   surfaceNap?: number | null;
   /** Show depths as m NAP elevation rather than m below surface. */
@@ -70,6 +74,7 @@ interface BhrgtDetailsTableProps {
 export function BhrgtDetailsTable({
   layers,
   height,
+  depthRange,
   surfaceNap,
   napMode,
   layout = "scaled",
@@ -81,8 +86,10 @@ export function BhrgtDetailsTable({
     return null;
   }
 
-  const minDepth = min(layers, (l) => l.upperBoundary) ?? 0;
-  const maxDepth = max(layers, (l) => l.lowerBoundary) ?? 0;
+  const [minDepth, maxDepth] = depthRange ?? [
+    min(layers, (l) => l.upperBoundary) ?? 0,
+    max(layers, (l) => l.lowerBoundary) ?? 0,
+  ];
   const toPixel = makeDepthToPixel(height, minDepth, maxDepth, 0);
 
   const useNap = napMode === true && surfaceNap != null;
@@ -200,10 +207,11 @@ export function BhrgtDetailsTable({
                   <span
                     key={key}
                     className="flex items-center truncate px-1 text-gray-600"
-                    title={attribute?.description ?? attribute?.value}
                     role="cell"
                   >
-                    {attribute?.value ?? ""}
+                    <CodeTooltip description={attribute?.description}>
+                      {attribute?.value ?? ""}
+                    </CodeTooltip>
                   </span>
                 );
               })}
@@ -267,10 +275,11 @@ export function BhrgtDetailsTable({
                     <span
                       key={key}
                       className="truncate px-1 text-gray-600"
-                      title={attribute?.description ?? attribute?.value}
                       role="cell"
                     >
-                      {attribute?.value ?? ""}
+                      <CodeTooltip description={attribute?.description}>
+                        {attribute?.value ?? ""}
+                      </CodeTooltip>
                     </span>
                   );
                 })}

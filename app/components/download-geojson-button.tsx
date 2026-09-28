@@ -6,6 +6,7 @@ import type { BROData } from "~/types/bro-data";
 import {
   getFileType,
   getFinalDepth,
+  getLocation,
   getSurfaceLevel,
   getVerticalDatum,
 } from "~/types/bro-data";
@@ -17,8 +18,7 @@ function createGeoJSON(broData: Record<string, BROData>): FeatureCollection {
   const features: Array<Feature> = [];
 
   for (const [filename, data] of Object.entries(broData)) {
-    const location =
-      data.standardizedLocation?.location ?? data.deliveredLocation?.location;
+    const location = getLocation(data);
     if (!location) {
       continue;
     }
@@ -28,6 +28,8 @@ function createGeoJSON(broData: Record<string, BROData>): FeatureCollection {
       continue;
     }
     const finalDepth = getFinalDepth(data);
+    const reportDate =
+      "researchReportDate" in data ? data.researchReportDate : null;
 
     features.push({
       type: "Feature" as const,
@@ -40,9 +42,7 @@ function createGeoJSON(broData: Record<string, BROData>): FeatureCollection {
         broId: data.broId,
         fileType: getFileType(data),
         qualityRegime: data.qualityRegime,
-        reportDate: data.researchReportDate
-          ? formatDate(data.researchReportDate)
-          : null,
+        reportDate: reportDate ? formatDate(reportDate) : null,
         surfaceElevation: getSurfaceLevel(data),
         verticalDatum: getVerticalDatum(data),
         coordinateSystem: location.epsg,

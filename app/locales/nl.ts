@@ -3,7 +3,7 @@ export default {
     // App title and description
     appTitle: "Geotechniek BRO/XML viewer",
     appDescription:
-      "Bekijk en analyseer BRO (Basisregistratie Ondergrond) XML bestanden voor CPT sonderingen, BHR-GT boringen, geotechnische boormonsteranalyses (BHR-GT-BMA), en BHR-G gegevens in je browser.",
+      "Bekijk en analyseer BRO (Basisregistratie Ondergrond) XML bestanden voor CPT sonderingen, BHR-GT boringen, geotechnische boormonsteranalyses (BHR-GT-BMA), BHR-G, GMW grondwatermonitoringputten en GLD grondwaterstandonderzoek in je browser.",
     privacyNote: "Je gegevens verlaten nooit je browser.",
     offlineNote: "Deze app werkt ook offline.",
     installInstructionsDesktop:
@@ -28,7 +28,7 @@ export default {
     warning: "{{count}} waarschuwing:",
     warning_plural: "{{count}} waarschuwingen:",
     unknownBROFileType:
-      "Onbekend BRO bestandstype. Verwacht CPT, BHR-GT, of BHR-G XML.",
+      "Onbekend BRO bestandstype. Verwacht CPT, BHR-GT, BHR-G, GMW of GLD XML.",
     invalidXML: "Ongeldig XML bestand",
     schemaVersionMismatch:
       "Schema versie mismatch: verwacht {{expected}}, gevonden {{found}}",
@@ -132,7 +132,7 @@ export default {
     unknown: "Onbekend",
 
     // Bore-specific
-    boreholeInformation: "Boorinformatie",
+    boreholeInformation: "Boorgatinformatie",
     boringInformation: "Boorinformatie",
     samplingInformation: "Monsterneming",
     descriptionInformation: "Beschrijvingsinformatie",
@@ -173,6 +173,7 @@ export default {
     boreholeLogChecked: "Boorprofiel gecontroleerd",
     descriptionQuality: "Beschrijfkwaliteit",
     descriptionLocation: "Beschrijflocatie",
+    descriptionLog: "Beschrijving",
     descriptionReportDate: "Beschrijfrapportdatum",
     describedMaterial: "Beschreven materiaal",
     continuouslySampled: "Doorlopend bemonsterd",
@@ -229,6 +230,60 @@ export default {
     anthropogenic: "Antropogeen",
     rooted: "Doorworteld",
     geologicalBoreLog: "Geologisch boorprofiel",
+
+    // GMW (grondwatermonitoringput) specific
+    groundwaterMonitoringWell: "Grondwatermonitoringput (GMW)",
+    wellSchematic: "Putschema",
+    wellInformation: "Putinformatie",
+    monitoringTubes: "Monitoringbuizen",
+    monitoringTube: "Monitoringbuis",
+    numberOfMonitoringTubes: "Aantal buizen",
+    wellConstructionDate: "Aanlegdatum",
+    wellRemovalDate: "Verwijderdatum",
+    wellCode: "Putcode",
+    wellStability: "Putstabiliteit",
+    groundLevelPosition: "Maaiveld",
+    groundLevelStable: "Maaiveld stabiel",
+    constructionStandard: "Aanlegnorm",
+    initialFunction: "Initiële functie",
+    wellHeadProtector: "Beschermconstructie",
+    owner: "Eigenaar",
+    maintenanceParty: "Onderhoudspartij",
+    tube: "Buis",
+    tubeNumber: "Buisnummer",
+    tubeTopPosition: "Bovenkant buis",
+    tubeTopDiameter: "Buisdiameter",
+    tubeMaterial: "Buismateriaal",
+    tubeStatus: "Buisstatus",
+    tubeType: "Buistype",
+    tubeInUse: "In gebruik",
+    screen: "Filter",
+    screenTop: "Bovenkant filter",
+    screenBottom: "Onderkant filter",
+    screenLength: "Filterlengte",
+    plainTubePart: "Stijgbuis",
+    sedimentSump: "Zandvang",
+    sockMaterial: "Kousmateriaal",
+    glue: "Lijm",
+    packingMaterial: "Aanvulmateriaal",
+    heightMNAP: "Hoogte (m NAP)",
+
+    // GLD (grondwaterstandonderzoek) specific
+    groundwaterLevelData: "Grondwaterstandonderzoek (GLD)",
+    groundwaterLevel: "Grondwaterstand",
+    groundwaterLevelAxisLabel: "Grondwaterstand (m NAP)",
+    dateAxisLabel: "Datum",
+    observationInformation: "Observatie-informatie",
+    observationType: "Observatietype",
+    observationStatus: "Status",
+    evaluationProcedure: "Beoordelingsprocedure",
+    airPressureCompensation: "Luchtdrukcompensatie",
+    firstMeasurement: "Eerste meting",
+    lastMeasurement: "Laatste meting",
+    numberOfObservations: "Observatiereeksen",
+    measurementPoints: "Meetpunten",
+    referencedWell: "Monitoringput",
+    monitoringNetworks: "Monitoringnetwerken",
 
     // Laboratory analysis
     laboratoryAnalysis: "Laboratoriumonderzoek",
@@ -461,6 +516,10 @@ export default {
       "CPT (Cone Penetration Test) gegevens met interactieve grafieken",
     featureBhrGt: "BHR-GT (Geotechnische boringen) met grondprofielen",
     featureBhrG: "BHR-G (Geologische boringen)",
+    featureGmw:
+      "GMW (Grondwatermonitoringput) gegevens met een putschema van de monitoringbuizen",
+    featureGld:
+      "GLD (Grondwaterstandonderzoek) met een interactieve grondwaterstand-tijdreeksgrafiek",
     featureLab:
       "Geotechnische boormonsteranalyses (BHR-GT-BMA) inclusief Atterberg grenzen, triaxiaalproeven en meer",
     bmaTitle: "Ondersteunde geotechnische boormonsteranalyses (BHR-GT-BMA)",

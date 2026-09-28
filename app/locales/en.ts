@@ -3,7 +3,7 @@ export default {
     // App title and description
     appTitle: "Geotechnical BRO/XML viewer",
     appDescription:
-      "View and analyze BRO (Basisregistratie Ondergrond) XML files for CPT soundings, BHR-GT boreholes, geotechnical borehole sample analyses (BHR-GT-BMA), and BHR-G data in your browser.",
+      "View and analyze BRO (Basisregistratie Ondergrond) XML files for CPT soundings, BHR-GT boreholes, geotechnical borehole sample analyses (BHR-GT-BMA), BHR-G, GMW groundwater monitoring wells, and GLD groundwater level data in your browser.",
     privacyNote: "Your data never leaves your browser.",
     offlineNote: "This app also works offline.",
     installInstructionsDesktop:
@@ -28,7 +28,7 @@ export default {
     warning: "{{count}} warning:",
     warning_plural: "{{count}} warnings:",
     unknownBROFileType:
-      "Unknown BRO file type. Expected CPT, BHR-GT, or BHR-G XML.",
+      "Unknown BRO file type. Expected CPT, BHR-GT, BHR-G, GMW, or GLD XML.",
     invalidXML: "Invalid XML file",
     schemaVersionMismatch:
       "Schema version mismatch: expected {{expected}}, found {{found}}",
@@ -174,6 +174,7 @@ export default {
     boreholeLogChecked: "Borehole Log Checked",
     descriptionQuality: "Description Quality",
     descriptionLocation: "Description Location",
+    descriptionLog: "Description log",
     descriptionReportDate: "Description Report Date",
     describedMaterial: "Described Material",
     continuouslySampled: "Continuously Sampled",
@@ -230,6 +231,60 @@ export default {
     anthropogenic: "Anthropogenic",
     rooted: "Rooted",
     geologicalBoreLog: "Geological Bore Log",
+
+    // GMW (groundwater monitoring well) specific
+    groundwaterMonitoringWell: "Groundwater Monitoring Well (GMW)",
+    wellSchematic: "Well Schematic",
+    wellInformation: "Well Information",
+    monitoringTubes: "Monitoring Tubes",
+    monitoringTube: "Monitoring Tube",
+    numberOfMonitoringTubes: "Number of Tubes",
+    wellConstructionDate: "Construction Date",
+    wellRemovalDate: "Removal Date",
+    wellCode: "Well Code",
+    wellStability: "Well Stability",
+    groundLevelPosition: "Ground Level",
+    groundLevelStable: "Ground Level Stable",
+    constructionStandard: "Construction Standard",
+    initialFunction: "Initial Function",
+    wellHeadProtector: "Well Head Protector",
+    owner: "Owner",
+    maintenanceParty: "Maintenance Party",
+    tube: "Tube",
+    tubeNumber: "Tube Number",
+    tubeTopPosition: "Tube Top",
+    tubeTopDiameter: "Tube Diameter",
+    tubeMaterial: "Tube Material",
+    tubeStatus: "Tube Status",
+    tubeType: "Tube Type",
+    tubeInUse: "In Use",
+    screen: "Screen",
+    screenTop: "Screen Top",
+    screenBottom: "Screen Bottom",
+    screenLength: "Screen Length",
+    plainTubePart: "Plain Tube",
+    sedimentSump: "Sediment Sump",
+    sockMaterial: "Sock Material",
+    glue: "Glue",
+    packingMaterial: "Packing Material",
+    heightMNAP: "Height (m NAP)",
+
+    // GLD (groundwater level data) specific
+    groundwaterLevelData: "Groundwater Level Data (GLD)",
+    groundwaterLevel: "Groundwater Level",
+    groundwaterLevelAxisLabel: "Groundwater level (m NAP)",
+    dateAxisLabel: "Date",
+    observationInformation: "Observation Information",
+    observationType: "Observation Type",
+    observationStatus: "Status",
+    evaluationProcedure: "Evaluation Procedure",
+    airPressureCompensation: "Air Pressure Compensation",
+    firstMeasurement: "First Measurement",
+    lastMeasurement: "Last Measurement",
+    numberOfObservations: "Observation Series",
+    measurementPoints: "Measurement Points",
+    referencedWell: "Monitoring Well",
+    monitoringNetworks: "Monitoring Networks",
 
     // Laboratory analysis
     laboratoryAnalysis: "Laboratory Analysis",
@@ -460,6 +515,10 @@ export default {
     featureCpt: "CPT (Cone Penetration Test) data with interactive plots",
     featureBhrGt: "BHR-GT (Geotechnical borehole) data with soil profiles",
     featureBhrG: "BHR-G (Geological borehole) data",
+    featureGmw:
+      "GMW (Groundwater monitoring well) data with a well schematic of the monitoring tubes",
+    featureGld:
+      "GLD (Groundwater level data) with an interactive groundwater level time series chart",
     featureLab:
       "Geotechnical borehole sample analyses (BHR-GT-BMA) including Atterberg limits, triaxial tests, and more",
     bmaTitle: "Supported geotechnical borehole sample analyses (BHR-GT-BMA)",

@@ -5,6 +5,7 @@ import {
   Heading,
 } from "react-aria-components";
 import type { HeaderSection } from "../types/header-types";
+import { CodeTooltip } from "./code-tooltip";
 
 interface HeaderSectionsProps {
   sections: Array<HeaderSection>;
@@ -37,16 +38,9 @@ export function HeaderSections({ sections }: HeaderSectionsProps) {
                 >
                   <dt className="text-gray-600">{item.label}</dt>
                   <dd className="text-gray-900 font-mono text-xs">
-                    {item.description ? (
-                      <span
-                        title={item.description}
-                        className="underline decoration-dotted decoration-gray-400 cursor-help"
-                      >
-                        {item.value}
-                      </span>
-                    ) : (
-                      item.value
-                    )}
+                    <CodeTooltip description={item.description}>
+                      {item.value}
+                    </CodeTooltip>
                   </dd>
                 </div>
               ))}

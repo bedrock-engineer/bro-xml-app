@@ -77,7 +77,8 @@ export function FileTable({
 
   const rows: Array<FileRow> = useMemo(() => {
     return Object.entries(broData).map(([filename, data]) => {
-      const reportDate = data.researchReportDate;
+      const reportDate =
+        "researchReportDate" in data ? data.researchReportDate : null;
       const finalDepth = getFinalDepth(data);
       const qualityRegime: QualityRegime =
         data.qualityRegime === "IMBRO" ? "IMBRO" : "IMBRO/A";
@@ -272,6 +273,8 @@ const badgeClassNames: Record<BROFileType, string> = {
   "BHR-GT": "bg-orange-300 text-orange-800",
   "BHR-G": "bg-green-300 text-green-800",
   CPT: "bg-blue-300 text-blue-800",
+  GMW: "bg-cyan-300 text-cyan-800",
+  GLD: "bg-teal-300 text-teal-800",
 };
 
 const TypeBadge = ({ type }: { type: BROFileType }) => (

@@ -2,7 +2,7 @@
   "name": "bedrock-bro-webapp",
   "description": "Web Application for viewing BRO (Basisregistratie Ondergrond) XML files",
   "homepage": "https://github.com/bedrock-engineer",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "author": {
     "name": "Jules Blom",
     "url": "https://bedrock.engineer",
@@ -28,7 +28,7 @@
     "knip": "knip"
   },
   "dependencies": {
-    "@bedrock-engineer/bro-xml-parser": "^0.6.0",
+    "@bedrock-engineer/bro-xml-parser": "^0.7.0",
     "@observablehq/plot": "^0.6.17",
     "@react-router/node": "^8.4.0",
     "@sentry/cloudflare": "^10.72.0",
@@ -47,7 +47,7 @@
     "react": "^19.3.0",
     "react-aria-components": "^1.20.0",
     "react-dom": "^19.3.0",
-    "react-error-boundary": "^6.1.1",
+    "react-error-boundary": "^6.1.6",
     "react-i18next": "^16.5.4",
     "react-router": "^8.4.0",
     "remix-i18next": "^8.0.0",

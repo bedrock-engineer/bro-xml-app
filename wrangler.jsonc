@@ -6,8 +6,10 @@
 	"$schema": "node_modules/wrangler/config-schema.json",
 	"name": "bro-xml-app",
 	"compatibility_date": "2025-04-04",
-	// AsyncLocalStorage, required by @sentry/cloudflare
-	"compatibility_flags": ["nodejs_als"],
+	// nodejs_als: AsyncLocalStorage, required by @sentry/cloudflare.
+	// nodejs_compat: Node built-ins used by posthog-node in the
+	// server-side PostHog middleware (app/middleware/posthog.ts).
+	"compatibility_flags": ["nodejs_compat", "nodejs_als"],
 	"main": "./workers/app.ts",
 	"vars": {},
 	"observability": {

@@ -16,6 +16,9 @@ interface MapProps {
   selectedFileName: string | null;
   onMarkerClick: (filename: string) => void;
   onPickLocation: (broId: string, layer: BROLocationLayer) => void;
+  onSearchBroId: (
+    broId: string,
+  ) => Promise<{ lat: number; lon: number } | null>;
 }
 
 /**
@@ -29,6 +32,7 @@ export function BROMap({
   selectedFileName,
   onMarkerClick,
   onPickLocation,
+  onSearchBroId,
 }: MapProps) {
   if (typeof document === "undefined") {
     throw new TypeError("BROMap should only render on the client.");
@@ -57,8 +61,12 @@ export function BROMap({
         className="w-full h-[580px] rounded-sm border border-gray-300"
       />
 
-      {portals && createPortal(<SearchBox mapRef={mapRef} />, portals.search)}
-      
+      {portals &&
+        createPortal(
+          <SearchBox mapRef={mapRef} onSearchBroId={onSearchBroId} />,
+          portals.search,
+        )}
+
       {portals &&
         createPortal(
           <MapLayersPanel

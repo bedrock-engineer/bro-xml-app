@@ -32,11 +32,17 @@ import {
   isGMWData,
   getDissipationTests,
   getFileType,
+  getLocation,
   getRemovedLayers,
   getSurfaceLevel,
   parseBRO,
 } from "~/types/bro-data";
-import { type BROLocationLayer, fetchBROObject } from "~/util/bro-api";
+import {
+  type BROLocationLayer,
+  fetchBROObject,
+  layersForBroId,
+} from "~/util/bro-api";
+import { toWgs84 } from "~/util/coordinates";
 import { detectChartAxes } from "~/util/chart-axes";
 import { downloadFile } from "~/util/download";
 import {
@@ -57,15 +63,9 @@ import { DissipationTestPlots } from "./cpt/dissipation-test-plot";
 import { RemovedLayersPlot } from "./cpt/removed-layers-plot";
 import { DownloadGeoJSONButton } from "./download-geojson-button";
 import { FileTable } from "./file-table";
-import {
-  CompactGldHeader,
-  DetailedGldHeaders,
-} from "./gld/gld-header-items";
+import { CompactGldHeader, DetailedGldHeaders } from "./gld/gld-header-items";
 import { GldChart } from "./gld/gld-chart";
-import {
-  CompactGmwHeader,
-  DetailedGmwHeaders,
-} from "./gmw/gmw-header-items";
+import { CompactGmwHeader, DetailedGmwHeaders } from "./gmw/gmw-header-items";
 import { GmwSchematic } from "./gmw/gmw-schematic";
 import { InstallInstructions } from "./install-instructions";
 
@@ -141,28 +141,65 @@ export function App() {
     setIsClient(true);
   }, []);
 
-  async function handlePickLocation(broId: string, layer: BROLocationLayer) {
+  /**
+   * Fetch, parse, and select a BRO object by its ID, returning the parsed
+   * data (or null on failure). When `layer` is omitted the layer is derived
+   * from the ID prefix; a `BHR` ID is tried as BHR-GT first, then BHR-G.
+   */
+  async function handlePickLocation(
+    broId: string,
+    layer?: BROLocationLayer,
+  ): Promise<BROData | null> {
     // Already loaded? Just select it.
     const existing = Object.entries(broData).find(
       ([, data]) => data.broId === broId,
     );
     if (existing) {
       setSelectedFileName(existing[0]);
-      return;
+      return existing[1];
     }
 
     if (pendingBroIds.has(broId)) {
-      return;
+      return null;
+    }
+
+    const candidates = layer ? [layer] : layersForBroId(broId);
+    if (candidates.length === 0) {
+      setFailedFiles((previous) => [
+        ...previous,
+        { name: broId, error: t("mapSearchBroIdUnsupported") },
+      ]);
+      return null;
     }
 
     setPendingBroIds((previous) => new Set(previous).add(broId));
 
     try {
-      const xml = await fetchBROObject(broId, layer);
-      const data = await parseBRO(xml);
+      // Try each candidate layer; the first that resolves wins. A rejection
+      // (e.g. BHR-GT lookup of a BHR-G object) falls through to the next.
+      let xml: string | null = null;
+      let usedLayer: BROLocationLayer | null = null;
+      let lastError: unknown = null;
+      for (const candidate of candidates) {
+        try {
+          xml = await fetchBROObject(broId, candidate);
+          usedLayer = candidate;
+          break;
+        } catch (error) {
+          lastError = error;
+        }
+      }
+      if (xml === null || usedLayer === null) {
+        throw lastError instanceof Error
+          ? lastError
+          : new Error(String(lastError));
+      }
+
+      const xmlText = xml;
+      const data = await parseBRO(xmlText);
 
       posthog.capture("bro_location_loaded", {
-        layer,
+        layer: usedLayer,
         file_type: getFileType(data),
       });
 
@@ -170,10 +207,12 @@ export function App() {
         setBroData((previous) => ({ ...previous, [broId]: data }));
         setRawXml((previous) => ({
           ...previous,
-          [broId]: new Blob([xml], { type: "application/xml" }),
+          [broId]: new Blob([xmlText], { type: "application/xml" }),
         }));
         setSelectedFileName(broId);
       });
+
+      return data;
     } catch (error) {
       setFailedFiles((previous) => [
         ...previous,
@@ -182,6 +221,7 @@ export function App() {
           error: error instanceof Error ? error.message : String(error),
         },
       ]);
+      return null;
     } finally {
       setPendingBroIds((previous) => {
         const next = new Set(previous);
@@ -189,6 +229,24 @@ export function App() {
         return next;
       });
     }
+  }
+
+  /**
+   * Search flow for the map's search box: load the object by BRO ID and
+   * return its WGS84 coordinates so the caller can fly the camera there.
+   */
+  async function handleSearchBroId(
+    broId: string,
+  ): Promise<{ lat: number; lon: number } | null> {
+    const data = await handlePickLocation(broId);
+    if (!data) {
+      return null;
+    }
+    const location = getLocation(data);
+    if (!location) {
+      return null;
+    }
+    return toWgs84(location);
   }
 
   async function loadSampleFiles() {
@@ -255,9 +313,7 @@ export function App() {
       file_count: sampleFiles.length,
       successful_file_count: successful.length,
       failed_file_count: failed.length,
-      file_types: [
-        ...new Set(successful.map(({ data }) => getFileType(data))),
-      ],
+      file_types: [...new Set(successful.map(({ data }) => getFileType(data)))],
     });
 
     startTransition(() => {
@@ -540,6 +596,7 @@ export function App() {
                         },
                       );
                     }}
+                    onSearchBroId={handleSearchBroId}
                   />
                 </Suspense>
               </ErrorBoundary>

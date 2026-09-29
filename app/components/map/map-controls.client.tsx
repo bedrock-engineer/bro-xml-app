@@ -1,6 +1,14 @@
 import { usePostHog } from "@posthog/react";
+import { MapPinIcon } from "lucide-react";
 import { Marker, type Map as MlMap } from "maplibre-gl";
-import { useEffect, useRef, useState, type Key, type RefObject } from "react";
+import {
+  useEffect,
+  useRef,
+  useState,
+  useTransition,
+  type Key,
+  type RefObject,
+} from "react";
 import {
   CheckboxButton,
   CheckboxField,
@@ -13,7 +21,7 @@ import {
 } from "react-aria-components";
 import { useTranslation } from "react-i18next";
 import type { BROFileType } from "~/types/bro-data";
-import type { BROLocationLayer } from "~/util/bro-api";
+import { broIdPattern, type BROLocationLayer } from "~/util/bro-api";
 import {
   lookupAddress,
   suggestAddresses,
@@ -42,6 +50,11 @@ export const loadedColor = "#7c3aed";
 export const loadedStrokeColor = "#1f2937";
 
 const searchMarkerColor = "#0d9488"; // teal, distinct from point colors
+
+// Gray-500, used for the result-row marker of a BHR id. A BHR prefix is
+// shared by BHR-GT and BHR-G, so the exact type (and its color) is unknown
+// until the object is fetched; a neutral marker avoids showing a wrong one.
+const neutralMarkerColor = "#6b7280";
 
 const kadasterAttribution =
   'Kaartgegevens &copy; <a href="https://www.kadaster.nl/">Kadaster</a>';
@@ -140,20 +153,105 @@ function useAddressSuggest(query: string): AddressSuggestState {
 
 interface SearchBoxProps {
   mapRef: RefObject<MlMap | null>;
+  onSearchBroId: (
+    broId: string,
+  ) => Promise<{ lat: number; lon: number } | null>;
+}
+
+/** Sentinel prefix marking a synthetic BRO-ID item among address results. */
+const broIdItemPrefix = "broid:";
+
+/**
+ * The BRO ID the query resolves to, or null. Whitespace is trimmed and the
+ * domain code upper-cased so a lower-case paste still matches.
+ */
+function detectBroId(query: string): string | null {
+  const normalized = query.trim().toUpperCase();
+  return broIdPattern.test(normalized) ? normalized : null;
+}
+
+/** A full domain prefix followed by fewer than the required 12 digits. */
+const partialBroIdPattern = /^(CPT|BHR)(\d{0,11})$/;
+
+/**
+ * A BRO ID still being typed: the prefix is complete but the 12-digit tail
+ * is not. Returns the prefix and how many digits have been entered so the UI
+ * can show progress, or null when the query is a complete id or not id-like.
+ */
+function detectPartialBroId(
+  query: string,
+): { prefix: string; digits: number } | null {
+  const normalized = query.trim().toUpperCase();
+  const match = partialBroIdPattern.exec(normalized);
+  if (!match) {
+    return null;
+  }
+  const [, prefix = "", digitsGroup = ""] = match;
+  return { prefix, digits: digitsGroup.length };
 }
 
 /**
  * Address / place search rendered into the map via `PortalControl`,
- * backed by the PDOK Locatieserver. The selected place gets a marker
- * and the camera flies to it.
+ * backed by the PDOK Locatieserver. Typing a full BRO ID (e.g.
+ * `CPT000000090040`) instead offers a "go to" result that loads the object
+ * and flies to it. The selected result gets a marker and the camera flies
+ * to it.
  */
-export function SearchBox({ mapRef }: SearchBoxProps) {
+export function SearchBox({ mapRef, onSearchBroId }: SearchBoxProps) {
   const { t } = useTranslation();
   const posthog = usePostHog();
   const [query, setQuery] = useState("");
   const { suggestions, loading } = useAddressSuggest(query);
+  const [isSearchingBroId, startBroIdSearch] = useTransition();
+  const [notFoundBroId, setNotFoundBroId] = useState<string | null>(null);
   const lookupAbortRef = useRef<AbortController | null>(null);
   const markerRef = useRef<Marker | null>(null);
+  // Guards against the click and Enter paths both firing a lookup for the
+  // same id within one synchronous event. A ref is required rather than the
+  // transition's pending flag, which only updates on the next render.
+  const inFlightBroIdRef = useRef<string | null>(null);
+
+  const broId = detectBroId(query);
+  const partialBroId = broId ? null : detectPartialBroId(query);
+  const notFound = notFoundBroId !== null && notFoundBroId === broId;
+
+  // A recognised BRO ID replaces the address suggestions with a single
+  // "go to" item; a partial or not-found id shows nothing in the list (the
+  // status line below the box carries that feedback); otherwise the PDOK
+  // suggestions drive the list.
+  let items: Array<PdokSuggestion>;
+  if (broId && !notFound) {
+    items = [
+      {
+        id: `${broIdItemPrefix}${broId}`,
+        label: t("mapSearchGoToBroId", { broId }),
+        type: "BRO ID",
+      },
+    ];
+  } else if (broId || partialBroId) {
+    items = [];
+  } else {
+    items = suggestions;
+  }
+
+  function flyToResult(map: MlMap, longitude: number, latitude: number) {
+    if (markerRef.current) {
+      markerRef.current.setLngLat([longitude, latitude]);
+    } else {
+      markerRef.current = new Marker({ color: searchMarkerColor })
+        .setLngLat([longitude, latitude])
+        .addTo(map);
+    }
+
+    map.flyTo({
+      center: [longitude, latitude],
+      zoom: Math.max(map.getZoom(), 15),
+      // Cap duration — flyTo otherwise scales with zoom delta, which
+      // makes jumps from country-level to street-level drag on.
+      duration: 1400,
+      curve: 1.2,
+    });
+  }
 
   function emptyStateMessage(): string {
     if (query.trim().length < minQueryLength) {
@@ -162,11 +260,45 @@ export function SearchBox({ mapRef }: SearchBoxProps) {
     return loading ? t("mapSearchSearching") : t("mapSearchNoResults");
   }
 
+  function handleBroIdSelect(selectedBroId: string) {
+    if (inFlightBroIdRef.current === selectedBroId) {
+      return;
+    }
+    inFlightBroIdRef.current = selectedBroId;
+    setQuery(selectedBroId);
+    setNotFoundBroId(null);
+    startBroIdSearch(async () => {
+      let coords: { lat: number; lon: number } | null;
+      try {
+        coords = await onSearchBroId(selectedBroId);
+      } catch {
+        coords = null;
+      } finally {
+        inFlightBroIdRef.current = null;
+      }
+
+      const map = mapRef.current;
+      if (!coords || !map) {
+        setNotFoundBroId(selectedBroId);
+        return;
+      }
+
+      posthog.capture("map_bro_id_selected");
+      flyToResult(map, coords.lon, coords.lat);
+    });
+  }
+
   async function handleSelect(key: Key | null) {
     if (key === null) {
       return;
     }
     const id = String(key);
+
+    if (id.startsWith(broIdItemPrefix)) {
+      handleBroIdSelect(id.slice(broIdItemPrefix.length));
+      return;
+    }
+
     const picked = suggestions.find((s) => s.id === id);
     if (picked) {
       setQuery(picked.label);
@@ -187,34 +319,24 @@ export function SearchBox({ mapRef }: SearchBoxProps) {
       return;
     }
 
-    if (markerRef.current) {
-      markerRef.current.setLngLat([place.longitude, place.latitude]);
-    } else {
-      markerRef.current = new Marker({ color: searchMarkerColor })
-        .setLngLat([place.longitude, place.latitude])
-        .addTo(map);
-    }
-
     posthog.capture("map_address_selected", {
       result_type: picked?.type,
     });
 
-    map.flyTo({
-      center: [place.longitude, place.latitude],
-      zoom: Math.max(map.getZoom(), 15),
-      // Cap duration — flyTo otherwise scales with zoom delta, which
-      // makes jumps from country-level to street-level drag on.
-      duration: 1400,
-      curve: 1.2,
-    });
+    flyToResult(map, place.longitude, place.latitude);
   }
 
   return (
     <div className="min-w-64 rounded-sm border border-gray-300 bg-white/90 p-1">
       <ComboBox
-        items={suggestions}
+        items={items}
         inputValue={query}
-        onInputChange={setQuery}
+        onInputChange={(value) => {
+          setQuery(value);
+          if (notFoundBroId !== null) {
+            setNotFoundBroId(null);
+          }
+        }}
         onChange={(key) => {
           void handleSelect(key);
         }}
@@ -229,8 +351,18 @@ export function SearchBox({ mapRef }: SearchBoxProps) {
             autoComplete="off"
             spellCheck={false}
             className="w-full min-w-0 rounded-sm bg-transparent py-1 pr-2 pl-2 text-xs text-gray-900 outline-none"
+            onKeyDown={(event) => {
+              // The ComboBox doesn't auto-focus the single "go to" row, so
+              // Enter alone wouldn't select it. Trigger the lookup directly
+              // whenever the field holds a valid BRO ID (covers paste+Enter).
+              if (event.key === "Enter" && broId) {
+                event.preventDefault();
+                event.stopPropagation();
+                handleBroIdSelect(broId);
+              }
+            }}
           />
-          {loading && (
+          {(loading || isSearchingBroId) && (
             <span className="pointer-events-none absolute top-1/2 right-1.5 -translate-y-1/2 text-[10px] text-gray-400">
               …
             </span>
@@ -245,23 +377,70 @@ export function SearchBox({ mapRef }: SearchBoxProps) {
               </div>
             )}
           >
-            {(item) => (
-              <ListBoxItem
-                id={item.id}
-                textValue={item.label}
-                className="cursor-pointer border-b border-gray-100 px-2.5 py-1.5 outline-none data-focused:bg-blue-50 data-selected:bg-blue-50"
-              >
-                {item.label}
-                <span className="ml-1.5 text-[10px] text-gray-400">
-                  {item.type}
-                </span>
-              </ListBoxItem>
-            )}
+            {(item) => {
+              const isBroRow = item.id.startsWith(broIdItemPrefix);
+              return (
+                <ListBoxItem
+                  id={item.id}
+                  textValue={item.label}
+                  className="flex cursor-pointer items-center gap-1.5 border-b border-gray-100 px-2.5 py-1.5 outline-none data-focused:bg-blue-50 data-selected:bg-blue-50"
+                >
+                  {isBroRow ? (
+                    <BroResultMarker
+                      broId={item.id.slice(broIdItemPrefix.length)}
+                    />
+                  ) : (
+                    <MapPinIcon
+                      className="h-3 w-3 shrink-0 text-gray-400"
+                      aria-hidden
+                    />
+                  )}
+                  <span className="min-w-0 flex-1 truncate">{item.label}</span>
+                  {isBroRow ? (
+                    <kbd
+                      className="ml-auto shrink-0 rounded border border-gray-300 px-1 text-[10px] leading-4 text-gray-500"
+                      title={t("mapSearchEnterToLocate")}
+                    >
+                      ↵
+                    </kbd>
+                  ) : (
+                    <span className="ml-1.5 shrink-0 text-[10px] text-gray-400">
+                      {item.type}
+                    </span>
+                  )}
+                </ListBoxItem>
+              );
+            }}
           </ListBox>
         </Popover>
       </ComboBox>
+      {notFound && (
+        <p className="px-1 pt-1 text-[11px] text-red-600">
+          {t("mapSearchBroIdNotFound", { broId })}
+        </p>
+      )}
+      {!notFound && partialBroId && (
+        <p className="px-1 pt-1 text-[11px] text-gray-500">
+          {t("mapSearchBroIdProgress", {
+            prefix: partialBroId.prefix,
+            digits: partialBroId.digits,
+          })}
+        </p>
+      )}
     </div>
   );
+}
+
+/**
+ * Marker shown beside a BRO-ID result row, mirroring the map legend: a blue
+ * triangle for a CPT, and a neutral dot for a BHR whose exact type (and
+ * color) is not yet known. See {@link neutralMarkerColor}.
+ */
+function BroResultMarker({ broId }: { broId: string }) {
+  if (broId.startsWith("CPT")) {
+    return <LegendDot color={typeColors.CPT} shape="triangle" />;
+  }
+  return <LegendDot color={neutralMarkerColor} />;
 }
 
 interface MapLayersPanelProps {

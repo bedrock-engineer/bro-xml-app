@@ -15,6 +15,27 @@ const endpoints: Record<BROLocationLayer, (broId: string) => string> = {
   bhrg: (broId) => `https://publiek.broservices.nl/sr/bhrg/v3/objects/${broId}`,
 };
 
+/** A BRO ID is a three-letter domain code followed by 12 digits. */
+export const broIdPattern = /^(CPT|BHR)\d{12}$/;
+
+/**
+ * The layers whose endpoints can serve a given BRO ID, in the order they
+ * should be tried. `CPT` maps to a single layer; the `BHR` prefix is
+ * shared by geotechnical (BHR-GT) and geological (BHR-G) borings, so both
+ * are candidates and the caller falls back from one to the other. GMW/GLD
+ * groundwater objects have no endpoint here and yield an empty list.
+ */
+export function layersForBroId(broId: string): Array<BROLocationLayer> {
+  const prefix = broId.slice(0, 3).toUpperCase();
+  if (prefix === "CPT") {
+    return ["cpt"];
+  }
+  if (prefix === "BHR") {
+    return ["bhrgt", "bhrg"];
+  }
+  return [];
+}
+
 /**
  * Extract the rejection reason from a dispatchDataResponse rejection
  * document, if present.

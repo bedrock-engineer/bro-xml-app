@@ -14,9 +14,11 @@ export default {
 
     // File actions
     chooseFiles: "Kies BRO XML bestanden",
-    dropFilesHere: "Sleep BRO XML bestanden hierheen of selecteer ze op de kaart",
+    dropFilesHere:
+      "Sleep BRO XML bestanden hierheen of selecteer ze op de kaart",
     loadSampleFiles: "laad voorbeeldbestanden",
-    supportedTypes: "Ondersteunt CPT-, BHR-GT-, BHR-G-, GMW- en GLD-registraties.",
+    supportedTypes:
+      "Ondersteunt CPT-, BHR-GT-, BHR-G-, GMW- en GLD-registraties.",
     clearAllFiles: "Alle bestanden wissen",
     removeFile: "Bestand verwijderen",
     downloadXmlFile: "BRO XML-bestand downloaden",
@@ -462,10 +464,15 @@ export default {
     mapPopupDepth: "Diepte",
     mapPopupQualityClass: "Kwaliteitsklasse {{classNumber}}",
     fetchingFromBro: "{{broIds}} laden uit de BRO…",
-    mapSearchPlaceholder: "Zoek adres of plaats…",
+    mapSearchPlaceholder: "Zoek adres, plaats of BRO-ID…",
     mapSearchTypeToSearch: "Typ om te zoeken…",
     mapSearchSearching: "Zoeken…",
     mapSearchNoResults: "Geen resultaten",
+    mapSearchGoToBroId: "Ga naar {{broId}}",
+    mapSearchBroIdUnsupported: "Dit type BRO-ID kan niet worden gezocht",
+    mapSearchEnterToLocate: "Druk op Enter om te lokaliseren",
+    mapSearchBroIdProgress: "{{prefix}} · {{digits}}/12 cijfers",
+    mapSearchBroIdNotFound: "Geen BRO-object met ID {{broId}}",
     mapBasemapLabel: "Ondergrond",
     mapBasemapTopo: "Topografie (BRT)",
     mapBasemapAerial: "Luchtfoto",
@@ -496,8 +503,7 @@ export default {
     weBuild: "Wij bouwen:",
     customWebApps:
       "Webapps op maat voor BRO/XML dataverwerking en visualisatie",
-    broXmlPdfReports:
-      "Geautomatiseerde PDF-rapportage vanuit BRO/XML",
+    broXmlPdfReports: "Geautomatiseerde PDF-rapportage vanuit BRO/XML",
     pythonAutomation:
       "Python scripts voor geautomatiseerde BRO data-extractie, analyse en rapportage",
     bimCadIntegrations:

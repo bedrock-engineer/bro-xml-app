@@ -1,3 +1,4 @@
+import { usePostHog } from "@posthog/react";
 import type { Feature, FeatureCollection } from "geojson";
 import { DownloadIcon } from "lucide-react";
 import { Button } from "react-aria-components";
@@ -71,12 +72,19 @@ interface DownloadGeoJSONButtonProps {
 
 export function DownloadGeoJSONButton({ broData }: DownloadGeoJSONButtonProps) {
   const { t } = useTranslation();
+  const posthog = usePostHog();
 
   return (
     <Button
       className="button mt-2 ml-auto"
       onPress={() => {
         downloadAsGeoJSON(broData);
+        const files = Object.values(broData);
+        posthog.capture("locations_geojson_downloaded", {
+          file_count: files.length,
+          location_count: createGeoJSON(broData).features.length,
+          file_types: [...new Set(files.map((file) => getFileType(file)))],
+        });
       }}
       isDisabled={Object.keys(broData).length === 0}
     >

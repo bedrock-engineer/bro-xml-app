@@ -10,6 +10,11 @@
  * Referenced by both the report-uri/report-to CSP directives and the
  * Reporting-Endpoints response header set in entry.server.
  */
+/** Join CSP source expressions, dropping any that are undefined. */
+function list(...sources: Array<string | undefined>): string {
+  return sources.filter(Boolean).join(" ");
+}
+
 export function sentryReportEndpoint(): string | undefined {
   const dsn = import.meta.env.VITE_SENTRY_DSN;
   if (!dsn) {
@@ -21,19 +26,40 @@ export function sentryReportEndpoint(): string | undefined {
 
 export function contentSecurityPolicy(nonce: string): string {
   const reportEndpoint = sentryReportEndpoint();
+  // PostHog serves lazy-loaded extension scripts (session replay recorder,
+  // surveys, web vitals, ...) from assets subdomains that differ from the
+  // ingest host and change over time, so their docs mandate the wildcard
+  // over pinning individual subdomains. CSP host wildcards match nested
+  // subdomains, so this covers eu.i and eu-assets.i alike.
+  const posthog = import.meta.env.VITE_PUBLIC_POSTHOG_PROJECT_TOKEN
+    ? "https://*.posthog.com"
+    : undefined;
   return [
     "default-src 'self'",
     // The nonce covers React Router's inline hydration scripts and the
     // JSON-LD block in root.tsx.
-    `script-src 'self' 'nonce-${nonce}' https://counterscale.bedrock-engineer.workers.dev`,
+    list(
+      `script-src 'self' 'nonce-${nonce}'`,
+      "https://counterscale.bedrock-engineer.workers.dev",
+      posthog,
+    ),
     // 'unsafe-inline' is for style attributes set by Observable Plot,
-    // MapLibre, and the Sentry feedback widget.
-    "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
-    "font-src 'self' https://fonts.gstatic.com",
+    // MapLibre, and the Sentry feedback widget. PostHog styles its
+    // surveys and toolbar.
+    list(
+      "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+      posthog,
+    ),
+    list("font-src 'self' https://fonts.gstatic.com", posthog),
     // data:/blob: for MapLibre icons and chart exports; Counterscale
     // reports pageviews via an image pixel.
-    "img-src 'self' data: blob: https://counterscale.bedrock-engineer.workers.dev",
-    [
+    list(
+      "img-src 'self' data: blob: https://counterscale.bedrock-engineer.workers.dev",
+      posthog,
+    ),
+    // Session replay may reference media assets.
+    list("media-src 'self'", posthog),
+    list(
       "connect-src 'self'",
       "https://publiek.broservices.nl", // BRO object API
       "https://api.pdok.nl", // locatieserver geocoding
@@ -43,8 +69,10 @@ export function contentSecurityPolicy(nonce: string): string {
       "https://cdn.proj.org", // RDNAP transformation grid
       "https://counterscale.bedrock-engineer.workers.dev",
       "https://*.sentry.io", // error + feedback ingest
-    ].join(" "),
-    // 'self' for the PWA service worker, blob: for MapLibre's bundled worker.
+      posthog,
+    ),
+    // 'self' for the PWA service worker, blob: for MapLibre's bundled
+    // worker and PostHog's session replay compression worker.
     "worker-src 'self' blob:",
     "object-src 'none'",
     "base-uri 'self'",

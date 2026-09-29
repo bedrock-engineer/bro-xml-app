@@ -16,6 +16,7 @@ export default {
     chooseFiles: "Kies BRO XML bestanden",
     dropFilesHere: "Sleep BRO XML bestanden hierheen of selecteer ze op de kaart",
     loadSampleFiles: "laad voorbeeldbestanden",
+    supportedTypes: "Ondersteunt CPT-, BHR-GT-, BHR-G-, GMW- en GLD-registraties.",
     clearAllFiles: "Alle bestanden wissen",
     removeFile: "Bestand verwijderen",
     downloadXmlFile: "BRO XML-bestand downloaden",
@@ -573,6 +574,13 @@ export default {
     // Navigation
     info: "Info",
     feedback: "Feedback",
+
+    // Cookie consent banner
+    cookieBannerLabel: "Cookietoestemming",
+    cookieBannerText:
+      "Mogen we cookies gebruiken voor anonieme gebruiksstatistieken? Dit helpt de BRO Viewer te verbeteren.",
+    cookieBannerAccept: "Accepteren",
+    cookieBannerDecline: "Weigeren",
 
     // Error page feedback form (Sentry user feedback widget)
     reportProblem: "Probleem melden",

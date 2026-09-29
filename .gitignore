@@ -20,6 +20,10 @@ CLAUDE.md
 .dev.vars*
 worker-configuration.d.ts
 
+# Local env values (real tokens); templates below stay tracked
+.env
+.env.*
+
 
 !.dev.vars.example
 !.env.example

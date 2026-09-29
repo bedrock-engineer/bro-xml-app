@@ -30,6 +30,7 @@
   "dependencies": {
     "@bedrock-engineer/bro-xml-parser": "^0.7.0",
     "@observablehq/plot": "^0.6.17",
+    "@posthog/react": "^1.11.2",
     "@react-router/node": "^8.4.0",
     "@sentry/cloudflare": "^10.72.0",
     "@sentry/react-router": "^10.72.0",
@@ -43,6 +44,8 @@
     "lucide-react": "^0.554.0",
     "maplibre-gl": "^6.11.2",
     "pmtiles": "^4.5.0",
+    "posthog-js": "^1.434.17",
+    "posthog-node": "^5.54.1",
     "proj4": "^2.22.0",
     "react": "^19.3.0",
     "react-aria-components": "^1.20.0",

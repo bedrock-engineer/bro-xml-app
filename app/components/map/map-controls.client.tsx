@@ -1,3 +1,4 @@
+import { usePostHog } from "@posthog/react";
 import { Marker, type Map as MlMap } from "maplibre-gl";
 import { useEffect, useRef, useState, type Key, type RefObject } from "react";
 import {
@@ -148,6 +149,7 @@ interface SearchBoxProps {
  */
 export function SearchBox({ mapRef }: SearchBoxProps) {
   const { t } = useTranslation();
+  const posthog = usePostHog();
   const [query, setQuery] = useState("");
   const { suggestions, loading } = useAddressSuggest(query);
   const lookupAbortRef = useRef<AbortController | null>(null);
@@ -192,6 +194,10 @@ export function SearchBox({ mapRef }: SearchBoxProps) {
         .setLngLat([place.longitude, place.latitude])
         .addTo(map);
     }
+
+    posthog.capture("map_address_selected", {
+      result_type: picked?.type,
+    });
 
     map.flyTo({
       center: [place.longitude, place.latitude],
@@ -277,6 +283,7 @@ export function MapLayersPanel({
   onBasemapChange,
 }: MapLayersPanelProps) {
   const { t } = useTranslation();
+  const posthog = usePostHog();
 
   return (
     <div className="rounded-sm border border-gray-300 bg-white/90 px-2 py-1.5 text-xs space-y-1">
@@ -308,7 +315,12 @@ export function MapLayersPanel({
 
       <RadioButtonGroup
         value={basemap}
-        onChange={onBasemapChange}
+        onChange={(id) => {
+          posthog.capture("map_basemap_changed", {
+            basemap: id,
+          });
+          onBasemapChange(id);
+        }}
         aria-label={t("mapBasemapLabel")}
         orientation="vertical"
         options={basemaps.map((definition) => ({

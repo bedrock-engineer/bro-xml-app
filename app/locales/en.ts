@@ -16,6 +16,7 @@ export default {
     dropFilesHere:
       "Drop BRO XML files here or select ground investigation points on the map",
     loadSampleFiles: "load sample files",
+    supportedTypes: "Supports CPT, BHR-GT, BHR-G, GMW and GLD registrations.",
     clearAllFiles: "Clear all files",
     removeFile: "Remove file",
     downloadXmlFile: "Download BRO XML file",
@@ -573,6 +574,13 @@ export default {
     // Navigation
     info: "Info",
     feedback: "Feedback",
+
+    // Cookie consent banner
+    cookieBannerLabel: "Cookie consent",
+    cookieBannerText:
+      "May we use cookies for anonymous usage statistics? This helps improve the BRO Viewer.",
+    cookieBannerAccept: "Accept",
+    cookieBannerDecline: "Decline",
 
     // Error page feedback form (Sentry user feedback widget)
     reportProblem: "Report a problem",

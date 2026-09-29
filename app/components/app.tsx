@@ -1,3 +1,4 @@
+import { usePostHog } from "@posthog/react";
 import * as Sentry from "@sentry/react-router/cloudflare";
 import type { TFunction } from "i18next";
 import {
@@ -9,7 +10,15 @@ import {
   TrashIcon,
   UploadIcon,
 } from "lucide-react";
-import { lazy, Suspense, useEffect, useMemo, useState, useTransition } from "react";
+import {
+  lazy,
+  Suspense,
+  useEffect,
+  useId,
+  useMemo,
+  useState,
+  useTransition,
+} from "react";
 import { Button, FileTrigger } from "react-aria-components";
 import { ErrorBoundary } from "react-error-boundary";
 import { useTranslation } from "react-i18next";
@@ -22,6 +31,7 @@ import {
   isGLDData,
   isGMWData,
   getDissipationTests,
+  getFileType,
   getRemovedLayers,
   getSurfaceLevel,
   parseBRO,
@@ -113,6 +123,8 @@ async function parseBROFile(file: File): Promise<BROData> {
 
 export function App() {
   const { t } = useTranslation();
+  const posthog = usePostHog();
+  const supportedTypesId = useId();
   const [isPending, startTransition] = useTransition();
   const [broData, setBroData] = useState<Record<string, BROData>>({});
   const [rawXml, setRawXml] = useState<Record<string, Blob>>({});
@@ -148,6 +160,11 @@ export function App() {
     try {
       const xml = await fetchBROObject(broId, layer);
       const data = await parseBRO(xml);
+
+      posthog.capture("bro_location_loaded", {
+        layer,
+        file_type: getFileType(data),
+      });
 
       startTransition(() => {
         setBroData((previous) => ({ ...previous, [broId]: data }));
@@ -233,6 +250,16 @@ export function App() {
       successful.map(({ filename, xml }) => [filename, xml]),
     );
 
+    posthog.capture("files_processed", {
+      source: "sample",
+      file_count: sampleFiles.length,
+      successful_file_count: successful.length,
+      failed_file_count: failed.length,
+      file_types: [
+        ...new Set(successful.map(({ data }) => getFileType(data))),
+      ],
+    });
+
     startTransition(() => {
       setBroData((previous) => ({ ...previous, ...bro }));
       setRawXml((previous) => ({ ...previous, ...xml }));
@@ -284,6 +311,16 @@ export function App() {
         parsed.map(({ file }) => [file.name, file]),
       );
 
+      posthog.capture("files_processed", {
+        source: "upload",
+        file_count: files.length,
+        successful_file_count: parsed.length,
+        failed_file_count: failed.length,
+        file_types: [
+          ...new Set(parsed.map(({ result }) => getFileType(result.value))),
+        ],
+      });
+
       startTransition(() => {
         setBroData((previous) => ({ ...previous, ...bro }));
         setRawXml((previous) => ({ ...previous, ...xml }));
@@ -327,6 +364,7 @@ export function App() {
             >
               <Button
                 isPending={isPending}
+                aria-describedby={supportedTypesId}
                 className="flex gap-1 items-center justify-center w-full p-2 border border-blue-300 aria-selected:bg-blue-200 data-pressed:bg-blue-200 data-pressed:text-blue-800 rounded-sm bg-blue-50 hover:bg-blue-100 text-blue-700 transition-colors"
               >
                 {isPending ? (
@@ -374,6 +412,13 @@ export function App() {
                 {t("loadSampleFiles")}
               </Button>
             </div>
+
+            <p
+              id={supportedTypesId}
+              className="text-xs mt-2 text-center text-gray-500"
+            >
+              {t("supportedTypes")}
+            </p>
           </div>
 
           {failedFiles.length > 0 && (
@@ -414,6 +459,15 @@ export function App() {
               }
             }}
             onFileRemove={(filename) => {
+              const removedFile = broData[filename];
+              posthog.capture("file_removed", {
+                file_type: removedFile ? getFileType(removedFile) : undefined,
+                remaining_file_count: Math.max(
+                  Object.keys(broData).length - 1,
+                  0,
+                ),
+              });
+
               setBroData((previous) => {
                 // eslint-disable-next-line @typescript-eslint/no-unused-vars
                 const { [filename]: _, ...rest } = previous;
@@ -438,6 +492,14 @@ export function App() {
             <Button
               className="button mt-2 ml-auto transition-colors"
               onPress={() => {
+                const loadedFiles = Object.values(broData);
+                posthog.capture("files_cleared", {
+                  file_count: loadedFiles.length,
+                  file_types: [
+                    ...new Set(loadedFiles.map((file) => getFileType(file))),
+                  ],
+                  failed_file_count: failedFiles.length,
+                });
                 setBroData({});
                 setRawXml({});
                 setSelectedFileName("");

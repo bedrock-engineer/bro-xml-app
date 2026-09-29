@@ -1,3 +1,4 @@
+import { usePostHog } from "@posthog/react";
 import { downloadPng, downloadSvg } from "svg-crowbar";
 import {
   Button,
@@ -27,6 +28,7 @@ export function PlotDownloadButtons({
   filename,
 }: PlotDownloadButtonsProps) {
   const { t } = useTranslation();
+  const posthog = usePostHog();
   const [selectedFormat, setSelectedFormat] = useState<DownloadFormat>("svg");
 
   function getPlotSvg(): SVGSVGElement | null {
@@ -39,12 +41,12 @@ export function PlotDownloadButtons({
     return null;
   }
 
-  function download(format: DownloadFormat) {
+  function download(format: DownloadFormat): boolean {
     const plotElement = getPlotSvg();
 
     if (!plotElement) {
       console.error("Could not find SVG element to download");
-      return;
+      return false;
     }
 
     if (format === "svg") {
@@ -59,6 +61,8 @@ export function PlotDownloadButtons({
         },
       });
     }
+
+    return true;
   }
 
   function handleSelectionChange(keys: Selection) {
@@ -78,7 +82,11 @@ export function PlotDownloadButtons({
       <Button
         className="button split-button-action"
         onPress={() => {
-          download(selectedFormat);
+          if (download(selectedFormat)) {
+            posthog.capture("plot_downloaded", {
+              format: selectedFormat,
+            });
+          }
         }}
       >
         <DownloadIcon size={14} />

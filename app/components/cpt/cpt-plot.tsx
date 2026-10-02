@@ -15,10 +15,13 @@ import {
 import { useTranslation } from "react-i18next";
 import type { ChartColumn, CPTChartRow } from "~/util/chart-axes";
 import { createWatermarkMark } from "~/util/plot-config";
+import { useStickyState } from "~/util/use-sticky-state";
 import { Card, CardTitle } from "../card";
 import { PlotDownloadButtons } from "../plot-download-buttons";
 import { RadioButtonGroup } from "../radio-button-group";
 import { ClassicCptPlot } from "./classic-cpt-plot";
+
+const Y_AXIS_STORAGE_KEY = "cpt_y_axis";
 
 function isDepthChartColumn(col: ChartColumn): boolean {
   return (
@@ -51,7 +54,14 @@ export function CptPlots({
 }: CptPlotsProps) {
   const { t } = useTranslation();
   const [selectedAxes, setSelectedAxes] = useState([initialXAxis.key]);
-  const [selectedYAxis, setSelectedYAxis] = useState(initialYAxis.key);
+  // Sticky so the preference (e.g. plotting against NAP elevation) carries
+  // over to the next CPT, also after clearing files or reloading the page.
+  // A stored key the current file doesn't offer falls back to the detected
+  // default via `currentYAxis` below, without overwriting the preference.
+  const [selectedYAxis, setSelectedYAxis] = useStickyState<keyof CPTChartRow>(
+    Y_AXIS_STORAGE_KEY,
+    initialYAxis.key,
+  );
   const [showClassic, setShowClassic] = useState(false);
   const [fixedDomains, setFixedDomains] = useState(false);
 
@@ -131,7 +141,7 @@ export function CptPlots({
         <div className="flex-1">
           {yAxisOptions.length > 1 ? (
             <Select
-              value={selectedYAxis}
+              value={currentYAxis.key}
               onChange={(key) => {
                 setSelectedYAxis(key as keyof CPTChartRow);
               }}
@@ -197,7 +207,7 @@ export function CptPlots({
             const plotId = `cpt-plot-${k}`;
             return (
               <div
-                key={`${k}-${selectedYAxis}`}
+                key={`${k}-${currentYAxis.key}`}
                 className="flex flex-col flex-wrap items-center"
               >
                 <CptPlot

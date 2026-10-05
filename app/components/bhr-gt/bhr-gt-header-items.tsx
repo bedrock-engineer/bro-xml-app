@@ -17,6 +17,7 @@ import {
   formatCodes,
   formatDate,
   formatIndication,
+  formatMeasure,
   uniqueCodes,
 } from "../../util/format";
 import { getLocationItems } from "../../util/location-info";
@@ -87,19 +88,19 @@ function getBHRGTSurveyInfo(data: BHRGTData, t: TFunction): Array<HeaderItem> {
   if (boring?.finalDepthBoring != null) {
     items.push({
       label: t("finalBoreDepth"),
-      value: `${boring.finalDepthBoring.toFixed(2)} m`,
+      value: formatMeasure(boring.finalDepthBoring, 2),
     });
   }
   if (boring?.finalDepthSampling != null) {
     items.push({
       label: t("finalSampleDepth"),
-      value: `${boring.finalDepthSampling.toFixed(2)} m`,
+      value: formatMeasure(boring.finalDepthSampling, 2),
     });
   }
   if (boring?.groundwaterLevel != null) {
     items.push({
       label: t("waterLevel"),
-      value: `${boring.groundwaterLevel.toFixed(2)} m`,
+      value: formatMeasure(boring.groundwaterLevel, 2),
     });
   }
   if (boring?.rockReached != null) {
@@ -213,13 +214,13 @@ function getSamplingInfo(data: BHRGTData, t: TFunction): Array<HeaderItem> {
   if (sampler.sampleContainerDiameter !== null) {
     items.push({
       label: t("sampleContainerDiameter"),
-      value: `${sampler.sampleContainerDiameter} mm`,
+      value: formatMeasure(sampler.sampleContainerDiameter),
     });
   }
   if (sampler.sampleContainerLength !== null) {
     items.push({
       label: t("sampleContainerLength"),
-      value: `${sampler.sampleContainerLength} mm`,
+      value: formatMeasure(sampler.sampleContainerLength),
     });
   }
   if (sampler.pistonPresent !== null) {
@@ -255,19 +256,19 @@ function getSamplingInfo(data: BHRGTData, t: TFunction): Array<HeaderItem> {
   if (sampler.cuttingShoeInsideDiameter !== null) {
     items.push({
       label: t("cuttingShoeInsideDiameter"),
-      value: `${sampler.cuttingShoeInsideDiameter} mm`,
+      value: formatMeasure(sampler.cuttingShoeInsideDiameter),
     });
   }
   if (sampler.cuttingShoeOutsideDiameter !== null) {
     items.push({
       label: t("cuttingShoeOutsideDiameter"),
-      value: `${sampler.cuttingShoeOutsideDiameter} mm`,
+      value: formatMeasure(sampler.cuttingShoeOutsideDiameter),
     });
   }
   if (sampler.taperAngle !== null) {
     items.push({
       label: t("taperAngle"),
-      value: `${sampler.taperAngle}°`,
+      value: formatMeasure(sampler.taperAngle),
     });
   }
 

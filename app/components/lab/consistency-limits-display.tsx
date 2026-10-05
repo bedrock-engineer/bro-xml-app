@@ -1,6 +1,7 @@
 import type { ConsistencyLimitsDetermination } from "@bedrock-engineer/bro-xml-parser";
 import { useRef } from "react";
 import { useTranslation } from "react-i18next";
+import { formatMeasure } from "../../util/format";
 import type { TranslateFunction } from "../../util/plot-config";
 import { PlotDownloadButtons } from "../plot-download-buttons";
 import { PlotFigure } from "../plot-figure";
@@ -33,7 +34,7 @@ export function ConsistencyLimitsDisplay({
                     {t("liquidLimit")} (LL)
                   </td>
                   <td className="py-2 text-right font-mono">
-                    {data.liquidLimit.toFixed(1)} %
+                    {formatMeasure(data.liquidLimit, 1)}
                   </td>
                 </tr>
               )}
@@ -43,7 +44,7 @@ export function ConsistencyLimitsDisplay({
                     {t("plasticLimit")} (PL)
                   </td>
                   <td className="py-2 text-right font-mono">
-                    {data.plasticLimit.toFixed(1)} %
+                    {formatMeasure(data.plasticLimit, 1)}
                   </td>
                 </tr>
               )}
@@ -53,7 +54,7 @@ export function ConsistencyLimitsDisplay({
                     {t("plasticityIndex")} (PI)
                   </td>
                   <td className="py-2 text-right font-mono">
-                    {data.plasticityIndex.toFixed(1)} %
+                    {formatMeasure(data.plasticityIndex, 1)}
                   </td>
                 </tr>
               )}

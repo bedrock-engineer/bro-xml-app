@@ -50,7 +50,7 @@ export function DissipationTestPlots({
             <div key={index}>
               <h4 className="text-sm font-medium text-gray-700 mb-2">
                 {t("dissipationTestAtDepth", {
-                  depth: test.penetrationLength,
+                  depth: test.penetrationLength?.value ?? "?",
                 })}
                 {test.phenomenonTime && (
                   <span className="text-gray-500 ml-2">
@@ -61,7 +61,7 @@ export function DissipationTestPlots({
               <DissipationPlot plotId={plotId} test={test} />
               <PlotDownloadButtons
                 plotId={plotId}
-                filename={`${baseFilename}-dissipation-${test.penetrationLength}m`}
+                filename={`${baseFilename}-dissipation-${test.penetrationLength?.value ?? "unknown"}m`}
               />
             </div>
           );

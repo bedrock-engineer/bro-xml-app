@@ -82,12 +82,12 @@ function translateWarning(warning: string, t: TFunction): string {
   switch (key) {
     case "schemaVersionMismatch": {
       return t("schemaVersionMismatch", {
-        expected: parts[1],
-        found: parts[2],
+        expected: parts[1] ?? "?",
+        found: parts[2] ?? "?",
       });
     }
     case "unknownNamespace": {
-      return t("unknownNamespace", { namespace: parts[1] });
+      return t("unknownNamespace", { namespace: parts[1] ?? "?" });
     }
     default: {
       return warning;
@@ -685,9 +685,9 @@ export function App() {
                   baseFilename={selectedFileName.replace(/\.xml$/i, "")}
                   analysis={selectedFile.boreholeSampleAnalysis}
                   groundwaterLevel={
-                    selectedFile.boring?.groundwaterLevel ?? null
+                    selectedFile.boring?.groundwaterLevel?.value ?? null
                   }
-                  surfaceNap={getSurfaceLevel(selectedFile)}
+                  surfaceNap={getSurfaceLevel(selectedFile)?.value ?? null}
                 />
                 {selectedFile.boreholeSampleAnalysis && (
                   <LaboratoryAnalysis

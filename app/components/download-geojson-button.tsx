@@ -28,7 +28,7 @@ function createGeoJSON(broData: Record<string, BROData>): FeatureCollection {
     if (!wgs84) {
       continue;
     }
-    const finalDepth = getFinalDepth(data);
+    const finalDepth = getFinalDepth(data)?.value ?? null;
     const reportDate =
       "researchReportDate" in data ? data.researchReportDate : null;
 
@@ -44,7 +44,7 @@ function createGeoJSON(broData: Record<string, BROData>): FeatureCollection {
         fileType: getFileType(data),
         qualityRegime: data.qualityRegime,
         reportDate: reportDate ? formatDate(reportDate) : null,
-        surfaceElevation: getSurfaceLevel(data),
+        surfaceElevation: getSurfaceLevel(data)?.value ?? null,
         verticalDatum: getVerticalDatum(data),
         coordinateSystem: location.epsg,
         easting: location.x,

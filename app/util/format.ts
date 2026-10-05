@@ -1,4 +1,8 @@
-import type { Coded, Location } from "@bedrock-engineer/bro-xml-parser";
+import type {
+  Coded,
+  Location,
+  Measure,
+} from "@bedrock-engineer/bro-xml-parser";
 import type { TFunction } from "i18next";
 import type { HeaderItem } from "../types/header-types";
 import {
@@ -29,6 +33,48 @@ export function formatCode(coded: Coded | null | undefined): string | null {
   return /[A-Z]{2}|\d/.test(coded.code)
     ? coded.code
     : prettifyBroCode(coded.code);
+}
+
+/**
+ * BRO XML unit codes (GML `uom` attributes, UCUM-style) whose display form
+ * differs from the code itself.
+ */
+const UOM_DISPLAY: Record<string, string> = {
+  deg: "°",
+  Cel: "°C",
+  mm2: "mm²",
+  m2: "m²",
+  um: "µm",
+  "g/cm3": "g/cm³",
+};
+
+/**
+ * Format a measured value with the unit its XML declares ("25.50 m").
+ * Dimensionless measures (uom "1") render as the bare number; "°" and "%"
+ * attach without a space. Value digits are kept as-is unless `fractionDigits`
+ * is given.
+ */
+export function formatMeasure(measure: Measure, fractionDigits?: number): string;
+export function formatMeasure(
+  measure: Measure | null | undefined,
+  fractionDigits?: number,
+): string | null;
+export function formatMeasure(
+  measure: Measure | null | undefined,
+  fractionDigits?: number,
+): string | null {
+  if (!measure) {
+    return null;
+  }
+  const value =
+    fractionDigits === undefined
+      ? String(measure.value)
+      : measure.value.toFixed(fractionDigits);
+  const uom = UOM_DISPLAY[measure.uom] ?? measure.uom;
+  if (uom === "1" || uom === "") {
+    return value;
+  }
+  return uom === "°" || uom === "%" ? `${value}${uom}` : `${value} ${uom}`;
 }
 
 /**

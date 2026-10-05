@@ -4,6 +4,7 @@ import type { HeaderItem } from "../types/header-types";
 import {
   codeItem,
   formatDeliveredLocation,
+  formatMeasure,
   formatStandardizedLocation,
 } from "./format";
 
@@ -40,7 +41,7 @@ export function getLocationItems(
   if (vertical?.offset != null) {
     items.push({
       label: t("verticalOffset"),
-      value: `${vertical.offset.toFixed(2)} m`,
+      value: formatMeasure(vertical.offset, 2),
     });
   }
 

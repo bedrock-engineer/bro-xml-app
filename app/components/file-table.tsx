@@ -79,7 +79,7 @@ export function FileTable({
     return Object.entries(broData).map(([filename, data]) => {
       const reportDate =
         "researchReportDate" in data ? data.researchReportDate : null;
-      const finalDepth = getFinalDepth(data);
+      const finalDepth = getFinalDepth(data)?.value ?? null;
       const qualityRegime: QualityRegime =
         data.qualityRegime === "IMBRO" ? "IMBRO" : "IMBRO/A";
 

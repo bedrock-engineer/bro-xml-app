@@ -23,6 +23,11 @@ export function buildConsistencyLimitsPlot(
     return null;
   }
 
+  const sample = {
+    liquidLimit: data.liquidLimit.value,
+    plasticityIndex: data.plasticityIndex.value,
+  };
+
   return Plot.plot({
     aspectRatio: 1,
     style: { backgroundColor: "white" },
@@ -91,7 +96,7 @@ export function buildConsistencyLimitsPlot(
         },
       ),
       // Data point
-      Plot.dot([data], {
+      Plot.dot([sample], {
         x: "liquidLimit",
         y: "plasticityIndex",
         fill: "red",

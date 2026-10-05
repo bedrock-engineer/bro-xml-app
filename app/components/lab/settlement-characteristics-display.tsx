@@ -2,6 +2,7 @@ import type { SettlementCharacteristicsDetermination } from "@bedrock-engineer/b
 import { useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { CodeValue } from "../code-value";
+import { formatMeasure } from "../../util/format";
 import type { TranslateFunction } from "../../util/plot-config";
 import { PlotDownloadButtons } from "../plot-download-buttons";
 import { PlotFigure } from "../plot-figure";
@@ -35,13 +36,13 @@ export function SettlementCharacteristicsDisplay({
           {data.ringDiameter !== null && (
             <>
               <dt className="text-gray-500">{t("ringDiameter")}</dt>
-              <dd>{data.ringDiameter} mm</dd>
+              <dd>{formatMeasure(data.ringDiameter)}</dd>
             </>
           )}
           {data.temperature !== null && (
             <>
               <dt className="text-gray-500">{t("temperature")}</dt>
-              <dd>{data.temperature} °C</dd>
+              <dd>{formatMeasure(data.temperature)}</dd>
             </>
           )}
         </dl>

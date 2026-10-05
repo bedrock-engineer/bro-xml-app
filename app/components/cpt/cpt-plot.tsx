@@ -106,7 +106,7 @@ export function CptPlots({
         </div>
 
         <CheckboxGroup
-          value={selectedAxes as Array<string>}
+          value={selectedAxes}
           onChange={(v) => {
             setSelectedAxes(v as Array<keyof CPTChartRow>);
           }}

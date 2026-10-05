@@ -127,7 +127,7 @@ function getAvailableColumns(
  */
 function withElevationNAP(cptData: CPTData): Array<CPTChartRow> {
   const measurements = getMeasurements(cptData);
-  const offset = getSurfaceLevel(cptData);
+  const offset = getSurfaceLevel(cptData)?.value;
   if (offset == null || getVerticalDatum(cptData)?.toUpperCase() !== "NAP") {
     return measurements;
   }

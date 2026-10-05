@@ -1,4 +1,7 @@
-import type { ParticleSizeDistributionDetermination } from "@bedrock-engineer/bro-xml-parser";
+import type {
+  Measure,
+  ParticleSizeDistributionDetermination,
+} from "@bedrock-engineer/bro-xml-parser";
 import * as Plot from "@observablehq/plot";
 import {
   createWatermarkMark,
@@ -42,9 +45,9 @@ function buildSizeData(
 
   let cumulative = 0;
   for (const { size, field } of FRACTIONS) {
-    const value = data[field] as number | null | undefined;
+    const value = data[field] as Measure | null | undefined;
     if (value !== null && value !== undefined) {
-      cumulative += value;
+      cumulative += value.value;
       sizeData.push({ size, passing: cumulative });
     }
   }
@@ -52,7 +55,7 @@ function buildSizeData(
   if (sizeData.length === 0) {
     // Use basic fractions if detailed ones are not available
     if (data.fractionSmaller63um != null) {
-      sizeData.push({ size: 63, passing: data.fractionSmaller63um });
+      sizeData.push({ size: 63, passing: data.fractionSmaller63um.value });
     }
     if (data.fractionLarger63um != null) {
       sizeData.push({ size: 63_000, passing: 100 });

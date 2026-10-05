@@ -1,4 +1,4 @@
-import type { Location } from "@bedrock-engineer/bro-xml-parser";
+import type { Location, Measure } from "@bedrock-engineer/bro-xml-parser";
 import type { ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 import {
@@ -6,7 +6,7 @@ import {
   normalizeEpsg,
   useToWgs84,
 } from "../util/coordinates";
-import { formatDate } from "../util/format";
+import { formatDate, formatMeasure } from "../util/format";
 import { CopyButton } from "./copy-button";
 
 interface CompactHeaderWrapperProps {
@@ -206,7 +206,7 @@ export function LocationDisplay({ location }: LocationDisplayProps) {
 }
 
 interface SurfaceLevelRowProps {
-  offset: number | null;
+  offset: Measure | null;
   datum: string | null | undefined;
 }
 
@@ -221,14 +221,14 @@ export function SurfaceLevelRow({ offset, datum }: SurfaceLevelRowProps) {
     <>
       <dt className="text-gray-500">{t("surfaceLevel")}</dt>
       <dd>
-        {offset.toFixed(2)} m {datum?.toLocaleUpperCase() ?? ""}
+        {formatMeasure(offset, 2)} {datum?.toLocaleUpperCase() ?? ""}
       </dd>
     </>
   );
 }
 
 interface WaterLevelRowProps {
-  level: number | null;
+  level: Measure | null;
 }
 
 export function WaterLevelRow({ level }: WaterLevelRowProps) {
@@ -242,8 +242,11 @@ export function WaterLevelRow({ level }: WaterLevelRowProps) {
     <>
       <dt className="text-gray-500">{t("waterLevel")}</dt>
       <dd className="flex items-center gap-1">
-        {level.toFixed(2)} m
-        <CopyButton value={level.toFixed(2)} label={t("copyWaterLevel")} />
+        {formatMeasure(level, 2)}
+        <CopyButton
+          value={level.value.toFixed(2)}
+          label={t("copyWaterLevel")}
+        />
       </dd>
     </>
   );
@@ -251,7 +254,7 @@ export function WaterLevelRow({ level }: WaterLevelRowProps) {
 
 interface DepthRowProps {
   label: string;
-  depth: number | null;
+  depth: Measure | null;
 }
 
 export function DepthRow({ label, depth }: DepthRowProps) {
@@ -262,7 +265,7 @@ export function DepthRow({ label, depth }: DepthRowProps) {
   return (
     <>
       <dt className="text-gray-500">{label}</dt>
-      <dd>{depth.toFixed(2)} m</dd>
+      <dd>{formatMeasure(depth, 2)}</dd>
     </>
   );
 }

@@ -8,7 +8,13 @@ import {
   getVerticalDatum,
 } from "../../types/bro-data";
 import type { HeaderItem, HeaderSection } from "../../types/header-types";
-import { codeItem, formatCode, formatDate, formatIndication } from "../../util/format";
+import {
+  codeItem,
+  formatCode,
+  formatDate,
+  formatIndication,
+  formatMeasure,
+} from "../../util/format";
 import { getLocationItems } from "../../util/location-info";
 import { CardTitle } from "../card";
 import {
@@ -122,11 +128,11 @@ function describeTube(tube: GMWMonitoringTube, t: TFunction): HeaderItem {
   const screenBottom = tube.screen?.screenBottomPosition ?? null;
   if (screenTop !== null && screenBottom !== null) {
     parts.push(
-      `${t("screen")} ${screenTop.toFixed(2)} – ${screenBottom.toFixed(2)} m NAP`,
+      `${t("screen")} ${screenTop.value.toFixed(2)} – ${formatMeasure(screenBottom, 2)} NAP`,
     );
   }
   if (tube.tubeTopDiameter !== null) {
-    parts.push(`Ø ${tube.tubeTopDiameter} mm`);
+    parts.push(`Ø ${formatMeasure(tube.tubeTopDiameter)}`);
   }
   const material = formatCode(tube.materialUsed?.tubeMaterial);
   if (material) {

@@ -24,7 +24,7 @@ export function BasicDeterminationsDepthPlots({
     () => [
       {
         key: "waterContent",
-        getValue: (d) => d.waterContentDetermination?.waterContent,
+        getValue: (d) => d.waterContentDetermination?.waterContent?.value,
         domain: [0, 100],
         label: t("waterContent"),
         unit: "%",
@@ -33,7 +33,7 @@ export function BasicDeterminationsDepthPlots({
       {
         key: "volumetricMassDensity",
         getValue: (d) =>
-          d.volumetricMassDensityDetermination?.volumetricMassDensity,
+          d.volumetricMassDensityDetermination?.volumetricMassDensity?.value,
         domain: [1, 2.5],
         label: t("bulkDensity"),
         unit: "g/cm³",
@@ -42,7 +42,7 @@ export function BasicDeterminationsDepthPlots({
       {
         key: "organicMatterContent",
         getValue: (d) =>
-          d.organicMatterContentDetermination?.organicMatterContent,
+          d.organicMatterContentDetermination?.organicMatterContent?.value,
         domain: [0, 100],
         label: t("organicMatterContent"),
         unit: "%",
@@ -50,7 +50,7 @@ export function BasicDeterminationsDepthPlots({
       },
       {
         key: "carbonateContent",
-        getValue: (d) => d.carbonateContentDetermination?.carbonateContent,
+        getValue: (d) => d.carbonateContentDetermination?.carbonateContent?.value,
         domain: [0, 50],
         label: t("carbonateContent"),
         unit: "%",
@@ -60,7 +60,7 @@ export function BasicDeterminationsDepthPlots({
         key: "volumetricMassDensityOfSolids",
         getValue: (d) =>
           d.volumetricMassDensityOfSolidsDetermination
-            ?.volumetricMassDensityOfSolids,
+            ?.volumetricMassDensityOfSolids?.value,
         domain: [2, 3],
         label: t("particleDensity"),
         unit: "g/cm³",
@@ -70,7 +70,7 @@ export function BasicDeterminationsDepthPlots({
         key: "maximumUndrainedShearStrength",
         getValue: (d) =>
           d.maximumUndrainedShearStrengthDetermination
-            ?.maximumUndrainedShearStrength,
+            ?.maximumUndrainedShearStrength?.value,
         domain: [0, 200],
         label: t("undrainedShearStrength"),
         unit: "kPa",
@@ -90,7 +90,7 @@ export function BasicDeterminationsDepthPlots({
   );
 
   // Calculate max depth for y-axis
-  const maxDepth = max(intervals, (d) => d.endDepth) ?? 10;
+  const maxDepth = max(intervals, (d) => d.endDepth?.value) ?? 10;
 
   if (availableDeterminations.length === 0) {
     return null;
@@ -164,8 +164,8 @@ function SummaryTable({ intervals, determinations }: SummaryTableProps) {
           {intervalsWithData.map((interval, index) => (
             <tr key={index} className="border-b border-gray-100">
               <td className="py-2 px-2 font-mono text-gray-700">
-                {interval.beginDepth?.toFixed(2) ?? "–"} –{" "}
-                {interval.endDepth?.toFixed(2) ?? "–"}
+                {interval.beginDepth?.value.toFixed(2) ?? "–"} –{" "}
+                {interval.endDepth?.value.toFixed(2) ?? "–"}
               </td>
               {determinations.map((det) => {
                 const value = det.getValue(interval);

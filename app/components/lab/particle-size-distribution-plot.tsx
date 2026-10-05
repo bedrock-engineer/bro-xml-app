@@ -2,6 +2,7 @@ import type { ParticleSizeDistributionDetermination } from "@bedrock-engineer/br
 import { useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { CodeValue } from "../code-value";
+import { formatMeasure } from "../../util/format";
 import type { TranslateFunction } from "../../util/plot-config";
 import { PlotDownloadButtons } from "../plot-download-buttons";
 import { PlotFigure } from "../plot-figure";
@@ -40,7 +41,7 @@ export function ParticleSizeDistributionPlot({
         {data.fractionSmaller63um !== null && (
           <p>
             {t("finesFraction")} (&lt;63μm):{" "}
-            {data.fractionSmaller63um.toFixed(1)}%
+            {formatMeasure(data.fractionSmaller63um, 1)}
           </p>
         )}
       </div>

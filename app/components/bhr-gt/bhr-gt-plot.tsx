@@ -74,8 +74,8 @@ export function BHRGTPlot({
         const categories = getLabTestCategories(interval);
         for (const category of categories) {
           sampleLines.push({
-            beginDepth: interval.beginDepth,
-            endDepth: interval.endDepth,
+            beginDepth: interval.beginDepth.value,
+            endDepth: interval.endDepth.value,
             category,
             intervalIndex,
           });

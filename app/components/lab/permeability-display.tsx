@@ -18,10 +18,16 @@ export function PermeabilityDisplay({
 
   const permeabilityData = useMemo<Array<PermeabilityPoint>>(
     () =>
-      data.saturatedPermeabilityAtSpecificDensity.filter(
-        (item): item is PermeabilityPoint =>
-          item.dryVolumetricMassDensity != null &&
-          item.saturatedPermeability != null,
+      data.saturatedPermeabilityAtSpecificDensity.flatMap((item) =>
+        item.dryVolumetricMassDensity != null &&
+        item.saturatedPermeability != null
+          ? [
+              {
+                dryVolumetricMassDensity: item.dryVolumetricMassDensity.value,
+                saturatedPermeability: item.saturatedPermeability.value,
+              },
+            ]
+          : [],
       ),
     [data.saturatedPermeabilityAtSpecificDensity],
   );

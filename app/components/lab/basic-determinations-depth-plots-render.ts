@@ -15,11 +15,12 @@ export interface DeterminationConfig {
   ticks: number;
 }
 
-/** An interval that can be placed on the depth axis: both depths present. */
-type PlottableInterval = InvestigatedInterval & {
+/** A determination value placed on the depth axis: both depths present. */
+interface PlottablePoint {
+  value: number;
   beginDepth: number;
   endDepth: number;
-};
+}
 
 const FIRST_COL_WIDTH = 200;
 const OTHER_COL_WIDTH = 160;
@@ -68,12 +69,20 @@ export function buildDepthProfilesPlot({
     const isFirst = index === 0;
     const colWidth = isFirst ? FIRST_COL_WIDTH : OTHER_COL_WIDTH;
 
-    const dataPoints = intervals.filter(
-      (interval): interval is PlottableInterval =>
-        det.getValue(interval) != null &&
+    const dataPoints = intervals.flatMap((interval): Array<PlottablePoint> => {
+      const value = det.getValue(interval);
+      return value != null &&
         interval.beginDepth != null &&
-        interval.endDepth != null,
-    );
+        interval.endDepth != null
+        ? [
+            {
+              value,
+              beginDepth: interval.beginDepth.value,
+              endDepth: interval.endDepth.value,
+            },
+          ]
+        : [];
+    });
 
     if (dataPoints.length === 0) {
       xOffset += colWidth;
@@ -81,7 +90,7 @@ export function buildDepthProfilesPlot({
     }
 
     // Auto-extend domain if any data exceeds configured max
-    const maxValue = Math.max(...dataPoints.map((d) => det.getValue(d) ?? 0));
+    const maxValue = Math.max(...dataPoints.map((d) => d.value));
     const xDomain: [number, number] =
       maxValue > det.domain[1] ? [det.domain[0], maxValue * 1.1] : det.domain;
 
@@ -107,15 +116,13 @@ export function buildDepthProfilesPlot({
       marks: [
         Plot.frame(),
         Plot.dot(dataPoints, {
-          x: det.getValue,
-          y: (d: PlottableInterval) => (d.endDepth + d.beginDepth) / 2,
+          x: "value",
+          y: (d: PlottablePoint) => (d.endDepth + d.beginDepth) / 2,
           symbol: "times",
           stroke: "#2563eb",
           strokeWidth: 2,
-          title: (d: PlottableInterval) => {
-            const value = det.getValue(d);
-            return `${d.beginDepth.toFixed(2)} – ${d.endDepth.toFixed(2)} m\n${det.label}: ${value?.toFixed(2)} ${det.unit}`;
-          },
+          title: (d: PlottablePoint) =>
+            `${d.beginDepth.toFixed(2)} – ${d.endDepth.toFixed(2)} m\n${det.label}: ${d.value.toFixed(2)} ${det.unit}`,
           tip: true,
         }),
         createWatermarkMark(t("madeWithBedrockBroViewer"), { dy: 30 }),

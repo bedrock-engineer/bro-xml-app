@@ -6,6 +6,7 @@ import type {
   GLDData as ParsedGLDData,
   GMWData as ParsedGMWData,
   Location,
+  Measure,
   ParseMeta,
 } from "@bedrock-engineer/bro-xml-parser";
 
@@ -121,10 +122,10 @@ export function getFileType(data: BROData): BROFileType {
 }
 
 /**
- * Get the final depth from any BRO data type. GMW and GLD have no single
- * survey depth, so they return null.
+ * Get the final depth from any BRO data type, with the unit the XML declares.
+ * GMW and GLD have no single survey depth, so they return null.
  */
-export function getFinalDepth(data: BROData): number | null {
+export function getFinalDepth(data: BROData): Measure | null {
   if (isCPTData(data)) {
     return data.conePenetrometerSurvey?.trajectory?.finalDepth ?? null;
   }
@@ -156,7 +157,7 @@ export function getLocation(data: BROData): Location | null {
  * local reference point's offset (often 0, coinciding with NAP), not the ground
  * level. For CPT/BHR the delivered vertical `offset` is the surface level.
  */
-export function getSurfaceLevel(data: BROData): number | null {
+export function getSurfaceLevel(data: BROData): Measure | null {
   if (isGMWData(data)) {
     return (
       data.deliveredVerticalPosition?.groundLevelPosition ??
@@ -210,9 +211,7 @@ const NO_DISSIPATION_TESTS: Array<DissipationTest> = [];
  */
 export function getRemovedLayers(data: CPTData): Array<RemovedLayer> {
   return memoize(removedLayerCache, data, () =>
-    (data.additionalInvestigation?.removedLayer ?? []).filter((layer) =>
-      hasBoundaries(layer),
-    ),
+    unwrapBoundaries(data.additionalInvestigation?.removedLayer ?? []),
   );
 }
 
@@ -294,7 +293,7 @@ function boundedLayersOf(
     const layers: Array<BHRGTLayer | BHRGLayer> =
       data.boreholeSampleDescription?.descriptiveBoreholeLog[logIndex]?.layer ??
       [];
-    value = layers.filter((layer) => hasBoundaries(layer));
+    value = unwrapBoundaries(layers);
     byIndex.set(logIndex, value);
   }
   return value;
@@ -338,14 +337,31 @@ type BHRGLog = NonNullable<
   BHRGData["boreholeSampleDescription"]
 >["descriptiveBoreholeLog"][number];
 
-/** A layer with both boundaries known — required to draw it */
-type BoundedLayer<T extends { upperBoundary: number | null }> = T & {
+/**
+ * A layer with both boundaries known — required to draw it. The parser gives
+ * boundaries as `Measure` (value + uom); they are unwrapped to plain numbers
+ * (meters, per the BRO schema) here so plotting code can do arithmetic on them.
+ */
+type BoundedLayer<T extends { upperBoundary: Measure | null }> = Omit<
+  T,
+  "upperBoundary" | "lowerBoundary"
+> & {
   upperBoundary: number;
   lowerBoundary: number;
 };
 
-function hasBoundaries<
-  T extends { upperBoundary: number | null; lowerBoundary: number | null },
->(layer: T): layer is BoundedLayer<T> {
-  return layer.upperBoundary !== null && layer.lowerBoundary !== null;
+function unwrapBoundaries<
+  T extends { upperBoundary: Measure | null; lowerBoundary: Measure | null },
+>(layers: Array<T>): Array<BoundedLayer<T>> {
+  const bounded: Array<BoundedLayer<T>> = [];
+  for (const layer of layers) {
+    if (layer.upperBoundary !== null && layer.lowerBoundary !== null) {
+      bounded.push({
+        ...layer,
+        upperBoundary: layer.upperBoundary.value,
+        lowerBoundary: layer.lowerBoundary.value,
+      });
+    }
+  }
+  return bounded;
 }

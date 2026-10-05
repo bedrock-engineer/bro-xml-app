@@ -14,6 +14,7 @@ import {
   describeCode,
   formatDate,
   formatIndication,
+  formatMeasure,
   formatQualityClass,
 } from "../../util/format";
 import { getLocationItems } from "../../util/location-info";
@@ -96,19 +97,19 @@ function getCptSurveyInfo(data: CPTData, t: TFunction): Array<HeaderItem> {
   if (predrilledDepth !== null) {
     items.push({
       label: t("predrilledDepth"),
-      value: `${predrilledDepth.toFixed(2)} m`,
+      value: formatMeasure(predrilledDepth, 2),
     });
   }
   if (finalDepth !== null) {
     items.push({
       label: t("finalDepth"),
-      value: `${finalDepth.toFixed(2)} m`,
+      value: formatMeasure(finalDepth, 2),
     });
   }
   if (groundwaterLevel != null) {
     items.push({
       label: t("waterLevel"),
-      value: `${groundwaterLevel.toFixed(2)} m`,
+      value: formatMeasure(groundwaterLevel, 2),
     });
   }
   if (survey?.stopCriterion) {
@@ -145,37 +146,37 @@ function getCptEquipmentInfo(data: CPTData, t: TFunction): Array<HeaderItem> {
   if (cone.coneSurfaceArea !== null) {
     items.push({
       label: t("coneSurfaceArea"),
-      value: `${cone.coneSurfaceArea} mm²`,
+      value: formatMeasure(cone.coneSurfaceArea),
     });
   }
   if (cone.coneDiameter !== null) {
     items.push({
       label: t("coneDiameter"),
-      value: `${cone.coneDiameter} mm`,
+      value: formatMeasure(cone.coneDiameter),
     });
   }
   if (cone.coneSurfaceQuotient !== null) {
     items.push({
       label: t("coneSurfaceQuotient"),
-      value: cone.coneSurfaceQuotient.toFixed(3),
+      value: formatMeasure(cone.coneSurfaceQuotient, 3),
     });
   }
   if (cone.coneToFrictionSleeveDistance !== null) {
     items.push({
       label: t("coneToFrictionSleeveDistance"),
-      value: `${cone.coneToFrictionSleeveDistance} mm`,
+      value: formatMeasure(cone.coneToFrictionSleeveDistance),
     });
   }
   if (cone.frictionSleeveSurfaceArea !== null) {
     items.push({
       label: t("frictionSleeveSurfaceArea"),
-      value: `${cone.frictionSleeveSurfaceArea} mm²`,
+      value: formatMeasure(cone.frictionSleeveSurfaceArea),
     });
   }
   if (cone.frictionSleeveSurfaceQuotient !== null) {
     items.push({
       label: t("frictionSleeveSurfaceQuotient"),
-      value: cone.frictionSleeveSurfaceQuotient.toFixed(3),
+      value: formatMeasure(cone.frictionSleeveSurfaceQuotient, 3),
     });
   }
 
@@ -194,99 +195,31 @@ function getZeroLoadMeasurements(
     return items;
   }
 
-  const zlmFields: Array<{
-    key: keyof typeof zlm;
-    label: string;
-    unit: string;
-  }> = [
-    {
-      key: "coneResistanceBefore",
-      label: t("coneResistanceBefore"),
-      unit: "MPa",
-    },
-    {
-      key: "coneResistanceAfter",
-      label: t("coneResistanceAfter"),
-      unit: "MPa",
-    },
-    {
-      key: "localFrictionBefore",
-      label: t("localFrictionBefore"),
-      unit: "MPa",
-    },
-    {
-      key: "localFrictionAfter",
-      label: t("localFrictionAfter"),
-      unit: "MPa",
-    },
-    {
-      key: "porePressureU1Before",
-      label: t("porePressureU1Before"),
-      unit: "MPa",
-    },
-    {
-      key: "porePressureU1After",
-      label: t("porePressureU1After"),
-      unit: "MPa",
-    },
-    {
-      key: "porePressureU2Before",
-      label: t("porePressureU2Before"),
-      unit: "MPa",
-    },
-    {
-      key: "porePressureU2After",
-      label: t("porePressureU2After"),
-      unit: "MPa",
-    },
-    {
-      key: "porePressureU3Before",
-      label: t("porePressureU3Before"),
-      unit: "MPa",
-    },
-    {
-      key: "porePressureU3After",
-      label: t("porePressureU3After"),
-      unit: "MPa",
-    },
-    {
-      key: "inclinationEWBefore",
-      label: t("inclinationEWBefore"),
-      unit: "°",
-    },
-    {
-      key: "inclinationEWAfter",
-      label: t("inclinationEWAfter"),
-      unit: "°",
-    },
-    {
-      key: "inclinationNSBefore",
-      label: t("inclinationNSBefore"),
-      unit: "°",
-    },
-    {
-      key: "inclinationNSAfter",
-      label: t("inclinationNSAfter"),
-      unit: "°",
-    },
-    {
-      key: "inclinationResultantBefore",
-      label: t("inclinationResultantBefore"),
-      unit: "°",
-    },
-    {
-      key: "inclinationResultantAfter",
-      label: t("inclinationResultantAfter"),
-      unit: "°",
-    },
-  ];
+  const zlmKeys = [
+    "coneResistanceBefore",
+    "coneResistanceAfter",
+    "localFrictionBefore",
+    "localFrictionAfter",
+    "porePressureU1Before",
+    "porePressureU1After",
+    "porePressureU2Before",
+    "porePressureU2After",
+    "porePressureU3Before",
+    "porePressureU3After",
+    "inclinationEWBefore",
+    "inclinationEWAfter",
+    "inclinationNSBefore",
+    "inclinationNSAfter",
+    "inclinationResultantBefore",
+    "inclinationResultantAfter",
+  ] as const;
 
-  for (const field of zlmFields) {
-    const value = zlm[field.key];
+  for (const key of zlmKeys) {
+    const value = zlm[key];
     if (value !== null) {
       items.push({
-        label: field.label,
-        value: `${value.toFixed(4)} ${field.unit}`,
+        label: t(key),
+        value: formatMeasure(value, 4),
       });
     }
   }

@@ -17,6 +17,7 @@ import {
   formatCodes,
   formatDate,
   formatIndication,
+  formatMeasure,
   uniqueCodes,
 } from "../../util/format";
 import { getLocationItems } from "../../util/location-info";
@@ -85,13 +86,13 @@ function getBHRGSurveyInfo(data: BHRGData, t: TFunction): Array<HeaderItem> {
   if (boring?.finalDepthBoring != null) {
     items.push({
       label: t("finalBoreDepth"),
-      value: `${boring.finalDepthBoring.toFixed(2)} m`,
+      value: formatMeasure(boring.finalDepthBoring, 2),
     });
   }
   if (boring?.finalDepthSampling != null) {
     items.push({
       label: t("finalSampleDepth"),
-      value: `${boring.finalDepthSampling.toFixed(2)} m`,
+      value: formatMeasure(boring.finalDepthSampling, 2),
     });
   }
   if (boring?.rockReached != null) {

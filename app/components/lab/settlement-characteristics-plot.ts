@@ -22,8 +22,8 @@ function buildCompressionData(
     step.verticalStress != null && step.strainPoint24hours != null
       ? [
           {
-            stress: step.verticalStress,
-            strain: step.strainPoint24hours,
+            stress: step.verticalStress.value,
+            strain: step.strainPoint24hours.value,
             stepType: step.stepType?.code ?? null,
           },
         ]

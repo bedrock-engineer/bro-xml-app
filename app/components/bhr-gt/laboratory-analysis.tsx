@@ -15,7 +15,7 @@ import {
 import { useTranslation } from "react-i18next";
 import { Card, CardTitle } from "../card";
 import { CodeValue } from "../code-value";
-import { formatCode, formatDate } from "../../util/format";
+import { formatCode, formatDate, formatMeasure } from "../../util/format";
 import { BasicDeterminationsDepthPlots } from "../lab/basic-determinations-depth-plots";
 import { ConsistencyLimitsDisplay } from "../lab/consistency-limits-display";
 import { ParticleSizeDistributionPlot } from "../lab/particle-size-distribution-plot";
@@ -101,8 +101,8 @@ export function LaboratoryAnalysis({
                   id={index}
                   className="px-3 py-2 text-sm text-gray-700 cursor-pointer hover:bg-blue-50 rounded data-selected:bg-blue-100"
                 >
-                  {interval.beginDepth?.toFixed(2) ?? "–"} –{" "}
-                  {interval.endDepth?.toFixed(2) ?? "–"} m{" "}
+                  {interval.beginDepth?.value.toFixed(2) ?? "–"} –{" "}
+                  {formatMeasure(interval.endDepth, 2) ?? "–"}{" "}
                   {formatCode(interval.analysisType)}
                 </ListBoxItem>
               ))}
@@ -139,8 +139,8 @@ function IntervalDetails({
       {/* Interval header */}
       <div className="p-3 bg-blue-50 rounded text-sm">
         <h4 className="font-medium mb-2">
-          {t("interval")}: {interval.beginDepth?.toFixed(2) ?? "–"} -{" "}
-          {interval.endDepth?.toFixed(2) ?? "–"} m
+          {t("interval")}: {interval.beginDepth?.value.toFixed(2) ?? "–"} -{" "}
+          {formatMeasure(interval.endDepth, 2) ?? "–"}
         </h4>
         <dl className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-1">
           {interval.sampleQuality && (
@@ -231,7 +231,7 @@ function BasicDeterminationsTable({ interval }: BasicDeterminationsTableProps) {
   if (waterContent != null) {
     rows.push({
       label: t("waterContent"),
-      value: `${waterContent.toFixed(1)} %`,
+      value: formatMeasure(waterContent, 1),
     });
   }
 
@@ -240,7 +240,7 @@ function BasicDeterminationsTable({ interval }: BasicDeterminationsTableProps) {
   if (organicMatter != null) {
     rows.push({
       label: t("organicMatterContent"),
-      value: `${organicMatter.toFixed(1)} %`,
+      value: formatMeasure(organicMatter, 1),
     });
   }
 
@@ -248,7 +248,7 @@ function BasicDeterminationsTable({ interval }: BasicDeterminationsTableProps) {
   if (carbonate != null) {
     rows.push({
       label: t("carbonateContent"),
-      value: `${carbonate.toFixed(1)} %`,
+      value: formatMeasure(carbonate, 1),
     });
   }
 
@@ -257,7 +257,7 @@ function BasicDeterminationsTable({ interval }: BasicDeterminationsTableProps) {
   if (bulkDensity != null) {
     rows.push({
       label: t("bulkDensity"),
-      value: `${bulkDensity.toFixed(3)} g/cm³`,
+      value: formatMeasure(bulkDensity, 3),
     });
   }
 
@@ -267,7 +267,7 @@ function BasicDeterminationsTable({ interval }: BasicDeterminationsTableProps) {
   if (particleDensity != null) {
     rows.push({
       label: t("particleDensity"),
-      value: `${particleDensity.toFixed(3)} g/cm³`,
+      value: formatMeasure(particleDensity, 3),
     });
   }
 
@@ -277,7 +277,7 @@ function BasicDeterminationsTable({ interval }: BasicDeterminationsTableProps) {
   if (undrainedShearStrength != null) {
     rows.push({
       label: t("undrainedShearStrength"),
-      value: `${undrainedShearStrength.toFixed(1)} kPa`,
+      value: formatMeasure(undrainedShearStrength, 1),
     });
   }
 

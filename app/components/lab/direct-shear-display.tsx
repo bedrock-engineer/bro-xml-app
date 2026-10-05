@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
-import { formatCode } from "../../util/format";
+import { formatCode, formatMeasure } from "../../util/format";
 import { CHART_COLORS, type TranslateFunction } from "../../util/plot-config";
 import { PlotFigure } from "../plot-figure";
 import {
@@ -136,13 +136,13 @@ export function DirectShearDisplay({
               {test.beginDiameter != null && (
                 <>
                   <dt className="text-gray-500">{t("specimenDiameter")}</dt>
-                  <dd>{test.beginDiameter} mm</dd>
+                  <dd>{formatMeasure(test.beginDiameter)}</dd>
                 </>
               )}
               {test.beginHeight != null && (
                 <>
                   <dt className="text-gray-500">{t("specimenHeight")}</dt>
-                  <dd>{test.beginHeight} mm</dd>
+                  <dd>{formatMeasure(test.beginHeight)}</dd>
                 </>
               )}
               {test.drained != null && (
@@ -160,7 +160,7 @@ export function DirectShearDisplay({
               {test.shearStage?.deformationRate != null && (
                 <>
                   <dt className="text-gray-500">{t("deformationRate")}</dt>
-                  <dd>{test.shearStage.deformationRate} mm/min</dd>
+                  <dd>{formatMeasure(test.shearStage.deformationRate)}</dd>
                 </>
               )}
               {peakData.find((p) => p.testIndex === index) && (

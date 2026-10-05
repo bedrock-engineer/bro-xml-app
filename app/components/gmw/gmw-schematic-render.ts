@@ -1,7 +1,7 @@
 import * as Plot from "@observablehq/plot";
 import { max, min } from "d3-array";
 import type { GMWData, GMWMonitoringTube } from "../../types/bro-data";
-import { formatCode } from "../../util/format";
+import { formatCode, formatMeasure } from "../../util/format";
 import {
   createWatermarkMark,
   type TranslateFunction,
@@ -54,7 +54,7 @@ function segmentTitle(
     lines.push(`${t("tubeMaterial")}: ${material}`);
   }
   if (tube.tubeTopDiameter !== null) {
-    lines.push(`${t("tubeTopDiameter")}: ${tube.tubeTopDiameter} mm`);
+    lines.push(`${t("tubeTopDiameter")}: ${formatMeasure(tube.tubeTopDiameter)}`);
   }
   return lines.join("\n");
 }
@@ -80,10 +80,10 @@ export function buildGmwSchematic({
     const x1 = center - TUBE_HALF_WIDTH;
     const x2 = center + TUBE_HALF_WIDTH;
 
-    const tubeTop = tube.tubeTopPosition;
-    const screenTop = tube.screen?.screenTopPosition ?? null;
-    const screenBottom = tube.screen?.screenBottomPosition ?? null;
-    const sumpLength = tube.sedimentSump?.sedimentSumpLength ?? null;
+    const tubeTop = tube.tubeTopPosition?.value ?? null;
+    const screenTop = tube.screen?.screenTopPosition?.value ?? null;
+    const screenBottom = tube.screen?.screenBottomPosition?.value ?? null;
+    const sumpLength = tube.sedimentSump?.sedimentSumpLength?.value ?? null;
 
     // Plain riser: from the screen top up to the tube top.
     if (tubeTop !== null && screenTop !== null && tubeTop > screenTop) {
@@ -137,7 +137,8 @@ export function buildGmwSchematic({
     return null;
   }
 
-  const groundLevel = data.deliveredVerticalPosition?.groundLevelPosition ?? null;
+  const groundLevel =
+    data.deliveredVerticalPosition?.groundLevelPosition?.value ?? null;
 
   const lows = segments.map((segment) => segment.y1);
   const highs = segments.map((segment) => segment.y2);

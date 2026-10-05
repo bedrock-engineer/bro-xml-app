@@ -133,7 +133,7 @@ export function hoverPopupHtml(
   const lines = [
     `<strong>${asText(properties.bro_id)}</strong>`,
     metaLine,
-    qualityClass
+    qualityClass?.[1]
       ? t("mapPopupQualityClass", { classNumber: qualityClass[1] })
       : "",
     Number.isFinite(depth) ? `${t("mapPopupDepth")}: ${depth} m` : "",

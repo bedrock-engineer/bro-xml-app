@@ -2,6 +2,7 @@ import type {
   BoreholeSampleAnalysis,
   InvestigatedInterval,
 } from "@bedrock-engineer/bro-xml-parser";
+import type { TFunction } from "i18next";
 import { useState } from "react";
 import {
   Button,
@@ -16,6 +17,14 @@ import { useTranslation } from "react-i18next";
 import { Card, CardTitle } from "../card";
 import { CodeValue } from "../code-value";
 import { formatCode, formatDate, formatMeasure } from "../../util/format";
+import {
+  booleanRow,
+  codedListRow,
+  codedRow,
+  ConditionRows,
+  type OptionalRow,
+  TestConditions,
+} from "../lab/test-conditions";
 import { BasicDeterminationsDepthPlots } from "../lab/basic-determinations-depth-plots";
 import { ConsistencyLimitsDisplay } from "../lab/consistency-limits-display";
 import { ParticleSizeDistributionPlot } from "../lab/particle-size-distribution-plot";
@@ -159,6 +168,7 @@ function IntervalDetails({
               </dd>
             </>
           )}
+          <InvestigatedMaterialRows interval={interval} />
         </dl>
       </div>
 
@@ -218,6 +228,38 @@ function IntervalDetails({
   );
 }
 
+interface InvestigatedMaterialRowsProps {
+  interval: InvestigatedInterval;
+}
+
+/** Description of the investigated material, as rows inside the interval dl. */
+function InvestigatedMaterialRows({ interval }: InvestigatedMaterialRowsProps) {
+  const { t } = useTranslation();
+  const material = interval.investigatedMaterial;
+
+  if (!material) {
+    return null;
+  }
+
+  return (
+    <ConditionRows
+      rows={[
+        codedRow(t("geotechnicalSoilName"), material.geotechnicalSoilName),
+        codedRow(t("specialMaterial"), material.specialMaterial),
+        codedRow(t("colour"), material.colour),
+        codedRow(t("carbonateContentClass"), material.carbonateContentClass),
+        codedRow(
+          t("organicMatterContentClass"),
+          material.organicMatterContentClass,
+        ),
+        codedRow(t("gravelMedianClass"), material.gravelMedianClass),
+        codedRow(t("sandMedianClass"), material.sandMedianClass),
+        codedListRow(t("tertiaryConstituent"), material.tertiaryConstituent),
+      ]}
+    />
+  );
+}
+
 interface BasicDeterminationsTableProps {
   interval: InvestigatedInterval;
 }
@@ -271,13 +313,19 @@ function BasicDeterminationsTable({ interval }: BasicDeterminationsTableProps) {
     });
   }
 
-  const undrainedShearStrength =
-    interval.maximumUndrainedShearStrengthDetermination
-      ?.maximumUndrainedShearStrength;
-  if (undrainedShearStrength != null) {
+  const shearStrength = interval.maximumUndrainedShearStrengthDetermination;
+  if (shearStrength?.maximumUndrainedShearStrength != null) {
     rows.push({
       label: t("undrainedShearStrength"),
-      value: formatMeasure(undrainedShearStrength, 1),
+      value: formatMeasure(shearStrength.maximumUndrainedShearStrength, 1),
+    });
+  }
+  const lowestStrength = shearStrength?.lowestMaximumUndrainedShearStrength;
+  const highestStrength = shearStrength?.highestMaximumUndrainedShearStrength;
+  if (lowestStrength != null && highestStrength != null) {
+    rows.push({
+      label: t("undrainedShearStrengthRange"),
+      value: `${lowestStrength.value.toFixed(1)} – ${formatMeasure(highestStrength, 1)}`,
     });
   }
 
@@ -292,12 +340,132 @@ function BasicDeterminationsTable({ interval }: BasicDeterminationsTableProps) {
         <tbody>
           {rows.map((row, index) => (
             <tr key={index} className="border-b border-gray-100 last:border-0">
-              <td className="py-2 text-gray-500">{row.label}</td>
+              <th
+                scope="row"
+                className="py-2 text-left font-normal text-gray-500"
+              >
+                {row.label}
+              </th>
               <td className="py-2 text-right font-mono">{row.value}</td>
             </tr>
           ))}
         </tbody>
       </table>
+      <TestConditions rows={basicDeterminationConditions(interval, t)} />
     </div>
   );
+}
+
+const prefixed = (determination: string, label: string) =>
+  `${determination} · ${label}`;
+
+/**
+ * Procedural metadata of the basic determinations, each row prefixed with the
+ * determination it belongs to.
+ */
+function basicDeterminationConditions(
+  interval: InvestigatedInterval,
+  t: TFunction,
+): Array<OptionalRow> {
+  const water = interval.waterContentDetermination;
+  const organic = interval.organicMatterContentDetermination;
+  const carbonate = interval.carbonateContentDetermination;
+  const density = interval.volumetricMassDensityDetermination;
+  const solids = interval.volumetricMassDensityOfSolidsDetermination;
+  const strength = interval.maximumUndrainedShearStrengthDetermination;
+
+  const determinedFlags: Array<[string, boolean | null]> = [
+    [t("waterContent"), interval.waterContentDetermined],
+    [t("organicMatterContent"), interval.organicMatterContentDetermined],
+    [t("carbonateContent"), interval.carbonateContentDetermined],
+    [t("bulkDensity"), interval.volumetricMassDensityDetermined],
+    [t("particleDensity"), interval.volumetricMassDensitySolidsDetermined],
+  ];
+  const determined = determinedFlags
+    .filter(([, flag]) => flag === true)
+    .map(([label]) => label);
+
+  // One method row per determination, from its method (or procedure) code
+  const methodRows = (
+    [
+      [t("waterContent"), water],
+      [t("organicMatterContent"), organic],
+      [t("carbonateContent"), carbonate],
+      [t("bulkDensity"), density],
+      [t("particleDensity"), solids],
+      [t("undrainedShearStrength"), strength],
+    ] as const
+  ).map(([label, determination]) =>
+    codedRow(
+      prefixed(label, t("method")),
+      determination?.determinationMethod ??
+        determination?.determinationProcedure,
+    ),
+  );
+
+  return [
+    booleanRow(t("described"), interval.described, t),
+    determined.length > 0
+      ? { label: t("determined"), value: determined.join(", ") }
+      : null,
+    ...methodRows,
+    codedRow(
+      prefixed(t("waterContent"), t("sampleMoistness")),
+      water?.sampleMoistness,
+    ),
+    codedListRow(
+      prefixed(t("waterContent"), t("removedMaterial")),
+      water?.removedMaterial,
+    ),
+    codedRow(
+      prefixed(t("waterContent"), t("dryingTemperature")),
+      water?.dryingTemperature,
+    ),
+    codedRow(
+      prefixed(t("waterContent"), t("dryingPeriod")),
+      water?.dryingPeriod,
+    ),
+    codedRow(
+      prefixed(t("waterContent"), t("saltCorrectionMethod")),
+      water?.saltCorrectionMethod,
+    ),
+    codedListRow(
+      prefixed(t("waterContent"), t("performanceIrregularity")),
+      water?.performanceIrregularity,
+    ),
+    booleanRow(
+      prefixed(t("organicMatterContent"), t("lutumCorrectionApplied")),
+      organic?.lutumCorrectionApplied,
+      t,
+    ),
+    codedListRow(
+      prefixed(t("organicMatterContent"), t("removedMaterial")),
+      organic?.removedMaterial,
+    ),
+    codedListRow(
+      prefixed(t("carbonateContent"), t("removedMaterial")),
+      carbonate?.removedMaterial,
+    ),
+    codedRow(
+      prefixed(t("bulkDensity"), t("sampleMoistness")),
+      density?.sampleMoistness,
+    ),
+    codedRow(
+      prefixed(t("particleDensity"), t("liquidUsed")),
+      solids?.liquidUsed,
+    ),
+    codedRow(
+      prefixed(t("particleDensity"), t("sampleContainerVolume")),
+      solids?.sampleContainerVolume,
+    ),
+    codedRow(
+      prefixed(t("undrainedShearStrength"), t("determinationDiameter")),
+      strength?.determinationDiameter,
+    ),
+    booleanRow(
+      prefixed(t("undrainedShearStrength"), t("verticallyDetermined")),
+      strength?.verticallyDetermined,
+      t,
+    ),
+  ];
 }

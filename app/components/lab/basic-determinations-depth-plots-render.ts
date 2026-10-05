@@ -89,10 +89,16 @@ export function buildDepthProfilesPlot({
       continue;
     }
 
-    // Auto-extend domain if any data exceeds configured max
-    const maxValue = Math.max(...dataPoints.map((d) => d.value));
-    const xDomain: [number, number] =
-      maxValue > det.domain[1] ? [det.domain[0], maxValue * 1.1] : det.domain;
+    // Auto-extend the domain when data falls outside the configured range in
+    // either direction (e.g. peat with bulk density < 1 g/cm³, or water
+    // content > 100%), so no point is clipped away.
+    const values = dataPoints.map((d) => d.value);
+    const maxValue = Math.max(...values);
+    const minValue = Math.min(...values);
+    const xDomain: [number, number] = [
+      minValue < det.domain[0] ? minValue * 0.9 : det.domain[0],
+      maxValue > det.domain[1] ? maxValue * 1.1 : det.domain[1],
+    ];
 
     const childPlot = Plot.plot({
       width: colWidth,

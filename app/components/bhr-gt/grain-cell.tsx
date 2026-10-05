@@ -1,5 +1,8 @@
 import { scaleLog } from "d3-scale";
-import { type GrainSizeRange, SAND_MEDIAN_BREAKS } from "~/components/bhr-gt/grain-size";
+import {
+  type GrainSizeRange,
+  SAND_MEDIAN_BREAKS,
+} from "~/components/bhr-gt/grain-size";
 import { SAND_MEDIAN_DOMAIN, SAND_MEDIAN_TICKS } from "./grain-size";
 
 const GRAIN_COL = 120;

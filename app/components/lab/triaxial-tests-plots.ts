@@ -3,6 +3,7 @@ import * as Plot from "@observablehq/plot";
 import {
   CHART_COLORS,
   createWatermarkMark,
+  groupByTest,
   type TranslateFunction,
 } from "../../util/plot-config";
 
@@ -166,9 +167,7 @@ export function buildTriaxialStressStrainPlot(
     return null;
   }
 
-  const testGroups = tests
-    .map((_, index) => allData.filter((d) => d.testIndex === index))
-    .filter((group) => group.length > 0);
+  const testGroups = groupByTest(tests, allData);
 
   return Plot.plot({
     width: 500,
@@ -188,7 +187,8 @@ export function buildTriaxialStressStrainPlot(
         Plot.line(group, {
           x: "strain",
           y: "stress",
-          stroke: CHART_COLORS[(group[0]?.testIndex ?? 0) % CHART_COLORS.length],
+          stroke:
+            CHART_COLORS[(group[0]?.testIndex ?? 0) % CHART_COLORS.length],
           strokeWidth: 2,
         }),
       ),
@@ -305,8 +305,14 @@ export function buildTriaxialMohrCirclesPlot(
         ? [
             Plot.line(
               [
-                { x: xDomainMin, y: envelope.cohesion + envelope.tanPhi * xDomainMin },
-                { x: xDomainMax, y: envelope.cohesion + envelope.tanPhi * xDomainMax },
+                {
+                  x: xDomainMin,
+                  y: envelope.cohesion + envelope.tanPhi * xDomainMin,
+                },
+                {
+                  x: xDomainMax,
+                  y: envelope.cohesion + envelope.tanPhi * xDomainMax,
+                },
               ],
               {
                 x: "x",
@@ -409,6 +415,111 @@ export function buildTriaxialMohrCirclesPlot(
 }
 
 /**
+ * Build the effective-stress paths in s′-t space (s′ = (σ₁′+σ₃′)/2 = σ₃ + q/2 − u,
+ * t = (σ₁−σ₃)/2 = q/2), one path per test from its load-stage points. Returns
+ * null when no test carries the pore pressure needed for effective stresses.
+ */
+export function buildStressPathPlot(
+  tests: Array<ShearStressChangeDuringLoadingDetermination>,
+  t: TranslateFunction,
+): (SVGSVGElement | HTMLElement) | null {
+  const allData: Array<{ s: number; t: number; testIndex: number }> = [];
+
+  for (const [testIndex, test] of tests.entries()) {
+    const loadStageData = test.loadStage?.shearStressChangeDuringLoading;
+    if (!loadStageData) {
+      continue;
+    }
+
+    for (const point of loadStageData) {
+      if (
+        point.deviatorStress != null &&
+        point.cellPressure != null &&
+        point.porePressure != null
+      ) {
+        allData.push({
+          s: point.cellPressure + point.deviatorStress / 2 - point.porePressure,
+          t: point.deviatorStress / 2,
+          testIndex,
+        });
+      }
+    }
+  }
+
+  if (allData.length === 0) {
+    return null;
+  }
+
+  const testGroups = groupByTest(tests, allData);
+
+  // Equal kPa-per-pixel scaling on both axes, like the Mohr diagram: the slope
+  // of a path (and of the failure line it approaches, sin φ′) is physically
+  // meaningful, so unequal axis scales would misrepresent it.
+  const plotAspect =
+    (MOHR_PLOT_HEIGHT - MOHR_PLOT_MARGINS.top - MOHR_PLOT_MARGINS.bottom) /
+    (MOHR_PLOT_WIDTH - MOHR_PLOT_MARGINS.left - MOHR_PLOT_MARGINS.right);
+  const xDomainMin = Math.min(0, ...allData.map((d) => d.s));
+  const dataMaxS = Math.max(...allData.map((d) => d.s)) * 1.05;
+  const dataMaxT = Math.max(...allData.map((d) => d.t)) * 1.1;
+
+  let xDomainMax: number;
+  let yDomainMax: number;
+  if (dataMaxT <= (dataMaxS - xDomainMin) * plotAspect) {
+    xDomainMax = dataMaxS;
+    yDomainMax = (dataMaxS - xDomainMin) * plotAspect;
+  } else {
+    yDomainMax = dataMaxT;
+    xDomainMax = xDomainMin + dataMaxT / plotAspect;
+  }
+
+  return Plot.plot({
+    width: MOHR_PLOT_WIDTH,
+    height: MOHR_PLOT_HEIGHT,
+    marginLeft: MOHR_PLOT_MARGINS.left,
+    marginRight: MOHR_PLOT_MARGINS.right,
+    marginTop: MOHR_PLOT_MARGINS.top,
+    marginBottom: MOHR_PLOT_MARGINS.bottom,
+    style: { backgroundColor: "white" },
+    x: {
+      label: t("meanEffectiveStressAxisLabel"),
+      domain: [xDomainMin, xDomainMax],
+      grid: true,
+    },
+    y: {
+      label: t("stressPathTAxisLabel"),
+      domain: [0, yDomainMax],
+      grid: true,
+    },
+    marks: [
+      Plot.frame(),
+      ...testGroups.map((group) =>
+        Plot.line(group, {
+          x: "s",
+          y: "t",
+          stroke:
+            CHART_COLORS[(group[0]?.testIndex ?? 0) % CHART_COLORS.length],
+          strokeWidth: 2,
+        }),
+      ),
+      // Mark the end (failure) point of each path
+      ...testGroups.map((group) =>
+        Plot.dot(group.slice(-1), {
+          x: "s",
+          y: "t",
+          fill: CHART_COLORS[(group[0]?.testIndex ?? 0) % CHART_COLORS.length],
+          r: 4,
+        }),
+      ),
+      createWatermarkMark(t("madeWithBedrockBroViewer"), {
+        frameAnchor: "top-right",
+        dx: -5,
+        dy: 5,
+      }),
+    ],
+  });
+}
+
+/**
  * Build the pore-pressure vs axial-strain curves for undrained tests, one line
  * per test. Returns null when no test carries pore pressure measurements.
  */
@@ -443,9 +554,7 @@ export function buildPorePressureStrainPlot(
     return null;
   }
 
-  const testGroups = tests
-    .map((_, index) => allData.filter((d) => d.testIndex === index))
-    .filter((group) => group.length > 0);
+  const testGroups = groupByTest(tests, allData);
 
   return Plot.plot({
     width: 500,
@@ -465,7 +574,8 @@ export function buildPorePressureStrainPlot(
         Plot.line(group, {
           x: "strain",
           y: "porePressure",
-          stroke: CHART_COLORS[(group[0]?.testIndex ?? 0) % CHART_COLORS.length],
+          stroke:
+            CHART_COLORS[(group[0]?.testIndex ?? 0) % CHART_COLORS.length],
           strokeWidth: 2,
         }),
       ),

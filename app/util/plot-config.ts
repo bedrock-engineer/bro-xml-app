@@ -106,7 +106,12 @@ export function makeDepthToPixel(
   maxDepth: number,
   marginTop: number = PLOT_MARGINS.top,
 ): ScaleLinear<number, number> {
-  const { domain, range } = depthScaleSpec(height, minDepth, maxDepth, marginTop);
+  const { domain, range } = depthScaleSpec(
+    height,
+    minDepth,
+    maxDepth,
+    marginTop,
+  );
   return scaleLinear().domain(domain).range(range);
 }
 
@@ -122,10 +127,28 @@ export function depthYScaleOptions(
   maxDepth: number,
   marginTop: number = PLOT_MARGINS.top,
 ) {
-  const { domain, range } = depthScaleSpec(height, minDepth, maxDepth, marginTop);
+  const { domain, range } = depthScaleSpec(
+    height,
+    minDepth,
+    maxDepth,
+    marginTop,
+  );
   return {
     grid: depthYAxisConfig.grid,
     domain,
     range,
   };
+}
+
+/**
+ * Group a flat list of per-test points by test index, dropping empty groups.
+ * Shared by the lab plots that draw one line per test.
+ */
+export function groupByTest<T extends { testIndex: number }>(
+  tests: Array<unknown>,
+  points: Array<T>,
+): Array<Array<T>> {
+  return tests
+    .map((_, index) => points.filter((d) => d.testIndex === index))
+    .filter((group) => group.length > 0);
 }

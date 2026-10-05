@@ -29,18 +29,19 @@ interface ClassicParameterStyle {
 }
 
 /** Parameters drawn, in stacking order, with their conventional styling. */
-const CLASSIC_PARAMS: Array<{ key: keyof CPTMeasurement } & ClassicParameterStyle> =
-  [
-    { key: "coneResistance", color: "#2563eb", mirror: false },
-    { key: "frictionRatio", color: "#16a34a", mirror: true },
-    { key: "localFriction", color: "#dc2626", dash: "5 3", mirror: false },
-    {
-      key: "inclinationResultant",
-      color: "#9333ea",
-      dash: "5 3",
-      mirror: true,
-    },
-  ];
+const CLASSIC_PARAMS: Array<
+  { key: keyof CPTMeasurement } & ClassicParameterStyle
+> = [
+  { key: "coneResistance", color: "#2563eb", mirror: false },
+  { key: "frictionRatio", color: "#16a34a", mirror: true },
+  { key: "localFriction", color: "#dc2626", dash: "5 3", mirror: false },
+  {
+    key: "inclinationResultant",
+    color: "#9333ea",
+    dash: "5 3",
+    mirror: true,
+  },
+];
 
 const MARGIN_LEFT = 56;
 const MARGIN_RIGHT = 20;
@@ -250,7 +251,7 @@ export function ClassicCptPlot({
               plotRight={plotRight}
             />
           ))}
-          
+
           {top.map((p) => (
             <XAxis
               key={`t-${p.column.key}`}

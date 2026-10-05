@@ -112,7 +112,13 @@ function DissipationPlot({ plotId, test }: DissipationPlotProps) {
             const pressure = m[series.key];
             return pressure == null
               ? []
-              : [{ elapsedTime: m.elapsedTime, pressure, series: series.label }];
+              : [
+                  {
+                    elapsedTime: m.elapsedTime,
+                    pressure,
+                    series: series.label,
+                  },
+                ];
           }),
     );
 

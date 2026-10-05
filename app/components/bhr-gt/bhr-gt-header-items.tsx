@@ -42,7 +42,10 @@ interface CompactBHRGTHeaderProps {
   data: BHRGTData;
 }
 
-export function CompactBHRGTHeader({ filename, data }: CompactBHRGTHeaderProps) {
+export function CompactBHRGTHeader({
+  filename,
+  data,
+}: CompactBHRGTHeaderProps) {
   const { t } = useTranslation();
 
   return (
@@ -421,10 +424,12 @@ function getRegistrationInfo(data: BHRGTData, t: TFunction): Array<HeaderItem> {
 
 function getBHRGTLayerInfo(data: BHRGTData, t: TFunction): Array<HeaderItem> {
   const layers = getLayers(data);
-  const items: Array<HeaderItem> = [{
-    label: t("numberOfLayers"),
-    value: layers.length,
-  }];
+  const items: Array<HeaderItem> = [
+    {
+      label: t("numberOfLayers"),
+      value: layers.length,
+    },
+  ];
 
   if (layers.length > 0) {
     const firstLayer = layers[0];
@@ -456,7 +461,10 @@ function getBHRGTLayerInfo(data: BHRGTData, t: TFunction): Array<HeaderItem> {
   return items;
 }
 
-function getBHRGTAnalysisInfo(data: BHRGTData, t: TFunction): Array<HeaderItem> {
+function getBHRGTAnalysisInfo(
+  data: BHRGTData,
+  t: TFunction,
+): Array<HeaderItem> {
   const items: Array<HeaderItem> = [];
 
   if (!data.boreholeSampleAnalysis) {

@@ -3,6 +3,7 @@ import * as Plot from "@observablehq/plot";
 import {
   CHART_COLORS,
   createWatermarkMark,
+  groupByTest,
   type TranslateFunction,
 } from "../../util/plot-config";
 
@@ -83,9 +84,7 @@ interface FailureEnvelope {
  * zeroed parameters for a degenerate fit (fewer than two distinct normal
  * stresses).
  */
-function fitFailureEnvelope(
-  peakData: Array<PeakData>,
-): FailureEnvelope {
+function fitFailureEnvelope(peakData: Array<PeakData>): FailureEnvelope {
   const n = peakData.length;
   const sumX = peakData.reduce((s, d) => s + d.normalStress, 0);
   const sumY = peakData.reduce((s, d) => s + d.peakShearStress, 0);
@@ -93,7 +92,10 @@ function fitFailureEnvelope(
     (s, d) => s + d.normalStress * d.peakShearStress,
     0,
   );
-  const sumX2 = peakData.reduce((s, d) => s + d.normalStress * d.normalStress, 0);
+  const sumX2 = peakData.reduce(
+    (s, d) => s + d.normalStress * d.normalStress,
+    0,
+  );
 
   const denom = n * sumX2 - sumX * sumX;
   let cohesion = denom === 0 ? 0 : (sumY * sumX2 - sumX * sumXY) / denom;
@@ -107,16 +109,6 @@ function fitFailureEnvelope(
   const phi = (Math.atan(tanPhi) * 180) / Math.PI;
 
   return { cohesion, tanPhi, phi };
-}
-
-/** Group a flat list of points by test index, dropping empty groups. */
-function groupByTest<T extends { testIndex: number }>(
-  tests: Array<unknown>,
-  points: Array<T>,
-): Array<Array<T>> {
-  return tests
-    .map((_, index) => points.filter((d) => d.testIndex === index))
-    .filter((group) => group.length > 0);
 }
 
 /**
@@ -174,7 +166,8 @@ export function buildStressDisplacementPlot(
         Plot.line(group, {
           x: "displacement",
           y: "stress",
-          stroke: CHART_COLORS[(group[0]?.testIndex ?? 0) % CHART_COLORS.length],
+          stroke:
+            CHART_COLORS[(group[0]?.testIndex ?? 0) % CHART_COLORS.length],
           strokeWidth: 2,
         }),
       ),
@@ -361,7 +354,8 @@ export function buildHeightChangePlot(
         Plot.line(group, {
           x: "displacement",
           y: "heightChange",
-          stroke: CHART_COLORS[(group[0]?.testIndex ?? 0) % CHART_COLORS.length],
+          stroke:
+            CHART_COLORS[(group[0]?.testIndex ?? 0) % CHART_COLORS.length],
           strokeWidth: 1,
         }),
       ),

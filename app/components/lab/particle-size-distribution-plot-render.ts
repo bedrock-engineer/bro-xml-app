@@ -9,6 +9,9 @@ import {
 } from "../../util/plot-config";
 
 // Size fractions in μm with their corresponding field names, smallest first.
+// BRO allows two sieve series (e.g. 63–90–125 μm vs 63–75–90–106–125 μm); a
+// file reports in one of them, so both are merged here and absent fields are
+// simply skipped.
 const FRACTIONS: Array<{
   size: number;
   field: keyof ParticleSizeDistributionDetermination;
@@ -20,10 +23,18 @@ const FRACTIONS: Array<{
   { size: 32, field: "fraction16to32um" },
   { size: 50, field: "fraction32to50um" },
   { size: 63, field: "fraction50to63um" },
+  { size: 75, field: "fraction63to75um" },
   { size: 90, field: "fraction63to90um" },
+  { size: 90, field: "fraction75to90um" },
+  { size: 106, field: "fraction90to106um" },
   { size: 125, field: "fraction90to125um" },
+  { size: 125, field: "fraction106to125um" },
+  { size: 150, field: "fraction125to150um" },
   { size: 180, field: "fraction125to180um" },
+  { size: 180, field: "fraction150to180um" },
+  { size: 212, field: "fraction180to212um" },
   { size: 250, field: "fraction180to250um" },
+  { size: 250, field: "fraction212to250um" },
   { size: 355, field: "fraction250to355um" },
   { size: 500, field: "fraction355to500um" },
   { size: 710, field: "fraction500to710um" },
@@ -31,11 +42,28 @@ const FRACTIONS: Array<{
   { size: 1400, field: "fraction1000to1400um" },
   { size: 2000, field: "fraction1400umto2mm" },
   { size: 4000, field: "fraction2to4mm" },
+  { size: 5600, field: "fraction4to5_6mm" },
   { size: 8000, field: "fraction4to8mm" },
+  { size: 8000, field: "fraction5_6to8mm" },
+  { size: 11_200, field: "fraction8to11_2mm" },
   { size: 16_000, field: "fraction8to16mm" },
+  { size: 16_000, field: "fraction11_2to16mm" },
+  { size: 20_000, field: "fraction16to20mm" },
   { size: 31_500, field: "fraction16to31_5mm" },
+  { size: 31_500, field: "fraction20to31_5mm" },
   { size: 63_000, field: "fraction31_5to63mm" },
 ];
+
+// The fine tail can also arrive as one aggregate instead of the 2-4-8-16-32 μm
+// breakdown. Only used when the whole breakdown is absent, so a file carrying
+// both can't be double counted.
+const FINE_AGGREGATE = { size: 32, field: "fraction2to32um" } as const;
+const FINE_BREAKDOWN_FIELDS = [
+  "fraction2to4um",
+  "fraction4to8um",
+  "fraction8to16um",
+  "fraction16to32um",
+] as const;
 
 /** Build the cumulative grain-size curve from the determination's fractions. */
 function buildSizeData(
@@ -43,8 +71,15 @@ function buildSizeData(
 ): Array<{ size: number; passing: number }> {
   const sizeData: Array<{ size: number; passing: number }> = [];
 
+  const hasFineBreakdown = FINE_BREAKDOWN_FIELDS.some(
+    (field) => data[field] != null,
+  );
+  const fractions = hasFineBreakdown
+    ? FRACTIONS
+    : [...FRACTIONS, FINE_AGGREGATE].toSorted((a, b) => a.size - b.size);
+
   let cumulative = 0;
-  for (const { size, field } of FRACTIONS) {
+  for (const { size, field } of fractions) {
     const value = data[field] as Measure | null | undefined;
     if (value !== null && value !== undefined) {
       cumulative += value.value;

@@ -50,7 +50,8 @@ export function BasicDeterminationsDepthPlots({
       },
       {
         key: "carbonateContent",
-        getValue: (d) => d.carbonateContentDetermination?.carbonateContent?.value,
+        getValue: (d) =>
+          d.carbonateContentDetermination?.carbonateContent?.value,
         domain: [0, 50],
         label: t("carbonateContent"),
         unit: "%",
@@ -145,12 +146,16 @@ function SummaryTable({ intervals, determinations }: SummaryTableProps) {
       <table className="w-full text-sm border-collapse">
         <thead>
           <tr className="border-b border-gray-300">
-            <th className="py-2 px-2 text-left text-gray-500 font-medium">
+            <th
+              scope="col"
+              className="py-2 px-2 text-left text-gray-500 font-medium"
+            >
               {t("depth")} (m)
             </th>
             {determinations.map((det) => (
               <th
                 key={det.key}
+                scope="col"
                 className="py-2 px-2 text-right text-gray-500 font-medium"
               >
                 {det.label}

@@ -7,6 +7,12 @@ import type { TranslateFunction } from "../../util/plot-config";
 import { PlotDownloadButtons } from "../plot-download-buttons";
 import { PlotFigure } from "../plot-figure";
 import { buildParticleSizeDistributionPlot } from "./particle-size-distribution-plot-render";
+import {
+  codedListRow,
+  codedRow,
+  measureRow,
+  TestConditions,
+} from "./test-conditions";
 
 interface ParticleSizeDistributionPlotProps {
   data: ParticleSizeDistributionDetermination;
@@ -45,6 +51,26 @@ export function ParticleSizeDistributionPlot({
           </p>
         )}
       </div>
+
+      <TestConditions
+        rows={[
+          codedRow(t("determinationProcedure"), data.determinationProcedure),
+          codedListRow(t("removedMaterial"), data.removedMaterial),
+          codedListRow(
+            t("performanceIrregularity"),
+            data.performanceIrregularity,
+          ),
+          codedRow(t("fractionDistribution"), data.fractionDistribution),
+          codedRow(t("dispersionMethod"), data.dispersionMethod),
+          codedRow(
+            t("equivalentMassDeterminationMethod"),
+            data.equivalentMassDeterminationMethod,
+          ),
+          measureRow(t("equivalentMass"), data.equivalentMass),
+          codedRow(t("usedOpticalModel"), data.usedOpticalModel),
+          codedListRow(t("materialIrregularity"), data.materialIrregularity),
+        ]}
+      />
 
       <PlotDownloadButtons containerRef={plotRef} filename={baseFilename} />
     </div>

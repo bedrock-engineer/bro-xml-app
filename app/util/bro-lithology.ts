@@ -111,12 +111,18 @@ type SandCategory = "fine" | "medium" | "coarse" | "unknown";
  * fine/medium/coarse bucket. "middelgrof"/"matig" must be tested before "grof"
  * since they contain that substring.
  */
-function classifySand(sandMedianClass: string | null | undefined): SandCategory {
+function classifySand(
+  sandMedianClass: string | null | undefined,
+): SandCategory {
   if (!sandMedianClass) {
     return "unknown";
   }
   const c = sandMedianClass.toLowerCase();
-  if (c.startsWith("middelgrof") || c.startsWith("matig") || c.includes("midden")) {
+  if (
+    c.startsWith("middelgrof") ||
+    c.startsWith("matig") ||
+    c.includes("midden")
+  ) {
     return "medium";
   }
   if (c.includes("fijn")) {
@@ -234,35 +240,122 @@ const BRO_LITHOLOGY_PROPERTIES: Record<string, Array<SubBand>> = {
   grondNietGespecificeerd: [{ soil: "grondNietGespecificeerd", width: 1 }],
   // Composites (main soil + admixture)
   mineraalarmVeen: [{ soil: "veen", width: 1 }],
-  zwakZandigVeen: [{ soil: "veen", width: f(50) }, { soil: "zand", width: f(10) }],
-  sterkZandigVeen: [{ soil: "veen", width: f(41) }, { soil: "zand", width: f(19) }],
-  zwakKleiigVeen: [{ soil: "veen", width: f(50) }, { soil: "klei", width: f(10) }],
-  sterkKleiigVeen: [{ soil: "veen", width: f(41) }, { soil: "klei", width: f(19) }],
-  kleiigVeen: [{ soil: "veen", width: f(42) }, { soil: "klei", width: f(18) }],
-  zwakZandigSilt: [{ soil: "silt", width: f(48) }, { soil: "zand", width: f(12) }],
-  zwakGrindigeKlei: [{ soil: "klei", width: f(48) }, { soil: "grind", width: f(12) }],
-  zwakZandigeKlei: [{ soil: "klei", width: f(48) }, { soil: "zand", width: f(12) }],
-  zwakZandigeKleiMetGrind: [{ soil: "klei", width: f(48) }, { soil: "zand", width: f(12) }],
-  matigZandigeKlei: [{ soil: "klei", width: f(41) }, { soil: "zand", width: f(19) }],
-  sterkZandigeKlei: [{ soil: "klei", width: f(30) }, { soil: "zand", width: f(30) }],
-  sterkZandigeKleiMetGrind: [{ soil: "klei", width: f(36) }, { soil: "leem", width: f(24) }],
-  zwakSiltigeKlei: [{ soil: "klei", width: f(50) }, { soil: "leem", width: f(10) }],
-  matigSiltigeKlei: [{ soil: "klei", width: f(41) }, { soil: "leem", width: f(19) }],
-  sterkSiltigeKlei: [{ soil: "klei", width: f(30) }, { soil: "leem", width: f(30) }],
-  uiterstSiltigeKlei: [{ soil: "klei", width: f(26) }, { soil: "silt", width: f(34), hatch: false }],
-  zwakZandigeLeem: [{ soil: "leem", width: f(50) }, { soil: "zand", width: f(10) }],
-  sterkZandigeLeem: [{ soil: "leem", width: f(30) }, { soil: "zand", width: f(30) }],
-  zwakGrindigZand: [{ soil: "zand", width: f(48) }, { soil: "grind", width: f(12) }],
-  sterkGrindigZand: [{ soil: "zand", width: f(36) }, { soil: "grind", width: f(24) }],
-  zwakSiltigZand: [{ soil: "zand", width: f(50) }, { soil: "leem", width: f(10) }],
-  matigSiltigZand: [{ soil: "zand", width: f(41) }, { soil: "leem", width: f(19) }],
-  sterkSiltigZand: [{ soil: "zand", width: f(30) }, { soil: "leem", width: f(30) }],
-  siltigZandMetGrind: [{ soil: "zand", width: f(42) }, { soil: "silt", width: f(18) }],
-  kleiigZand: [{ soil: "zand", width: f(50) }, { soil: "klei", width: f(10) }],
-  kleiigZandMetGrind: [{ soil: "zand", width: f(42) }, { soil: "klei", width: f(18) }],
-  siltigZand: [{ soil: "zand", width: f(42) }, { soil: "silt", width: f(18) }],
-  zwakZandigGrind: [{ soil: "grind", width: f(48) }, { soil: "zand", width: f(12) }],
-  sterkZandigGrind: [{ soil: "grind", width: f(36) }, { soil: "zand", width: f(24) }],
+  zwakZandigVeen: [
+    { soil: "veen", width: f(50) },
+    { soil: "zand", width: f(10) },
+  ],
+  sterkZandigVeen: [
+    { soil: "veen", width: f(41) },
+    { soil: "zand", width: f(19) },
+  ],
+  zwakKleiigVeen: [
+    { soil: "veen", width: f(50) },
+    { soil: "klei", width: f(10) },
+  ],
+  sterkKleiigVeen: [
+    { soil: "veen", width: f(41) },
+    { soil: "klei", width: f(19) },
+  ],
+  kleiigVeen: [
+    { soil: "veen", width: f(42) },
+    { soil: "klei", width: f(18) },
+  ],
+  zwakZandigSilt: [
+    { soil: "silt", width: f(48) },
+    { soil: "zand", width: f(12) },
+  ],
+  zwakGrindigeKlei: [
+    { soil: "klei", width: f(48) },
+    { soil: "grind", width: f(12) },
+  ],
+  zwakZandigeKlei: [
+    { soil: "klei", width: f(48) },
+    { soil: "zand", width: f(12) },
+  ],
+  zwakZandigeKleiMetGrind: [
+    { soil: "klei", width: f(48) },
+    { soil: "zand", width: f(12) },
+  ],
+  matigZandigeKlei: [
+    { soil: "klei", width: f(41) },
+    { soil: "zand", width: f(19) },
+  ],
+  sterkZandigeKlei: [
+    { soil: "klei", width: f(30) },
+    { soil: "zand", width: f(30) },
+  ],
+  sterkZandigeKleiMetGrind: [
+    { soil: "klei", width: f(36) },
+    { soil: "leem", width: f(24) },
+  ],
+  zwakSiltigeKlei: [
+    { soil: "klei", width: f(50) },
+    { soil: "leem", width: f(10) },
+  ],
+  matigSiltigeKlei: [
+    { soil: "klei", width: f(41) },
+    { soil: "leem", width: f(19) },
+  ],
+  sterkSiltigeKlei: [
+    { soil: "klei", width: f(30) },
+    { soil: "leem", width: f(30) },
+  ],
+  uiterstSiltigeKlei: [
+    { soil: "klei", width: f(26) },
+    { soil: "silt", width: f(34), hatch: false },
+  ],
+  zwakZandigeLeem: [
+    { soil: "leem", width: f(50) },
+    { soil: "zand", width: f(10) },
+  ],
+  sterkZandigeLeem: [
+    { soil: "leem", width: f(30) },
+    { soil: "zand", width: f(30) },
+  ],
+  zwakGrindigZand: [
+    { soil: "zand", width: f(48) },
+    { soil: "grind", width: f(12) },
+  ],
+  sterkGrindigZand: [
+    { soil: "zand", width: f(36) },
+    { soil: "grind", width: f(24) },
+  ],
+  zwakSiltigZand: [
+    { soil: "zand", width: f(50) },
+    { soil: "leem", width: f(10) },
+  ],
+  matigSiltigZand: [
+    { soil: "zand", width: f(41) },
+    { soil: "leem", width: f(19) },
+  ],
+  sterkSiltigZand: [
+    { soil: "zand", width: f(30) },
+    { soil: "leem", width: f(30) },
+  ],
+  siltigZandMetGrind: [
+    { soil: "zand", width: f(42) },
+    { soil: "silt", width: f(18) },
+  ],
+  kleiigZand: [
+    { soil: "zand", width: f(50) },
+    { soil: "klei", width: f(10) },
+  ],
+  kleiigZandMetGrind: [
+    { soil: "zand", width: f(42) },
+    { soil: "klei", width: f(18) },
+  ],
+  siltigZand: [
+    { soil: "zand", width: f(42) },
+    { soil: "silt", width: f(18) },
+  ],
+  zwakZandigGrind: [
+    { soil: "grind", width: f(48) },
+    { soil: "zand", width: f(12) },
+  ],
+  sterkZandigGrind: [
+    { soil: "grind", width: f(36) },
+    { soil: "zand", width: f(24) },
+  ],
   zandNietGespecificeerd: [
     { soil: "zand", width: f(24) },
     { soil: "grondNietGespecificeerd", width: f(36) },
@@ -331,17 +424,13 @@ function layerBands(layer: LithologyLayer): Array<SoilBand> {
       band.hatch === false || !HATCH_SHAPE[band.soil]
         ? undefined
         : hatchPatternId(band.soil);
-    const legendKey = isSand
-      ? sandLegendKey(layer.sandMedianClass)
-      : band.soil;
+    const legendKey = isSand ? sandLegendKey(layer.sandMedianClass) : band.soil;
     return { x1, x2: x, y1, y2, color, hatchId, legendKey };
   });
 }
 
 /** Flatten all layers into horizontally-stacked composition bands. */
-export function buildSoilBands(
-  layers: Array<LithologyLayer>,
-): Array<SoilBand> {
+export function buildSoilBands(layers: Array<LithologyLayer>): Array<SoilBand> {
   return layers.flatMap((layer) => layerBands(layer));
 }
 
@@ -370,13 +459,32 @@ const LEGEND_ORDER: Array<{
   { key: "klei", color: COLOR.klei, hatchSoil: "klei", i18nKey: "clay" },
   { key: "leem", color: COLOR.leem, hatchSoil: "leem", i18nKey: "loam" },
   { key: "silt", color: COLOR.silt, hatchSoil: "silt", i18nKey: "siltSoil" },
-  { key: "zandFijn", color: SAND_COLOR.fine, hatchSoil: "zand", i18nKey: "sandFine" },
-  { key: "zandMidden", color: SAND_COLOR.medium, hatchSoil: "zand", i18nKey: "sandMedium" },
-  { key: "zandGrof", color: SAND_COLOR.coarse, hatchSoil: "zand", i18nKey: "sandCoarse" },
+  {
+    key: "zandFijn",
+    color: SAND_COLOR.fine,
+    hatchSoil: "zand",
+    i18nKey: "sandFine",
+  },
+  {
+    key: "zandMidden",
+    color: SAND_COLOR.medium,
+    hatchSoil: "zand",
+    i18nKey: "sandMedium",
+  },
+  {
+    key: "zandGrof",
+    color: SAND_COLOR.coarse,
+    hatchSoil: "zand",
+    i18nKey: "sandCoarse",
+  },
   { key: "zand", color: COLOR.zand, hatchSoil: "zand", i18nKey: "sand" },
   { key: "grind", color: COLOR.grind, hatchSoil: "grind", i18nKey: "gravel" },
   { key: "nietBepaald", color: COLOR.nietBepaald, i18nKey: "notDetermined" },
-  { key: "grondNietGespecificeerd", color: COLOR.grondNietGespecificeerd, i18nKey: "soilNotSpecified" },
+  {
+    key: "grondNietGespecificeerd",
+    color: COLOR.grondNietGespecificeerd,
+    i18nKey: "soilNotSpecified",
+  },
 ];
 
 const LEGEND_META = new Map(LEGEND_ORDER.map((entry) => [entry.key, entry]));

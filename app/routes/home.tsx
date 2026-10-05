@@ -13,7 +13,8 @@ const metaDataTranslations = {
     description:
       "Free online BRO XML viewer for geotechnical engineers. View, analyze and export CPT, BHR-GT, geotechnical borehole sample analyses (BHR-GT-BMA) and BHR-G data from Basisregistratie Ondergrond. Works directly in your browser.",
     siteName: "Bedrock.engineer Geotechnical BRO/XML viewer",
-    imageAlt: "Bedrock.engineer Geotechnical BRO/XML viewer - Geotechnical data visualization",
+    imageAlt:
+      "Bedrock.engineer Geotechnical BRO/XML viewer - Geotechnical data visualization",
   },
   nl: {
     title:
@@ -21,7 +22,8 @@ const metaDataTranslations = {
     description:
       "Gratis online BRO XML viewer voor geotechnisch ingenieurs. Bekijk, analyseer, en exporteer CPT, BHR-GT, geotechnische boormonsteranalyses (BHR-GT-BMA) en BHR-G gegevens van de Basisregistratie Ondergrond. Werkt direct in je browser zonder installatie.",
     siteName: "Bedrock.engineer geotechniek BRO/XML viewer",
-    imageAlt: "Bedrock.engineer geotechniek BRO/XML viewer - Geotechnische data visualisatie",
+    imageAlt:
+      "Bedrock.engineer geotechniek BRO/XML viewer - Geotechnische data visualisatie",
   },
 };
 
@@ -50,7 +52,10 @@ export function meta({ matches }: Route.MetaArgs) {
     { title: metadata.title },
     { name: "description", content: metadata.description },
     { name: "robots", content: "index, follow" },
-    { name: "application-name", content: "Bedrock.engineer Geotechnical BRO/XML viewer" },
+    {
+      name: "application-name",
+      content: "Bedrock.engineer Geotechnical BRO/XML viewer",
+    },
     // Language alternates
     { tagName: "link", rel: "alternate", hrefLang: "nl", href: siteUrl },
     { tagName: "link", rel: "alternate", hrefLang: "en", href: siteUrl },

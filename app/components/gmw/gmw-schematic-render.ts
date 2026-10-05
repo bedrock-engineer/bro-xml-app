@@ -54,7 +54,9 @@ function segmentTitle(
     lines.push(`${t("tubeMaterial")}: ${material}`);
   }
   if (tube.tubeTopDiameter !== null) {
-    lines.push(`${t("tubeTopDiameter")}: ${formatMeasure(tube.tubeTopDiameter)}`);
+    lines.push(
+      `${t("tubeTopDiameter")}: ${formatMeasure(tube.tubeTopDiameter)}`,
+    );
   }
   return lines.join("\n");
 }
@@ -98,7 +100,11 @@ export function buildGmwSchematic({
     }
 
     // Screen (filter): the perforated interval the water enters through.
-    if (screenTop !== null && screenBottom !== null && screenTop > screenBottom) {
+    if (
+      screenTop !== null &&
+      screenBottom !== null &&
+      screenTop > screenBottom
+    ) {
       segments.push({
         x1,
         x2,
@@ -118,7 +124,13 @@ export function buildGmwSchematic({
         y1: sumpBottom,
         y2: screenBottom,
         color: SEDIMENT_SUMP_COLOR,
-        title: segmentTitle(tube, t("sedimentSump"), sumpBottom, screenBottom, t),
+        title: segmentTitle(
+          tube,
+          t("sedimentSump"),
+          sumpBottom,
+          screenBottom,
+          t,
+        ),
       });
     }
 

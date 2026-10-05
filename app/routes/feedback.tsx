@@ -7,16 +7,14 @@ import { Card } from "../components/card";
 export const meta: Route.MetaFunction = ({ matches }) => {
   const parentData = matches[0].loaderData as { locale?: string } | undefined;
   const locale = parentData?.locale ?? "nl";
-  const title = locale === "nl" ? "Feedback - BRO XML Viewer" : "Feedback - BRO XML Viewer";
+  const title =
+    locale === "nl" ? "Feedback - BRO XML Viewer" : "Feedback - BRO XML Viewer";
   const description =
     locale === "nl"
       ? "Geef feedback over de Bedrock BRO XML Viewer"
       : "Give feedback about the Bedrock BRO XML Viewer";
 
-  return [
-    { title },
-    { name: "description", content: description },
-  ];
+  return [{ title }, { name: "description", content: description }];
 };
 
 export async function action({ request, context }: Route.ActionArgs) {
@@ -42,11 +40,18 @@ export async function action({ request, context }: Route.ActionArgs) {
 
   // Store in KV if available (context.cloudflare is set in workers/app.ts)
   const cloudflareContext = context as unknown as {
-    cloudflare?: { env?: { FEEDBACK_KV?: { put(key: string, value: string): Promise<void> } } };
+    cloudflare?: {
+      env?: {
+        FEEDBACK_KV?: { put(key: string, value: string): Promise<void> };
+      };
+    };
   };
   if (cloudflareContext.cloudflare?.env?.FEEDBACK_KV) {
     const key = `feedback:${Date.now()}:${crypto.randomUUID()}`;
-    await cloudflareContext.cloudflare.env.FEEDBACK_KV.put(key, JSON.stringify(feedback));
+    await cloudflareContext.cloudflare.env.FEEDBACK_KV.put(
+      key,
+      JSON.stringify(feedback),
+    );
   } else {
     // Log feedback for now if KV is not configured
     console.log("Feedback received:", feedback);
@@ -71,8 +76,12 @@ export default function FeedbackPage() {
             style={{ maxWidth: "clamp(360px, 100%, 1800px)" }}
             className="mx-auto"
           >
-            <Link to="/" className="text-2xl flex gap-2 items-center hover:opacity-80">
-              <img src="/bedrock.svg" width={30} alt="Bedrock logo" /> {t("appTitle")}
+            <Link
+              to="/"
+              className="text-2xl flex gap-2 items-center hover:opacity-80"
+            >
+              <img src="/bedrock.svg" width={30} alt="Bedrock logo" />{" "}
+              {t("appTitle")}
             </Link>
           </div>
         </header>
@@ -81,8 +90,12 @@ export default function FeedbackPage() {
           <Card>
             <div className="text-center py-8">
               <div className="text-5xl mb-4">&#10003;</div>
-              <h1 className="text-2xl font-bold mb-4">{t("feedbackThankYou")}</h1>
-              <p className="text-gray-600 mb-6">{t("feedbackThankYouMessage")}</p>
+              <h1 className="text-2xl font-bold mb-4">
+                {t("feedbackThankYou")}
+              </h1>
+              <p className="text-gray-600 mb-6">
+                {t("feedbackThankYouMessage")}
+              </p>
               <Link
                 to="/"
                 className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
@@ -103,8 +116,12 @@ export default function FeedbackPage() {
           style={{ maxWidth: "clamp(360px, 100%, 1800px)" }}
           className="mx-auto"
         >
-          <Link to="/" className="text-2xl flex gap-2 items-center hover:opacity-80">
-            <img src="/bedrock.svg" width={30} alt="Bedrock logo" /> {t("appTitle")}
+          <Link
+            to="/"
+            className="text-2xl flex gap-2 items-center hover:opacity-80"
+          >
+            <img src="/bedrock.svg" width={30} alt="Bedrock logo" />{" "}
+            {t("appTitle")}
           </Link>
         </div>
       </header>
@@ -190,7 +207,9 @@ export default function FeedbackPage() {
                   className="w-full p-3 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
                   placeholder={t("feedbackEmailPlaceholder")}
                 />
-                <p className="text-xs text-gray-500 mt-1">{t("feedbackEmailNote")}</p>
+                <p className="text-xs text-gray-500 mt-1">
+                  {t("feedbackEmailNote")}
+                </p>
               </div>
 
               {/* Additional comments */}
@@ -213,7 +232,9 @@ export default function FeedbackPage() {
               isDisabled={fetcher.state === "submitting"}
               className="px-6 py-3 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {fetcher.state === "submitting" ? t("feedbackSubmitting") : t("feedbackSubmit")}
+              {fetcher.state === "submitting"
+                ? t("feedbackSubmitting")
+                : t("feedbackSubmit")}
             </Button>
             <Link
               to="/"

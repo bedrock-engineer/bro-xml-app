@@ -52,7 +52,9 @@ function SoilLegendItem({
   label: string;
 }) {
   const patternId = `${idPrefix}-hatch-${entry.key}`;
-  const hatch = entry.hatchSoil ? patternMarkup(entry.hatchSoil, patternId) : "";
+  const hatch = entry.hatchSoil
+    ? patternMarkup(entry.hatchSoil, patternId)
+    : "";
   return (
     <div className="flex items-center gap-1">
       <svg

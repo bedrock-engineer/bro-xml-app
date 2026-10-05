@@ -20,9 +20,7 @@ export function getLocationItems(
   const standardized =
     "standardizedLocation" in data ? data.standardizedLocation : null;
   const vertical =
-    "deliveredVerticalPosition" in data
-      ? data.deliveredVerticalPosition
-      : null;
+    "deliveredVerticalPosition" in data ? data.deliveredVerticalPosition : null;
 
   if (delivered?.location) {
     items.push({

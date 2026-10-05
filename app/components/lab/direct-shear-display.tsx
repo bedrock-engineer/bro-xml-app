@@ -11,6 +11,12 @@ import {
   extractPeakData,
   hasHeightChangeData,
 } from "./direct-shear-plots";
+import {
+  booleanRow,
+  ConditionRows,
+  measureRow,
+  TestConditions,
+} from "./test-conditions";
 
 interface DirectShearDisplayProps {
   tests: Array<DirectShearDetermination>;
@@ -100,9 +106,11 @@ export function DirectShearDisplay({
               return (
                 <div key={index} className="flex items-center gap-2">
                   <div
+                    aria-hidden="true"
                     className="w-4 h-0.5"
                     style={{
-                      backgroundColor: CHART_COLORS[index % CHART_COLORS.length],
+                      backgroundColor:
+                        CHART_COLORS[index % CHART_COLORS.length],
                     }}
                   ></div>
                   <span>σn = {firstPoint?.verticalStress ?? "?"} kPa</span>
@@ -115,86 +123,110 @@ export function DirectShearDisplay({
 
       {/* Test details */}
       <div className="mt-4 space-y-3">
-        {tests.map((test, index) => (
-          <div key={index} className="p-3 bg-gray-50 rounded text-sm">
-            <div className="flex items-center gap-2 mb-2">
-              <div
-                className="w-3 h-3 rounded-full"
-                style={{
-                  backgroundColor: CHART_COLORS[index % CHART_COLORS.length],
-                }}
-              ></div>
-              <span className="font-medium">
-                Test {index + 1}
-                {test.determinationMethod
-                  ? `: ${formatCode(test.determinationMethod)}`
-                  : ""}
-              </span>
-            </div>
+        {tests.map((test, index) => {
+          const specimen = test.madeSpecimenForHorizontalDeformation;
+          const consolidation = test.consolidationStageAtHorizontalDeformation;
+          const consolidationStresses = (
+            consolidation?.consolidationSteps ?? []
+          )
+            .map((step) => formatMeasure(step.verticalStress))
+            .filter((stress) => stress !== null);
+          const peak = peakData.find((p) => p.testIndex === index);
+          return (
+            <div key={index} className="p-3 bg-gray-50 rounded text-sm">
+              <div className="flex items-center gap-2 mb-2">
+                <div
+                  aria-hidden="true"
+                  className="w-3 h-3 rounded-full"
+                  style={{
+                    backgroundColor: CHART_COLORS[index % CHART_COLORS.length],
+                  }}
+                ></div>
+                <span className="font-medium">
+                  {t("test")} {index + 1}
+                  {test.determinationMethod
+                    ? `: ${formatCode(test.determinationMethod)}`
+                    : ""}
+                </span>
+              </div>
 
-            <dl className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-1">
-              {test.beginDiameter != null && (
-                <>
-                  <dt className="text-gray-500">{t("specimenDiameter")}</dt>
-                  <dd>{formatMeasure(test.beginDiameter)}</dd>
-                </>
-              )}
-              {test.beginHeight != null && (
-                <>
-                  <dt className="text-gray-500">{t("specimenHeight")}</dt>
-                  <dd>{formatMeasure(test.beginHeight)}</dd>
-                </>
-              )}
-              {test.drained != null && (
-                <>
-                  <dt className="text-gray-500">{t("drained")}</dt>
-                  <dd>{test.drained ? t("yes") : t("no")}</dd>
-                </>
-              )}
-              {test.specimenDisturbed != null && (
-                <>
-                  <dt className="text-gray-500">{t("specimenDisturbed")}</dt>
-                  <dd>{test.specimenDisturbed ? t("yes") : t("no")}</dd>
-                </>
-              )}
-              {test.shearStage?.deformationRate != null && (
-                <>
-                  <dt className="text-gray-500">{t("deformationRate")}</dt>
-                  <dd>{formatMeasure(test.shearStage.deformationRate)}</dd>
-                </>
-              )}
-              {peakData.find((p) => p.testIndex === index) && (
-                <>
-                  <dt className="text-gray-500">
-                    {t("normalStress")} / {t("peakShearStress")}
-                  </dt>
-                  <dd>
-                    {peakData
-                      .find((p) => p.testIndex === index)
-                      ?.normalStress.toFixed(1)}{" "}
-                    /{" "}
-                    {peakData
-                      .find((p) => p.testIndex === index)
-                      ?.peakShearStress.toFixed(1)}{" "}
-                    kPa
-                  </dd>
-                </>
-              )}
-              {test.shearStage?.shearStressChangeDuringHorizontalDeformation
-                .length != null && (
-                <>
-                  <dt className="text-gray-500">{t("dataPoints")}</dt>
-                  <dd>
-                    {
-                      test.shearStage
-                        .shearStressChangeDuringHorizontalDeformation.length
-                    }
-                  </dd>
-                </>
-              )}
-            </dl>
-          </div>
-        ))}
+              <dl className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-1">
+                <ConditionRows
+                  rows={[
+                    measureRow(t("specimenDiameter"), test.beginDiameter),
+                    measureRow(t("specimenHeight"), test.beginHeight),
+                    booleanRow(t("drained"), test.drained, t),
+                    booleanRow(
+                      t("specimenDisturbed"),
+                      test.specimenDisturbed,
+                      t,
+                    ),
+                    measureRow(
+                      t("deformationRate"),
+                      test.shearStage?.deformationRate,
+                    ),
+                    peak && {
+                      label: `${t("normalStress")} / ${t("peakShearStress")}`,
+                      value: `${peak.normalStress.toFixed(1)} / ${peak.peakShearStress.toFixed(1)} kPa`,
+                    },
+                    measureRow(t("waterContent"), specimen?.waterContent, 1),
+                    measureRow(
+                      t("bulkDensity"),
+                      specimen?.volumetricMassDensity,
+                      3,
+                    ),
+                    consolidationStresses.length > 0 && {
+                      label: t("consolidationSteps"),
+                      value: consolidationStresses.join(", "),
+                    },
+                    test.shearStage && {
+                      label: t("dataPoints"),
+                      value:
+                        test.shearStage
+                          .shearStressChangeDuringHorizontalDeformation.length,
+                    },
+                  ]}
+                />
+              </dl>
+
+              <TestConditions
+                rows={[
+                  booleanRow(t("porousDiscWet"), test.porousDiscWet, t),
+                  booleanRow(
+                    t("apparatusDeformationApplied"),
+                    test.apparatusDeformationApplied,
+                    t,
+                  ),
+                  booleanRow(
+                    t("bearingFrictionCorrectionApplied"),
+                    test.bearingFrictionCorrectionApplied,
+                    t,
+                  ),
+                  booleanRow(
+                    t("specimenWaterSaturated"),
+                    test.specimenWaterSaturated,
+                    t,
+                  ),
+                  booleanRow(
+                    t("membraneCorrectionApplied"),
+                    test.membraneCorrectionApplied,
+                    t,
+                  ),
+                  booleanRow(
+                    t("pedestalFixed"),
+                    consolidation?.pedestalFixed,
+                    t,
+                  ),
+                  booleanRow(
+                    t("activeHeightControl"),
+                    test.shearStage?.activeHeightControl,
+                    t,
+                  ),
+                ]}
+              />
+            </div>
+          );
+        })}
       </div>
     </div>
   );

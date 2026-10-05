@@ -44,7 +44,10 @@ export function CompactGmwHeader({ filename, data }: CompactGmwHeaderProps) {
         <FilenameRow filename={filename} />
         <BroIdRow broId={data.broId} />
         <QualityRegimeRow qualityRegime={data.qualityRegime} />
-        <HeaderRow label={t("dataType")} value={t("groundwaterMonitoringWell")} />
+        <HeaderRow
+          label={t("dataType")}
+          value={t("groundwaterMonitoringWell")}
+        />
         <HeaderRow label={t("wellCode")} value={data.wellCode} />
       </HeaderColumn>
 
@@ -149,7 +152,10 @@ function getTubeInfo(data: GMWData, t: TFunction): Array<HeaderItem> {
   return data.monitoringTube.map((tube) => describeTube(tube, t));
 }
 
-function getGmwRegistrationInfo(data: GMWData, t: TFunction): Array<HeaderItem> {
+function getGmwRegistrationInfo(
+  data: GMWData,
+  t: TFunction,
+): Array<HeaderItem> {
   const history = data.registrationHistory;
   if (!history) {
     return [];

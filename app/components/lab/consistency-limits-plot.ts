@@ -28,11 +28,16 @@ export function buildConsistencyLimitsPlot(
     plasticityIndex: data.plasticityIndex.value,
   };
 
+  // The standard Casagrande frame, grown when a sample plots beyond it (very
+  // high plasticity) so the point is never silently clipped away.
+  const xMax = Math.max(110, sample.liquidLimit * 1.1);
+  const yMax = Math.max(60, sample.plasticityIndex * 1.15);
+
   return Plot.plot({
     aspectRatio: 1,
     style: { backgroundColor: "white" },
     x: {
-      domain: [0, 110],
+      domain: [0, xMax],
       label: t("liquidLimitAxisLabel"),
       grid: true,
       ticks: 10,
@@ -40,7 +45,7 @@ export function buildConsistencyLimitsPlot(
     y: {
       label: t("plasticityIndexAxisLabel"),
       ticks: 8,
-      domain: [0, 60],
+      domain: [0, yMax],
       grid: true,
     },
     marks: [

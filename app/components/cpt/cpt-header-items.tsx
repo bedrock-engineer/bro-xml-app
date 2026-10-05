@@ -262,10 +262,12 @@ function getProcessingInfo(data: CPTData, t: TFunction): Array<HeaderItem> {
 
 function getMeasurementInfo(data: CPTData, t: TFunction): Array<HeaderItem> {
   const measurements = getMeasurements(data);
-  const items: Array<HeaderItem> = [{
-    label: t("numberOfMeasurements"),
-    value: measurements.length,
-  }];
+  const items: Array<HeaderItem> = [
+    {
+      label: t("numberOfMeasurements"),
+      value: measurements.length,
+    },
+  ];
 
   if (measurements.length > 0) {
     const firstRow = measurements[0];
@@ -278,16 +280,21 @@ function getMeasurementInfo(data: CPTData, t: TFunction): Array<HeaderItem> {
 
     // Count available columns
     const availableColumns: Array<string> = [];
-    if (firstRow?.coneResistance !== undefined)
-      {availableColumns.push("Cone Resistance");}
-    if (firstRow?.localFriction !== undefined)
-      {availableColumns.push("Local Friction");}
-    if (firstRow?.frictionRatio !== undefined)
-      {availableColumns.push("Friction Ratio");}
-    if (firstRow?.porePressureU2 !== undefined)
-      {availableColumns.push("Pore Pressure U2");}
-    if (firstRow?.inclinationResultant !== undefined)
-      {availableColumns.push("Inclination");}
+    if (firstRow?.coneResistance !== undefined) {
+      availableColumns.push("Cone Resistance");
+    }
+    if (firstRow?.localFriction !== undefined) {
+      availableColumns.push("Local Friction");
+    }
+    if (firstRow?.frictionRatio !== undefined) {
+      availableColumns.push("Friction Ratio");
+    }
+    if (firstRow?.porePressureU2 !== undefined) {
+      availableColumns.push("Pore Pressure U2");
+    }
+    if (firstRow?.inclinationResultant !== undefined) {
+      availableColumns.push("Inclination");
+    }
 
     if (availableColumns.length > 0) {
       items.push({

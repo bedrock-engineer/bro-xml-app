@@ -3,6 +3,12 @@ import { useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { formatMeasure } from "../../util/format";
 import type { TranslateFunction } from "../../util/plot-config";
+import {
+  codedListRow,
+  codedRow,
+  measureRow,
+  TestConditions,
+} from "./test-conditions";
 import { PlotDownloadButtons } from "../plot-download-buttons";
 import { PlotFigure } from "../plot-figure";
 import { buildConsistencyLimitsPlot } from "./consistency-limits-plot";
@@ -30,9 +36,12 @@ export function ConsistencyLimitsDisplay({
             <tbody>
               {data.liquidLimit !== null && (
                 <tr className="border-b border-gray-100">
-                  <td className="py-2 text-gray-500">
+                  <th
+                    scope="row"
+                    className="py-2 text-left font-normal text-gray-500"
+                  >
                     {t("liquidLimit")} (LL)
-                  </td>
+                  </th>
                   <td className="py-2 text-right font-mono">
                     {formatMeasure(data.liquidLimit, 1)}
                   </td>
@@ -40,9 +49,12 @@ export function ConsistencyLimitsDisplay({
               )}
               {data.plasticLimit !== null && (
                 <tr className="border-b border-gray-100">
-                  <td className="py-2 text-gray-500">
+                  <th
+                    scope="row"
+                    className="py-2 text-left font-normal text-gray-500"
+                  >
                     {t("plasticLimit")} (PL)
-                  </td>
+                  </th>
                   <td className="py-2 text-right font-mono">
                     {formatMeasure(data.plasticLimit, 1)}
                   </td>
@@ -50,9 +62,12 @@ export function ConsistencyLimitsDisplay({
               )}
               {data.plasticityIndex !== null && (
                 <tr className="border-b border-gray-100">
-                  <td className="py-2 text-gray-500">
+                  <th
+                    scope="row"
+                    className="py-2 text-left font-normal text-gray-500"
+                  >
                     {t("plasticityIndex")} (PI)
-                  </td>
+                  </th>
                   <td className="py-2 text-right font-mono">
                     {formatMeasure(data.plasticityIndex, 1)}
                   </td>
@@ -71,6 +86,41 @@ export function ConsistencyLimitsDisplay({
           deps={[data, t]}
         />
       </div>
+
+      <TestConditions
+        rows={[
+          codedRow(
+            t("method"),
+            data.determinationMethod ?? data.determinationProcedure,
+          ),
+          codedRow(t("conusType"), data.conusType),
+          codedRow(t("usedMedium"), data.usedMedium),
+          measureRow(t("fractionLarger500um"), data.fractionLarger500um, 1),
+          codedListRow(
+            t("performanceIrregularity"),
+            data.performanceIrregularity,
+          ),
+          ...data.plasticityAtSpecificWaterContent.map((point, index) => {
+            const waterContent = formatMeasure(point.waterContent, 1);
+            const penetration = formatMeasure(point.penetrationDepth, 1);
+            const parts = [
+              waterContent === null ? null : `w = ${waterContent}`,
+              point.numberOfFalls == null
+                ? null
+                : `${point.numberOfFalls} ${t("falls")}`,
+              penetration === null
+                ? null
+                : `${t("penetration")} ${penetration}`,
+            ].filter((part) => part !== null);
+            return parts.length > 0
+              ? {
+                  label: `${t("fallConePoint")} ${index + 1}`,
+                  value: parts.join(", "),
+                }
+              : null;
+          }),
+        ]}
+      />
 
       <PlotDownloadButtons containerRef={plotRef} filename={baseFilename} />
     </div>

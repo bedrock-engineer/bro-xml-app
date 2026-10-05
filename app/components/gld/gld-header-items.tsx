@@ -55,11 +55,15 @@ export function CompactGldHeader({ filename, data }: CompactGldHeaderProps) {
         />
         <HeaderRow
           label={t("firstMeasurement")}
-          value={data.researchFirstDate ? formatDate(data.researchFirstDate) : null}
+          value={
+            data.researchFirstDate ? formatDate(data.researchFirstDate) : null
+          }
         />
         <HeaderRow
           label={t("lastMeasurement")}
-          value={data.researchLastDate ? formatDate(data.researchLastDate) : null}
+          value={
+            data.researchLastDate ? formatDate(data.researchLastDate) : null
+          }
         />
         <HeaderRow label={t("measurementPoints")} value={countPoints(data)} />
       </HeaderColumn>
@@ -109,13 +113,19 @@ function getObservationInfo(data: GLDData, t: TFunction): Array<HeaderItem> {
     ),
   ];
   if (procedures.length > 0) {
-    items.push({ label: t("evaluationProcedure"), value: procedures.join(", ") });
+    items.push({
+      label: t("evaluationProcedure"),
+      value: procedures.join(", "),
+    });
   }
 
   return items;
 }
 
-function getGldRegistrationInfo(data: GLDData, t: TFunction): Array<HeaderItem> {
+function getGldRegistrationInfo(
+  data: GLDData,
+  t: TFunction,
+): Array<HeaderItem> {
   const history = data.registrationHistory;
   if (!history) {
     return [];

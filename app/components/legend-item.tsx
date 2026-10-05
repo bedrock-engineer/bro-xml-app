@@ -4,7 +4,11 @@ interface LegendItemProps {
   truncate?: boolean;
 }
 
-export function LegendItem({ color, label, truncate = false }: LegendItemProps) {
+export function LegendItem({
+  color,
+  label,
+  truncate = false,
+}: LegendItemProps) {
   return (
     <div className="flex items-center gap-1">
       <div

@@ -4,17 +4,21 @@ import {
   type TranslateFunction,
 } from "../../util/plot-config";
 
+/** One permeability result against the condition it was determined at. */
 export interface PermeabilityPoint {
-  dryVolumetricMassDensity: number;
+  /** Dry density (g/cm³) or load (kPa), depending on the dataset */
+  x: number;
   saturatedPermeability: number;
 }
 
 /**
- * Build the saturated-permeability plot (k vs dry density, log y-axis).
- * Returns null when there are no points to render.
+ * Build a saturated-permeability plot (k on a log y-axis against the
+ * determination condition: dry density or load). Returns null when there are
+ * no points to render.
  */
 export function buildPermeabilityPlot(
   data: Array<PermeabilityPoint>,
+  xLabel: string,
   t: TranslateFunction,
 ): (SVGSVGElement | HTMLElement) | null {
   if (data.length === 0) {
@@ -26,7 +30,7 @@ export function buildPermeabilityPlot(
     height: 300,
     style: { backgroundColor: "white" },
     x: {
-      label: t("dryDensityAxisLabel"),
+      label: xLabel,
       grid: true,
     },
     y: {
@@ -37,20 +41,20 @@ export function buildPermeabilityPlot(
     marks: [
       Plot.frame(),
       Plot.line(data, {
-        x: "dryVolumetricMassDensity",
+        x: "x",
         y: "saturatedPermeability",
         stroke: "#2563eb",
         strokeWidth: 2,
       }),
       Plot.dot(data, {
-        x: "dryVolumetricMassDensity",
+        x: "x",
         y: "saturatedPermeability",
         fill: "#2563eb",
         r: 6,
       }),
       // Label each point with its permeability value
       Plot.text(data, {
-        x: "dryVolumetricMassDensity",
+        x: "x",
         y: "saturatedPermeability",
         text: (d: PermeabilityPoint) =>
           d.saturatedPermeability.toExponential(1),

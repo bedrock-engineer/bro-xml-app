@@ -126,7 +126,7 @@ export function registerCptIcons(map: MaplibreMap): void {
     "cpt-triangle-loaded": triangleIcon(20, loadedColor, 2, loadedStrokeColor),
     "cpt-triangle-selected": triangleIcon(24, selectedColor, 2, "#ffffff"),
   };
-  
+
   for (const [id, icon] of Object.entries(icons)) {
     map.addImage(id, icon.data, { pixelRatio: icon.pixelRatio });
   }

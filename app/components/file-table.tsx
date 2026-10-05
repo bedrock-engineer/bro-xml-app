@@ -41,7 +41,7 @@ function SortIndicator({ column, sortDescriptor }: SortIndicatorProps) {
   );
 }
 
-type QualityRegime = 'IMBRO' | 'IMBRO/A';
+type QualityRegime = "IMBRO" | "IMBRO/A";
 
 interface FileRow {
   id: string;
@@ -135,7 +135,9 @@ export function FileTable({
     }
   };
 
-  const handleDrop = async (event: { items: ReadonlyArray<{ kind: string }> }) => {
+  const handleDrop = async (event: {
+    items: ReadonlyArray<{ kind: string }>;
+  }) => {
     const fileItems = event.items.filter(
       (item): item is FileDropItem => item.kind === "file",
     );

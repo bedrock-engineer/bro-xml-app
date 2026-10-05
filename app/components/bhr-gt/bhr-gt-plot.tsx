@@ -192,11 +192,7 @@ export function BHRGTPlot({
         </div>
       </div>
 
-      <LogSelector
-        logs={logs}
-        value={activeLogIndex}
-        onChange={setLogIndex}
-      />
+      <LogSelector logs={logs} value={activeLogIndex} onChange={setLogIndex} />
 
       <div className="flex flex-wrap items-start justify-center gap-2">
         {/* Spacer matches the table's header band so the chart's flush plot

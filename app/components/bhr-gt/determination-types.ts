@@ -73,7 +73,7 @@ const DETERMINATION_TYPES = {
  * Get lab test categories present in an interval (for plotting)
  */
 export function getLabTestCategories(
-  interval: InvestigatedInterval
+  interval: InvestigatedInterval,
 ): Array<LabTestCategory> {
   const categories: Array<LabTestCategory> = [];
 
@@ -98,9 +98,7 @@ export function getLabTestCategories(
 /**
  * Get individual determination types present in an interval (for display)
  */
-function getDeterminationTypes(
-  interval: InvestigatedInterval
-): Array<string> {
+function getDeterminationTypes(interval: InvestigatedInterval): Array<string> {
   const types: Array<string> = [];
 
   for (const [key, label] of Object.entries(DETERMINATION_TYPES)) {
@@ -122,8 +120,10 @@ function getDeterminationTypes(
  * Get unique determination types across all intervals
  */
 export function getUniqueDeterminationTypes(
-  intervals: Array<InvestigatedInterval>
+  intervals: Array<InvestigatedInterval>,
 ): Array<string> {
-  const allTypes = intervals.flatMap((interval) => getDeterminationTypes(interval));
+  const allTypes = intervals.flatMap((interval) =>
+    getDeterminationTypes(interval),
+  );
   return [...new Set(allTypes)];
 }

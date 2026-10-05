@@ -63,9 +63,8 @@ export type BROFileType = "CPT" | "BHR-GT" | "BHR-G" | "GMW" | "GLD";
 export async function parseBRO(xml: string): Promise<BROData> {
   // Dynamically imported so the ~900 KB parser (schemas + resolvers) is split
   // out of the initial bundle and only fetched when a file is actually parsed.
-  const { BROParser, XMLAdapter } = await import(
-    "@bedrock-engineer/bro-xml-parser"
-  );
+  const { BROParser, XMLAdapter } =
+    await import("@bedrock-engineer/bro-xml-parser");
   const data = new BROParser(new XMLAdapter()).parse(xml);
   if (
     isCPTData(data) ||
@@ -238,7 +237,9 @@ export function getDescriptiveLog(
   data: BHRGTData | BHRGData,
   logIndex = 0,
 ): BHRGTLog | BHRGLog | null {
-  return data.boreholeSampleDescription?.descriptiveBoreholeLog[logIndex] ?? null;
+  return (
+    data.boreholeSampleDescription?.descriptiveBoreholeLog[logIndex] ?? null
+  );
 }
 
 /**
@@ -255,8 +256,7 @@ export function getLayers(
   logIndex = 0,
 ): Array<BoreLayer> | Array<BHRGBoreLayer> {
   return boundedLayersOf(data, logIndex) as
-    | Array<BoreLayer>
-    | Array<BHRGBoreLayer>;
+    Array<BoreLayer> | Array<BHRGBoreLayer>;
 }
 
 /**

@@ -49,12 +49,24 @@ const UOM_DISPLAY: Record<string, string> = {
 };
 
 /**
+ * Display form of a BRO unit code ("mm2" → "mm²"); dimensionless ("1") → null.
+ * For table column headers that state the unit once.
+ */
+export function formatUom(uom: string): string | null {
+  const display = UOM_DISPLAY[uom] ?? uom;
+  return display === "1" || display === "" ? null : display;
+}
+
+/**
  * Format a measured value with the unit its XML declares ("25.50 m").
  * Dimensionless measures (uom "1") render as the bare number; "°" and "%"
  * attach without a space. Value digits are kept as-is unless `fractionDigits`
  * is given.
  */
-export function formatMeasure(measure: Measure, fractionDigits?: number): string;
+export function formatMeasure(
+  measure: Measure,
+  fractionDigits?: number,
+): string;
 export function formatMeasure(
   measure: Measure | null | undefined,
   fractionDigits?: number,

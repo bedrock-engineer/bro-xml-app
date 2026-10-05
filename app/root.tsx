@@ -190,7 +190,9 @@ function ErrorFeedbackButton() {
   useEffect(
     function attachFeedbackForm() {
       const feedback = Sentry.getFeedback();
-      if (!feedback || !buttonRef.current) {return;}
+      if (!feedback || !buttonRef.current) {
+        return;
+      }
       const unsubscribe = feedback.attachTo(buttonRef.current, {
         formTitle: t("errorFeedbackFormTitle"),
         nameLabel: t("errorFeedbackNameLabel"),

@@ -3,7 +3,7 @@ import { useRef } from "react";
 import { createPortal } from "react-dom";
 import { useTranslation } from "react-i18next";
 import type { BROData } from "~/types/bro-data";
-import type { BROLocationLayer } from "~/util/bro-api";
+import type { BROLocationLayer } from "~/util/bro-id";
 import { MapLayersPanel, SearchBox } from "./map-controls.client";
 import { useBasemap } from "./use-basemap";
 import { useLayerVisibility } from "./use-layer-visibility";

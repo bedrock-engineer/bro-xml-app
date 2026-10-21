@@ -2,30 +2,30 @@ import { usePostHog } from "@posthog/react";
 import { MapPinIcon } from "lucide-react";
 import { Marker, type Map as MlMap } from "maplibre-gl";
 import {
-  useEffect,
-  useRef,
-  useState,
-  useTransition,
-  type Key,
-  type RefObject,
+    type Key,
+    type RefObject,
+    useEffect,
+    useRef,
+    useState,
+    useTransition,
 } from "react";
 import {
-  CheckboxButton,
-  CheckboxField,
-  ComboBox,
-  Group,
-  Input,
-  ListBox,
-  ListBoxItem,
-  Popover,
+    CheckboxButton,
+    CheckboxField,
+    ComboBox,
+    Group,
+    Input,
+    ListBox,
+    ListBoxItem,
+    Popover,
 } from "react-aria-components";
 import { useTranslation } from "react-i18next";
 import type { BROFileType } from "~/types/bro-data";
-import { broIdPattern, type BROLocationLayer } from "~/util/bro-api";
+import { type BROLocationLayer, broIdPattern } from "~/util/bro-id";
 import {
-  lookupAddress,
-  suggestAddresses,
-  type PdokSuggestion,
+    lookupAddress,
+    type PdokSuggestion,
+    suggestAddresses,
 } from "~/util/pdok";
 import { RadioButtonGroup } from "../radio-button-group";
 
@@ -171,7 +171,7 @@ function detectBroId(query: string): string | null {
 }
 
 /** A full domain prefix followed by fewer than the required 12 digits. */
-const partialBroIdPattern = /^(CPT|BHR)(\d{0,11})$/;
+const partialBroIdPattern = /^(CPT|BHR|GMW|GLD)(\d{0,11})$/;
 
 /**
  * A BRO ID still being typed: the prefix is complete but the 12-digit tail

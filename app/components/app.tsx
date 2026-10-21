@@ -1,5 +1,4 @@
 import { usePostHog } from "@posthog/react";
-import * as Sentry from "@sentry/react-router/cloudflare";
 import type { TFunction } from "i18next";
 import {
   GithubIcon,
@@ -8,94 +7,61 @@ import {
   MailIcon,
   MessageSquareIcon,
   TrashIcon,
-  UploadIcon,
 } from "lucide-react";
 import {
-  lazy,
   Suspense,
   useEffect,
-  useId,
   useMemo,
   useState,
+  useSyncExternalStore,
   useTransition,
 } from "react";
-import { Button, FileTrigger } from "react-aria-components";
-import { ErrorBoundary } from "react-error-boundary";
+import { Button } from "react-aria-components";
 import { useTranslation } from "react-i18next";
-import { Link, useFetcher } from "react-router";
 import {
-  type BROData,
-  isBHRGData,
-  isBHRGTData,
-  isCPTData,
-  isGLDData,
-  isGMWData,
-  getDissipationTests,
-  getFileType,
-  getLocation,
-  getRemovedLayers,
-  getSurfaceLevel,
-  parseBRO,
-} from "~/types/bro-data";
+  Link,
+  useFetcher,
+  useLocation,
+  useNavigate,
+  useNavigation,
+  useRevalidator,
+} from "react-router";
+import { type SessionFile, sessionFilesStore } from "~/state/session-files";
+import { type BROData, getFileType, parseBRO } from "~/types/bro-data";
 import {
-  type BROLocationLayer,
-  fetchBROObject,
-  layersForBroId,
-} from "~/util/bro-api";
-import { toWgs84 } from "~/util/coordinates";
-import { detectChartAxes } from "~/util/chart-axes";
+  type RouteObjectResult,
+  registerFlight,
+  rememberLoadSource,
+  resolveFlight,
+} from "~/types/bro-route";
+import { broIdPattern } from "~/util/bro-id";
 import { downloadFile } from "~/util/download";
-import {
-  CompactBHRGHeader,
-  DetailedBHRGHeaders,
-} from "./bhr-g/bhr-g-header-items";
-import { BHRGPlot } from "./bhr-g/bhr-g-plot";
-import {
-  CompactBHRGTHeader,
-  DetailedBoreHeaders,
-} from "./bhr-gt/bhr-gt-header-items";
-import { BHRGTPlot } from "./bhr-gt/bhr-gt-plot";
-import { LaboratoryAnalysis } from "./bhr-gt/laboratory-analysis";
 import { Card } from "./card";
-import { CompactCptHeader, DetailedCptHeaders } from "./cpt/cpt-header-items";
-import { CptPlots } from "./cpt/cpt-plot";
-import { DissipationTestPlots } from "./cpt/dissipation-test-plot";
-import { RemovedLayersPlot } from "./cpt/removed-layers-plot";
-import { DownloadGeoJSONButton } from "./download-geojson-button";
 import { FileTable } from "./file-table";
-import { CompactGldHeader, DetailedGldHeaders } from "./gld/gld-header-items";
-import { GldChart } from "./gld/gld-chart";
-import { CompactGmwHeader, DetailedGmwHeaders } from "./gmw/gmw-header-items";
-import { GmwSchematic } from "./gmw/gmw-schematic";
 import { InstallInstructions } from "./install-instructions";
-
-// Lazy-loaded so maplibre-gl (~1 MB) is split out of the initial bundle. The
-// map is already gated behind a client check + Suspense boundary below.
-const BROMap = lazy(() =>
-  import("./map/map.client").then((module) => ({ default: module.BROMap })),
-);
-
-function translateWarning(warning: string, t: TFunction): string {
-  const parts = warning.split(":");
-  const key = parts[0];
-
-  switch (key) {
-    case "schemaVersionMismatch": {
-      return t("schemaVersionMismatch", {
-        expected: parts[1] ?? "?",
-        found: parts[2] ?? "?",
-      });
-    }
-    case "unknownNamespace": {
-      return t("unknownNamespace", { namespace: parts[1] ?? "?" });
-    }
-    default: {
-      return warning;
-    }
-  }
-}
+import { MapSection } from "./map-section";
+import { SelectedObjectPanel } from "./selected-object-panel";
+import { UploadCard } from "./upload-card";
 
 function translateError(error: string, t: TFunction): string {
+  // Classified /:broId loader failures (the BRO's own rejection reasons are
+  // passed through as-is and don't take this branch)
+  if (error.startsWith("bro:")) {
+    switch (error.slice("bro:".length)) {
+      case "rate-limited": {
+        return t("broErrorRateLimited");
+      }
+      case "unavailable": {
+        return t("broErrorUnavailable");
+      }
+      case "unsupported": {
+        return t("broErrorUnsupported");
+      }
+      default: {
+        return t("broErrorGeneric");
+      }
+    }
+  }
   // Handle BROParseError codes
   if (error === "UNKNOWN_DATA_TYPE" || error === "unknownBROFileType") {
     return t("unknownBROFileType");
@@ -121,132 +87,126 @@ async function parseBROFile(file: File): Promise<BROData> {
   return parseBRO(text);
 }
 
-export function App() {
+interface AppProps {
+  /** Result of the /:broId route loader, or null on the bare root URL. */
+  routeObject: RouteObjectResult | null;
+}
+
+export function App({ routeObject }: AppProps) {
   const { t } = useTranslation();
   const posthog = usePostHog();
-  const supportedTypesId = useId();
   const [isPending, startTransition] = useTransition();
-  const [broData, setBroData] = useState<Record<string, BROData>>({});
-  const [rawXml, setRawXml] = useState<Record<string, Blob>>({});
-  const [selectedFileName, setSelectedFileName] = useState("");
+  // Selection among uploads; registry-object selection is the URL itself.
+  const [uploadSelection, setUploadSelection] = useState("");
   const [failedFiles, setFailedFiles] = useState<
     Array<{ name: string; error: string }>
   >([]);
-  const [pendingBroIds, setPendingBroIds] = useState<Set<string>>(new Set());
 
-  // The map only renders on the client (map.client.tsx is empty on the
-  // server), so wait for hydration before mounting it
-  const [isClient, setIsClient] = useState(false);
+  const navigate = useNavigate();
+  const location = useLocation();
+  const navigation = useNavigation();
+
+  // Every file loaded this session (uploads, samples, route-loaded objects)
+  const sessionFiles = useSyncExternalStore(
+    sessionFilesStore.subscribe,
+    sessionFilesStore.getSnapshot,
+    sessionFilesStore.getServerSnapshot,
+  );
+
+  // The current route object is included explicitly: on a cold hit it
+  // reaches the store only after mount (the mirror effect below), and on
+  // SSR the store is empty.
+  const broData = useMemo(() => {
+    const merged: Record<string, BROData> = {};
+    for (const [name, file] of Object.entries(sessionFiles)) {
+      merged[name] = file.data;
+    }
+    if (routeObject && "data" in routeObject) {
+      merged[routeObject.broId] = routeObject.data;
+    }
+    return merged;
+  }, [sessionFiles, routeObject]);
+
+  // Persist a server-rendered (cold hit) route object into the session store
+  // so it stays in the file table after navigating away. Pure external-store
+  // sync: no state updates, and the store ignores same-value writes.
   useEffect(() => {
-    setIsClient(true);
-  }, []);
+    if (routeObject && "data" in routeObject) {
+      sessionFilesStore.set(routeObject.broId, { data: routeObject.data });
+    }
+  }, [routeObject]);
+
+  // Selection is derived: the URL names the selected registry object; with
+  // no object in the URL the upload selection applies. A failed route load
+  // selects nothing and renders an inline error card instead.
+  const routeError = routeObject && "error" in routeObject ? routeObject : null;
+  const selectedFileName = routeObject
+    ? ("data" in routeObject
+      ? routeObject.broId
+      : "")
+    : uploadSelection;
+
+  // The BRO ID currently being fetched by a route navigation, if any.
+  const pendingSegment =
+    navigation.state === "loading"
+      ? navigation.location.pathname.slice(1)
+      : "";
+  const pendingBroId = broIdPattern.test(pendingSegment)
+    ? pendingSegment
+    : null;
+
+  /** Select a loaded file; registry objects live at /:broId, uploads at /. */
+  function selectFile(filename: string) {
+    if (broIdPattern.test(filename)) {
+      if (location.pathname !== `/${filename}`) {
+        void navigate(`/${filename}`, { preventScrollReset: true });
+      }
+      return;
+    }
+    setUploadSelection(filename);
+    if (location.pathname !== "/") {
+      void navigate("/", { preventScrollReset: true });
+    }
+  }
 
   /**
-   * Fetch, parse, and select a BRO object by its ID, returning the parsed
-   * data (or null on failure). When `layer` is omitted the layer is derived
-   * from the ID prefix; a `BHR` ID is tried as BHR-GT first, then BHR-G.
+   * Load and select a BRO object by its ID, returning its data when it is
+   * already loaded. Everything else navigates to /:broId and lets the route
+   * loader fetch and parse it worker-side.
    */
-  async function handlePickLocation(
+  function handlePickLocation(
     broId: string,
-    layer?: BROLocationLayer,
-  ): Promise<BROData | null> {
-    // Already loaded? Just select it.
+    source: "map" | "search",
+  ): BROData | null {
     const existing = Object.entries(broData).find(
       ([, data]) => data.broId === broId,
     );
     if (existing) {
-      setSelectedFileName(existing[0]);
+      selectFile(existing[0]);
       return existing[1];
     }
-
-    if (pendingBroIds.has(broId)) {
-      return null;
-    }
-
-    const candidates = layer ? [layer] : layersForBroId(broId);
-    if (candidates.length === 0) {
-      setFailedFiles((previous) => [
-        ...previous,
-        { name: broId, error: t("mapSearchBroIdUnsupported") },
-      ]);
-      return null;
-    }
-
-    setPendingBroIds((previous) => new Set(previous).add(broId));
-
-    try {
-      // Try each candidate layer; the first that resolves wins. A rejection
-      // (e.g. BHR-GT lookup of a BHR-G object) falls through to the next.
-      let xml: string | null = null;
-      let usedLayer: BROLocationLayer | null = null;
-      let lastError: unknown = null;
-      for (const candidate of candidates) {
-        try {
-          xml = await fetchBROObject(broId, candidate);
-          usedLayer = candidate;
-          break;
-        } catch (error) {
-          lastError = error;
-        }
-      }
-      if (xml === null || usedLayer === null) {
-        throw lastError instanceof Error
-          ? lastError
-          : new Error(String(lastError));
-      }
-
-      const xmlText = xml;
-      const data = await parseBRO(xmlText);
-
-      posthog.capture("bro_location_loaded", {
-        layer: usedLayer,
-        file_type: getFileType(data),
-      });
-
-      startTransition(() => {
-        setBroData((previous) => ({ ...previous, [broId]: data }));
-        setRawXml((previous) => ({
-          ...previous,
-          [broId]: new Blob([xmlText], { type: "application/xml" }),
-        }));
-        setSelectedFileName(broId);
-      });
-
-      return data;
-    } catch (error) {
-      setFailedFiles((previous) => [
-        ...previous,
-        {
-          name: broId,
-          error: error instanceof Error ? error.message : String(error),
-        },
-      ]);
-      return null;
-    } finally {
-      setPendingBroIds((previous) => {
-        const next = new Set(previous);
-        next.delete(broId);
-        return next;
-      });
-    }
+    rememberLoadSource(broId, source);
+    void navigate(`/${broId}`, { preventScrollReset: true });
+    return null;
   }
 
   /**
    * Search flow for the map's search box: load the object by BRO ID and
    * return its WGS84 coordinates so the caller can fly the camera there.
+   * For fresh loads the coordinates resolve in the route's clientLoader,
+   * once the object's data arrives.
    */
-  async function handleSearchBroId(
+  function handleSearchBroId(
     broId: string,
   ): Promise<{ lat: number; lon: number } | null> {
-    const data = await handlePickLocation(broId);
-    if (!data) {
-      return null;
+    // Registered before the navigation so the clientLoader finds the flight
+    const flight = registerFlight(broId);
+    const existing = handlePickLocation(broId, "search");
+    if (existing) {
+      // Already loaded: no clientLoader will run, so resolve directly.
+      resolveFlight(broId, existing);
     }
-    const location = getLocation(data);
-    if (!location) {
-      return null;
-    }
-    return toWgs84(location);
+    return flight;
   }
 
   async function loadSampleFiles() {
@@ -301,12 +261,9 @@ export function App() {
             : String(result.reason),
       }));
 
-    const bro = Object.fromEntries(
-      successful.map(({ filename, data }) => [filename, data]),
-    ) as Record<string, BROData>;
-    const xml = Object.fromEntries(
-      successful.map(({ filename, xml }) => [filename, xml]),
-    );
+    const entries = Object.fromEntries(
+      successful.map(({ filename, data, xml }) => [filename, { data, xml }]),
+    ) as Record<string, SessionFile>;
 
     posthog.capture("files_processed", {
       source: "sample",
@@ -317,11 +274,10 @@ export function App() {
     });
 
     startTransition(() => {
-      setBroData((previous) => ({ ...previous, ...bro }));
-      setRawXml((previous) => ({ ...previous, ...xml }));
+      sessionFilesStore.setMany(entries);
       setFailedFiles((previous) => [...previous, ...failed]);
       if (successful[0]) {
-        setSelectedFileName(successful[0].filename);
+        selectFile(successful[0].filename);
       }
     });
   }
@@ -359,13 +315,13 @@ export function App() {
               : String(result.reason),
         }));
 
-      const bro = Object.fromEntries(
-        parsed.map(({ result, file }) => [file.name, result.value]),
-      ) as Record<string, BROData>;
       // A File is already a Blob, so the upload itself is the download source
-      const xml = Object.fromEntries(
-        parsed.map(({ file }) => [file.name, file]),
-      );
+      const entries = Object.fromEntries(
+        parsed.map(({ result, file }) => [
+          file.name,
+          { data: result.value, xml: file },
+        ]),
+      ) as Record<string, SessionFile>;
 
       posthog.capture("files_processed", {
         source: "upload",
@@ -378,12 +334,11 @@ export function App() {
       });
 
       startTransition(() => {
-        setBroData((previous) => ({ ...previous, ...bro }));
-        setRawXml((previous) => ({ ...previous, ...xml }));
+        sessionFilesStore.setMany(entries);
         setFailedFiles((previous) => [...previous, ...failed]);
 
         if (files[0]) {
-          setSelectedFileName(files[0].name);
+          selectFile(files[0].name);
         }
       });
     }
@@ -391,91 +346,25 @@ export function App() {
 
   const selectedFile = selectedFileName ? broData[selectedFileName] : undefined;
 
-  // Memoized because detectChartAxes maps the measurement rows (adding the
-  // derived NAP elevation column); a fresh array every render would remake
-  // the plots.
-  const chartAxes = useMemo(
-    () =>
-      selectedFile && isCPTData(selectedFile)
-        ? detectChartAxes(selectedFile, t)
-        : null,
-    [selectedFile, t],
-  );
-
   return (
     <div className="pancake">
       <Header />
 
       <main className="main-grid px-2">
         <div className="mb-2">
-          <div className="mb-8">
-            <FileTrigger
-              acceptedFileTypes={[".xml", ".XML"]}
-              allowsMultiple
-              onSelect={(fileList) => {
-                handleFiles(fileList).catch((error: unknown) => {
-                  console.error(error);
-                });
-              }}
-            >
-              <Button
-                isPending={isPending}
-                aria-describedby={supportedTypesId}
-                className="flex gap-1 items-center justify-center w-full p-2 border border-blue-300 aria-selected:bg-blue-200 data-pressed:bg-blue-200 data-pressed:text-blue-800 rounded-sm bg-blue-50 hover:bg-blue-100 text-blue-700 transition-colors"
-              >
-                {isPending ? (
-                  <>
-                    {t("processingFiles")}{" "}
-                    <svg
-                      className="animate-spin h-4 w-4"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                    >
-                      <circle
-                        className="opacity-25"
-                        cx="12"
-                        cy="12"
-                        r="10"
-                        stroke="currentColor"
-                        strokeWidth="4"
-                      />
-                      <path
-                        className="opacity-75"
-                        fill="currentColor"
-                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
-                      />
-                    </svg>
-                  </>
-                ) : (
-                  <>
-                    {t("chooseFiles")}
-                    <UploadIcon size={14} />
-                  </>
-                )}
-              </Button>
-            </FileTrigger>
-
-            <div className="text-xs mt-1 text-center">
-              <span className=" text-gray-500">{t("or")} </span>
-              <Button
-                className=" text-blue-500 hover:text-blue-800 underline"
-                onPress={() => {
-                  loadSampleFiles().catch((error: unknown) => {
-                    console.error(error);
-                  });
-                }}
-              >
-                {t("loadSampleFiles")}
-              </Button>
-            </div>
-
-            <p
-              id={supportedTypesId}
-              className="text-xs mt-2 text-center text-gray-500"
-            >
-              {t("supportedTypes")}
-            </p>
-          </div>
+          <UploadCard
+            isPending={isPending}
+            onFiles={(files) => {
+              handleFiles(files).catch((error: unknown) => {
+                console.error(error);
+              });
+            }}
+            onLoadSamples={() => {
+              loadSampleFiles().catch((error: unknown) => {
+                console.error(error);
+              });
+            }}
+          />
 
           {failedFiles.length > 0 && (
             <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-sm">
@@ -496,14 +385,14 @@ export function App() {
           <FileTable
             broData={broData}
             selectedFileName={selectedFileName}
-            onSelectionChange={setSelectedFileName}
+            onSelectionChange={selectFile}
             onFileDrop={(files) => {
               handleFiles(files).catch((error: unknown) => {
                 console.error(error);
               });
             }}
             onFileDownload={(filename) => {
-              const xml = rawXml[filename];
+              const xml = sessionFiles[filename]?.xml;
               if (xml) {
                 downloadFile(
                   xml,
@@ -512,6 +401,17 @@ export function App() {
                     : `${filename}.xml`,
                   "application/xml",
                 );
+                return;
+              }
+              // Route-loaded objects arrive parsed; their XML is served by
+              // the (edge-cached) download endpoint instead.
+              if (broIdPattern.test(filename)) {
+                const anchor = document.createElement("a");
+                anchor.href = `/api/bro/${filename}`;
+                anchor.download = `${filename}.xml`;
+                document.body.append(anchor);
+                anchor.click();
+                anchor.remove();
               }
             }}
             onFileRemove={(filename) => {
@@ -524,22 +424,13 @@ export function App() {
                 ),
               });
 
-              setBroData((previous) => {
-                // eslint-disable-next-line @typescript-eslint/no-unused-vars
-                const { [filename]: _, ...rest } = previous;
-                return rest;
-              });
-              setRawXml((previous) => {
-                // eslint-disable-next-line @typescript-eslint/no-unused-vars
-                const { [filename]: _, ...rest } = previous;
-                return rest;
-              });
+              sessionFilesStore.delete(filename);
 
               if (selectedFileName === filename) {
                 const remaining = Object.keys(broData).find(
                   (f) => f !== filename,
                 );
-                setSelectedFileName(remaining ?? "");
+                selectFile(remaining ?? "");
               }
             }}
           />
@@ -556,9 +447,8 @@ export function App() {
                   ],
                   failed_file_count: failedFiles.length,
                 });
-                setBroData({});
-                setRawXml({});
-                setSelectedFileName("");
+                sessionFilesStore.clear();
+                selectFile("");
                 setFailedFiles([]);
               }}
             >
@@ -566,187 +456,76 @@ export function App() {
             </Button>
           )}
 
-          <div className="mb-6 mt-2">
-            <h2 className="text-xl font-semibold mb-3">{t("map")}</h2>
-
-            {isClient ? (
-              <ErrorBoundary
-                fallback={
-                  <div className="w-full h-[600px] rounded-sm border border-gray-300 bg-gray-100 flex items-center justify-center">
-                    <span className="text-gray-500">{t("mapError")}</span>
-                  </div>
-                }
-                onError={(error) => Sentry.captureException(error)}
-              >
-                <Suspense
-                  fallback={
-                    <div className="w-full h-[600px] rounded-sm border border-gray-300 bg-gray-100 flex items-center justify-center">
-                      <span className="text-gray-500">{t("loadingMap")}</span>
-                    </div>
-                  }
-                >
-                  <BROMap
-                    broData={broData}
-                    selectedFileName={selectedFileName}
-                    onMarkerClick={setSelectedFileName}
-                    onPickLocation={(broId, layer) => {
-                      handlePickLocation(broId, layer).catch(
-                        (error: unknown) => {
-                          console.error(error);
-                        },
-                      );
-                    }}
-                    onSearchBroId={handleSearchBroId}
-                  />
-                </Suspense>
-              </ErrorBoundary>
-            ) : (
-              <div className="w-full h-[620px] rounded-sm border border-gray-300 bg-gray-100 flex items-center justify-center">
-                <span className="text-gray-500">{t("loadingMap")}</span>
-              </div>
-            )}
-
-            {pendingBroIds.size > 0 && (
-              <p className="text-xs text-blue-600 mb-1">
-                {t("fetchingFromBro", {
-                  broIds: [...pendingBroIds].join(", "),
-                })}
-              </p>
-            )}
-
-            {Object.keys(broData).length > 0 && (
-              <DownloadGeoJSONButton broData={broData} />
-            )}
-          </div>
+          <MapSection
+            broData={broData}
+            selectedFileName={selectedFileName}
+            pendingBroId={pendingBroId}
+            onSelectFile={selectFile}
+            onPickLocation={(broId) => {
+              handlePickLocation(broId, "map");
+            }}
+            onSearchBroId={handleSearchBroId}
+          />
         </div>
 
         {selectedFile ? (
-          <div className="space-y-6 max-w-full">
-            {selectedFile.meta.warnings.length > 0 && (
-              <div className="p-4 bg-amber-50 border border-amber-200 rounded-sm">
-                <h2 className="text-amber-800 font-semibold mb-2">
-                  {t("warning", { count: selectedFile.meta.warnings.length })}
-                </h2>
-
-                <ul className="space-y-1">
-                  {selectedFile.meta.warnings.map((warning, index) => (
-                    <li key={index} className="text-sm text-amber-700">
-                      {translateWarning(warning, t)}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
-
-            {isCPTData(selectedFile) && (
-              <>
-                <CompactCptHeader
-                  filename={selectedFileName}
-                  data={selectedFile}
-                />
-
-                {chartAxes?.xAxis && chartAxes.yAxis && (
-                  <CptPlots
-                    data={chartAxes.data}
-                    xAxis={chartAxes.xAxis}
-                    yAxis={chartAxes.yAxis}
-                    availableChartColumns={chartAxes.availableColumns}
-                    yAxisOptions={chartAxes.yAxisOptions}
-                    baseFilename={selectedFileName.replace(/\.xml$/i, "")}
-                  />
-                )}
-
-                {getRemovedLayers(selectedFile).length > 0 && (
-                  <RemovedLayersPlot
-                    layers={getRemovedLayers(selectedFile)}
-                    baseFilename={selectedFileName.replace(/\.xml$/i, "")}
-                  />
-                )}
-
-                {getDissipationTests(selectedFile).length > 0 && (
-                  <DissipationTestPlots
-                    tests={getDissipationTests(selectedFile)}
-                    baseFilename={selectedFileName.replace(/\.xml$/i, "")}
-                  />
-                )}
-
-                <DetailedCptHeaders data={selectedFile} />
-              </>
-            )}
-
-            {isBHRGTData(selectedFile) && (
-              <>
-                <CompactBHRGTHeader
-                  filename={selectedFileName}
-                  data={selectedFile}
-                />
-                <BHRGTPlot
-                  data={selectedFile}
-                  baseFilename={selectedFileName.replace(/\.xml$/i, "")}
-                  analysis={selectedFile.boreholeSampleAnalysis}
-                  groundwaterLevel={
-                    selectedFile.boring?.groundwaterLevel?.value ?? null
-                  }
-                  surfaceNap={getSurfaceLevel(selectedFile)?.value ?? null}
-                />
-                {selectedFile.boreholeSampleAnalysis && (
-                  <LaboratoryAnalysis
-                    analysis={selectedFile.boreholeSampleAnalysis}
-                    baseFilename={selectedFileName.replace(/\.xml$/i, "")}
-                  />
-                )}
-                <DetailedBoreHeaders data={selectedFile} />
-              </>
-            )}
-
-            {isBHRGData(selectedFile) && (
-              <>
-                <CompactBHRGHeader
-                  filename={selectedFileName}
-                  data={selectedFile}
-                />
-                <BHRGPlot
-                  data={selectedFile}
-                  baseFilename={selectedFileName.replace(/\.xml$/i, "")}
-                />
-                <DetailedBHRGHeaders data={selectedFile} />
-              </>
-            )}
-
-            {isGMWData(selectedFile) && (
-              <>
-                <CompactGmwHeader
-                  filename={selectedFileName}
-                  data={selectedFile}
-                />
-                <GmwSchematic
-                  data={selectedFile}
-                  baseFilename={selectedFileName.replace(/\.xml$/i, "")}
-                />
-                <DetailedGmwHeaders data={selectedFile} />
-              </>
-            )}
-
-            {isGLDData(selectedFile) && (
-              <>
-                <CompactGldHeader
-                  filename={selectedFileName}
-                  data={selectedFile}
-                />
-                <GldChart
-                  observations={selectedFile.observation}
-                  baseFilename={selectedFileName.replace(/\.xml$/i, "")}
-                />
-                <DetailedGldHeaders data={selectedFile} />
-              </>
-            )}
-          </div>
+          <SelectedObjectPanel
+            file={selectedFile}
+            filename={selectedFileName}
+          />
+        ) : (routeError ? (
+          <RouteLoadError result={routeError} />
         ) : (
           <MarketingMessage />
-        )}
+        ))}
       </main>
 
       <Footer />
+    </div>
+  );
+}
+
+/**
+ * Shown in the detail area when the URL names a BRO object that failed to
+ * load during a client navigation. The URL deliberately stays on the failed
+ * ID (a shared link to it shows the equivalent full-page error), and retry
+ * revalidates the route, which re-runs the loaders.
+ */
+function RouteLoadError({
+  result,
+}: {
+  result: Extract<RouteObjectResult, { error: unknown }>;
+}) {
+  const { t } = useTranslation();
+  const revalidator = useRevalidator();
+  const { broId, error } = result;
+  const retryable =
+    error.kind === "rate-limited" ||
+    error.kind === "unavailable" ||
+    error.kind === "error";
+  const detail =
+    error.reason ??
+    (error.kind === "rejected"
+      ? t("broErrorRejected", { broId })
+      : translateError(`bro:${error.kind}`, t));
+
+  return (
+    <div className="self-start p-4 bg-red-50 border border-red-200 rounded-sm space-y-3">
+      <h2 className="text-red-800 font-semibold">
+        {t("broErrorLoadFailed", { broId })}
+      </h2>
+      <p className="text-sm text-red-700">{detail}</p>
+      {retryable && (
+        <Button
+          className="button"
+          isDisabled={revalidator.state === "loading"}
+          onPress={() => {
+            void revalidator.revalidate();
+          }}
+        >
+          {t("broErrorRetry")}
+        </Button>
+      )}
     </div>
   );
 }

@@ -42,6 +42,20 @@ export default defineConfig(
         },
       ],
       "unicorn/no-null": "off",
+      // React Router's idiom throws redirect()/data() results from loaders
+      "@typescript-eslint/only-throw-error": [
+        "error",
+        {
+          allow: [
+            { from: "lib", name: "Response" },
+            {
+              from: "package",
+              package: "react-router",
+              name: "DataWithResponseInit",
+            },
+          ],
+        },
+      ],
       "@typescript-eslint/consistent-type-imports": "error",
       "@typescript-eslint/array-type": ["error", { default: "generic" }],
       "@typescript-eslint/restrict-template-expressions": [

@@ -2,7 +2,7 @@ import type { Map as MaplibreMap, MapMouseEvent } from "maplibre-gl";
 import { Popup } from "maplibre-gl";
 import { type RefObject, useEffect, useEffectEvent } from "react";
 import { useTranslation } from "react-i18next";
-import type { BROLocationLayer } from "~/util/bro-api";
+import type { BROLocationLayer } from "~/util/bro-id";
 import { hoverPopupHtml } from "./map-hooks.client";
 import {
   broTileLayers,

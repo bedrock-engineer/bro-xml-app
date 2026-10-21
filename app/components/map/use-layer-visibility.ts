@@ -1,6 +1,6 @@
 import { type Map as MaplibreMap } from "maplibre-gl";
 import { type RefObject, useEffect, useState } from "react";
-import type { BROLocationLayer } from "~/util/bro-api";
+import type { BROLocationLayer } from "~/util/bro-id";
 import {
   broTileLayers,
   clusterLayerId,

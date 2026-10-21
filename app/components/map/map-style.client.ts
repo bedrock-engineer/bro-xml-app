@@ -6,7 +6,7 @@ import {
   type StyleSpecification,
 } from "maplibre-gl";
 import { Protocol } from "pmtiles";
-import type { BROLocationLayer } from "~/util/bro-api";
+import type { BROLocationLayer } from "~/util/bro-id";
 import {
   basemaps,
   defaultBasemapId,

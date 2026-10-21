@@ -552,6 +552,20 @@ export default {
     mapSearchEnterToLocate: "Druk op Enter om te lokaliseren",
     mapSearchBroIdProgress: "{{prefix}} · {{digits}}/12 cijfers",
     mapSearchBroIdNotFound: "Geen BRO-object met ID {{broId}}",
+
+    // BRO object route errors (/:broId)
+    broErrorRejected: "De BRO heeft geen openbaar object met ID {{broId}}",
+    broErrorUnsupported: "Dit type BRO-object kan (nog) niet worden getoond",
+    broErrorRateLimited:
+      "De BRO API is momenteel overbelast. Probeer het over een minuut opnieuw.",
+    broErrorUnavailable:
+      "De BRO API is momenteel niet bereikbaar. Probeer het later opnieuw.",
+    broErrorNotFound: "Pagina niet gevonden",
+    broErrorLoadFailed: "Kon {{broId}} niet laden",
+    broErrorGeneric: "Er ging iets mis bij het laden van dit BRO-object",
+    broErrorRetry: "Opnieuw proberen",
+    broErrorBackToApp: "Terug naar de app",
+
     mapBasemapLabel: "Ondergrond",
     mapBasemapTopo: "Topografie (BRT)",
     mapBasemapAerial: "Luchtfoto",

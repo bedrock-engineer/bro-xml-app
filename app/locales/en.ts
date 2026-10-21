@@ -552,6 +552,20 @@ export default {
     mapSearchEnterToLocate: "Press Enter to locate",
     mapSearchBroIdProgress: "{{prefix}} · {{digits}}/12 digits",
     mapSearchBroIdNotFound: "No BRO object with ID {{broId}}",
+
+    // BRO object route errors (/:broId)
+    broErrorRejected: "The BRO has no public object with ID {{broId}}",
+    broErrorUnsupported: "This BRO object type cannot be displayed (yet)",
+    broErrorRateLimited:
+      "The BRO API is busy right now. Please try again in a minute.",
+    broErrorUnavailable:
+      "The BRO API is currently unavailable. Please try again later.",
+    broErrorNotFound: "Page not found",
+    broErrorLoadFailed: "Could not load {{broId}}",
+    broErrorGeneric: "Something went wrong loading this BRO object",
+    broErrorRetry: "Try again",
+    broErrorBackToApp: "Back to the app",
+
     mapBasemapLabel: "Basemap",
     mapBasemapTopo: "Topographic (BRT)",
     mapBasemapAerial: "Aerial photo",

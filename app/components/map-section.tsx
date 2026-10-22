@@ -48,7 +48,7 @@ export function MapSection({
 
   return (
     <div className="mb-6 mt-2">
-      <h2 className="text-xl font-semibold mb-3">{t("map")}</h2>
+      <h2 className="text-xl font-semibold mb-1">{t("map")}</h2>
 
       <ErrorBoundary
         fallback={

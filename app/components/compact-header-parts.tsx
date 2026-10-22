@@ -6,6 +6,7 @@ import {
   normalizeEpsg,
   useToWgs84,
 } from "../util/coordinates";
+import { bronhouderNames } from "../util/bronhouders-data";
 import { formatDate, formatMeasure } from "../util/format";
 import { CopyButton } from "./copy-button";
 
@@ -132,6 +133,46 @@ export function QualityRegimeRow({ qualityRegime }: QualityRegimeRowProps) {
       <dd>{qualityRegime}</dd>
     </>
   );
+}
+
+interface KvkPartyRowProps {
+  label: string;
+  kvkNumber: string | null | undefined;
+}
+
+/** Organization identified by KvK number, shown by name when known. */
+function KvkPartyRow({ label, kvkNumber }: KvkPartyRowProps) {
+  if (!kvkNumber) {
+    return null;
+  }
+
+  const name = bronhouderNames[kvkNumber];
+
+  return (
+    <>
+      <dt className="text-gray-500">{label}</dt>
+      <dd>
+        {name ?? kvkNumber}
+        {name && (
+          <span className="text-gray-400 text-sm"> (KvK {kvkNumber})</span>
+        )}
+      </dd>
+    </>
+  );
+}
+
+interface KvkNumberProps {
+  kvkNumber: string | null | undefined;
+}
+
+export function BronhouderRow({ kvkNumber }: KvkNumberProps) {
+  const { t } = useTranslation();
+  return <KvkPartyRow label={t("bronhouder")} kvkNumber={kvkNumber} />;
+}
+
+export function OperatorRow({ kvkNumber }: KvkNumberProps) {
+  const { t } = useTranslation();
+  return <KvkPartyRow label={t("operator")} kvkNumber={kvkNumber} />;
 }
 
 interface ReportDateRowProps {

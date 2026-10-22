@@ -21,12 +21,14 @@ import { getLocationItems } from "../../util/location-info";
 import { CardTitle } from "../card";
 import {
   BroIdRow,
+  BronhouderRow,
   CompactHeaderWrapper,
   DepthRow,
   FilenameRow,
   HeaderColumn,
   HeaderRow,
   LocationDisplay,
+  OperatorRow,
   QualityRegimeRow,
   ReportDateRow,
   SurfaceLevelRow,
@@ -51,7 +53,10 @@ export function CompactCptHeader({ filename, data }: CompactCptHeaderProps) {
         <FilenameRow filename={filename} />
         <BroIdRow broId={data.broId} />
         <QualityRegimeRow qualityRegime={data.qualityRegime} />
+        <BronhouderRow kvkNumber={data.deliveryAccountableParty} />
+        <OperatorRow kvkNumber={data.researchOperator} />
         <ReportDateRow date={data.researchReportDate} />
+        <HeaderRow label={t("dataType")} value={t("conePenetrationTest")} />
       </HeaderColumn>
 
       {/* Right column - Location and test info */}
@@ -81,6 +86,12 @@ function getCptSurveyInfo(data: CPTData, t: TFunction): Array<HeaderItem> {
   const finalDepth = survey?.trajectory?.finalDepth ?? null;
   const groundwaterLevel = data.additionalInvestigation?.groundwaterLevel;
 
+  if (data.deliveryContext) {
+    items.push(codeItem(t("deliveryContext"), data.deliveryContext));
+  }
+  if (data.surveyPurpose) {
+    items.push(codeItem(t("surveyPurpose"), data.surveyPurpose));
+  }
   if (data.cptStandard) {
     items.push(codeItem(t("cptStandard"), data.cptStandard));
   }
@@ -307,6 +318,46 @@ function getMeasurementInfo(data: CPTData, t: TFunction): Array<HeaderItem> {
   return items;
 }
 
+function getCptRegistrationInfo(
+  data: CPTData,
+  t: TFunction,
+): Array<HeaderItem> {
+  const history = data.registrationHistory;
+  if (!history) {
+    return [];
+  }
+
+  const items: Array<HeaderItem> = [];
+  if (history.registrationStatus) {
+    items.push(codeItem(t("registrationStatus"), history.registrationStatus));
+  }
+  if (history.objectRegistrationTime) {
+    items.push({
+      label: t("registrationTime"),
+      value: formatDate(history.objectRegistrationTime),
+    });
+  }
+  if (history.registrationCompletionTime) {
+    items.push({
+      label: t("registrationCompletionTime"),
+      value: formatDate(history.registrationCompletionTime),
+    });
+  }
+  if (history.corrected !== null) {
+    items.push({
+      label: t("corrected"),
+      value: formatIndication(history.corrected, t),
+    });
+  }
+  if (history.underReview !== null) {
+    items.push({
+      label: t("underReview"),
+      value: formatIndication(history.underReview, t),
+    });
+  }
+  return items;
+}
+
 interface DetailedCptHeadersProps {
   data: CPTData;
 }
@@ -344,6 +395,11 @@ export function DetailedCptHeaders({ data }: DetailedCptHeadersProps) {
       id: "measurements",
       title: t("measurementData"),
       items: getMeasurementInfo(data, t),
+    },
+    {
+      id: "registration",
+      title: t("registrationInformation"),
+      items: getCptRegistrationInfo(data, t),
     },
   ].filter((section) => section.items.length > 0);
 

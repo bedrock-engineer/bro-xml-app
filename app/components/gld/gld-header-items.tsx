@@ -7,6 +7,7 @@ import { codeItem, formatDate, formatIndication } from "../../util/format";
 import { CardTitle } from "../card";
 import {
   BroIdRow,
+  BronhouderRow,
   CompactHeaderWrapper,
   FilenameRow,
   HeaderColumn,
@@ -38,6 +39,7 @@ export function CompactGldHeader({ filename, data }: CompactGldHeaderProps) {
         <FilenameRow filename={filename} />
         <BroIdRow broId={data.broId} />
         <QualityRegimeRow qualityRegime={data.qualityRegime} />
+        <BronhouderRow kvkNumber={data.deliveryAccountableParty} />
         <HeaderRow label={t("dataType")} value={t("groundwaterLevelData")} />
       </HeaderColumn>
 
@@ -102,6 +104,19 @@ function getObservationInfo(data: GLDData, t: TFunction): Array<HeaderItem> {
   ];
   if (types.length > 0) {
     items.push({ label: t("observationType"), value: types.join(", ") });
+  }
+
+  // Distinct validation statuses (e.g. "Voorlopig", "Volledig beoordeeld")
+  const statuses = [
+    ...new Set(
+      observations
+        .map((observation) => observation.status)
+        .filter((status): status is string => status !== null)
+        .map((status) => prettifyBroCode(status)),
+    ),
+  ];
+  if (statuses.length > 0) {
+    items.push({ label: t("observationStatus"), value: statuses.join(", ") });
   }
 
   const procedures = [

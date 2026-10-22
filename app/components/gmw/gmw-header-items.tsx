@@ -19,6 +19,7 @@ import { getLocationItems } from "../../util/location-info";
 import { CardTitle } from "../card";
 import {
   BroIdRow,
+  BronhouderRow,
   CompactHeaderWrapper,
   FilenameRow,
   HeaderColumn,
@@ -44,11 +45,22 @@ export function CompactGmwHeader({ filename, data }: CompactGmwHeaderProps) {
         <FilenameRow filename={filename} />
         <BroIdRow broId={data.broId} />
         <QualityRegimeRow qualityRegime={data.qualityRegime} />
+        <BronhouderRow kvkNumber={data.deliveryAccountableParty} />
         <HeaderRow
           label={t("dataType")}
           value={t("groundwaterMonitoringWell")}
         />
         <HeaderRow label={t("wellCode")} value={data.wellCode} />
+        {data.removed === true && (
+          <>
+            <dt className="text-gray-500">{t("wellRemoved")}</dt>
+            <dd className="font-semibold text-red-700">
+              {formatIndication(true, t)}
+              {data.wellHistory?.wellRemovalDate &&
+                ` (${formatDate(data.wellHistory.wellRemovalDate)})`}
+            </dd>
+          </>
+        )}
       </HeaderColumn>
 
       {/* Right column - Location and well info */}

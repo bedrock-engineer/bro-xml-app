@@ -55,6 +55,9 @@ export default {
 
     // BRO-specific labels
     qualityRegime: "Quality Regime",
+    bronhouder: "Source holder",
+    operator: "Operator",
+    wellRemoved: "Well Removed",
     reportDate: "Report Date",
     surfaceLevel: "Surface Level",
     finalDepth: "Final Depth",
@@ -67,6 +70,8 @@ export default {
     classificationStandard: "Classification Standard",
     dataType: "Data Type",
     geologicalBorehole: "Geological Borehole (BHR-G)",
+    geotechnicalBorehole: "Geotechnical Borehole (BHR-GT)",
+    conePenetrationTest: "Cone Penetration Test (CPT)",
 
     // Location info
     deliveredLocation: "Delivered Location",

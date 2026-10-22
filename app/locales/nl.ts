@@ -57,6 +57,9 @@ export default {
 
     // BRO-specific labels
     qualityRegime: "Kwaliteitsregime",
+    bronhouder: "Bronhouder",
+    operator: "Uitvoerder",
+    wellRemoved: "Put verwijderd",
     reportDate: "Rapportdatum",
     surfaceLevel: "Maaiveldniveau",
     finalDepth: "Einddiepte",
@@ -69,6 +72,8 @@ export default {
     classificationStandard: "Classificatiestandaard",
     dataType: "Gegevenstype",
     geologicalBorehole: "Geologische boring (BHR-G)",
+    geotechnicalBorehole: "Geotechnische boring (BHR-GT)",
+    conePenetrationTest: "Sondering (CPT)",
 
     // Location info
     deliveredLocation: "Aangeleverde locatie",

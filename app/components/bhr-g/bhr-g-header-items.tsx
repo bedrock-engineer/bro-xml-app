@@ -24,6 +24,8 @@ import { getLocationItems } from "../../util/location-info";
 import { CardTitle } from "../card";
 import {
   BroIdRow,
+  BronhouderRow,
+  OperatorRow,
   CompactHeaderWrapper,
   DepthRow,
   FilenameRow,
@@ -51,6 +53,10 @@ export function CompactBHRGHeader({ filename, data }: CompactBHRGHeaderProps) {
         <FilenameRow filename={filename} />
         <BroIdRow broId={data.broId} />
         <QualityRegimeRow qualityRegime={data.qualityRegime} />
+        <BronhouderRow kvkNumber={data.deliveryAccountableParty} />
+        <OperatorRow
+          kvkNumber={data.researchOperator?.chamberOfCommerceNumber}
+        />
         <ReportDateRow date={data.researchReportDate} />
         <HeaderRow label={t("dataType")} value={t("geologicalBorehole")} />
       </HeaderColumn>

@@ -21,6 +21,8 @@ import {
   uniqueCodes,
 } from "../../util/format";
 import { getLocationItems } from "../../util/location-info";
+import { getRegistrationItems } from "../../util/registration-info";
+import { formatKvkParty } from "../../util/bronhouders";
 import { CardTitle } from "../card";
 import {
   BroIdRow,
@@ -177,6 +179,12 @@ function getBHRGTInfo(data: BHRGTData, t: TFunction): Array<HeaderItem> {
       value: formatIndication(boring.subsurfaceContaminated, t),
     });
   }
+  if (boring.boringOperator?.chamberOfCommerceNumber) {
+    items.push({
+      label: t("boringOperator"),
+      value: formatKvkParty(boring.boringOperator.chamberOfCommerceNumber),
+    });
+  }
 
   return items;
 }
@@ -314,6 +322,14 @@ function getDescriptionInfo(data: BHRGTData, t: TFunction): Array<HeaderItem> {
       value: formatIndication(log.boreholeLogChecked, t),
     });
   }
+  if (description?.descriptionOperator?.chamberOfCommerceNumber) {
+    items.push({
+      label: t("descriptionOperator"),
+      value: formatKvkParty(
+        description.descriptionOperator.chamberOfCommerceNumber,
+      ),
+    });
+  }
 
   return items;
 }
@@ -338,6 +354,52 @@ function getSurveyContext(data: BHRGTData, t: TFunction): Array<HeaderItem> {
       label: t("siteCharacteristicDetermined"),
       value: formatIndication(data.siteCharacteristicDetermined, t),
     });
+  }
+
+  return items;
+}
+
+function getSiteCharacteristics(
+  data: BHRGTData,
+  t: TFunction,
+): Array<HeaderItem> {
+  const items: Array<HeaderItem> = [];
+  const site = data.siteCharacteristic;
+  const mud = data.fluidMudLayer;
+
+  if (site?.soilUse) {
+    items.push(codeItem(t("soilUse"), site.soilUse));
+  }
+  if (site?.positionOnGroundBody) {
+    items.push(codeItem(t("positionOnGroundBody"), site.positionOnGroundBody));
+  }
+  if (site?.temporaryChange) {
+    items.push(codeItem(t("temporaryChange"), site.temporaryChange));
+  }
+  if (mud?.thickness != null) {
+    items.push({
+      label: t("fluidMudLayerThickness"),
+      value: formatMeasure(mud.thickness, 2),
+    });
+  }
+  if (mud?.colour) {
+    items.push(codeItem(t("fluidMudLayerColour"), mud.colour));
+  }
+  if (mud?.upperBoundaryPositioningMethod) {
+    items.push(
+      codeItem(
+        t("fluidMudUpperBoundaryMethod"),
+        mud.upperBoundaryPositioningMethod,
+      ),
+    );
+  }
+  if (mud?.lowerBoundaryPositioningMethod) {
+    items.push(
+      codeItem(
+        t("fluidMudLowerBoundaryMethod"),
+        mud.lowerBoundaryPositioningMethod,
+      ),
+    );
   }
 
   return items;
@@ -377,38 +439,7 @@ function getIntervalData(data: BHRGTData, t: TFunction): Array<HeaderItem> {
 }
 
 function getRegistrationInfo(data: BHRGTData, t: TFunction): Array<HeaderItem> {
-  const items: Array<HeaderItem> = [];
-
-  if (data.registrationHistory) {
-    const history = data.registrationHistory;
-    if (history.registrationStatus) {
-      items.push(codeItem(t("registrationStatus"), history.registrationStatus));
-    }
-    if (history.objectRegistrationTime) {
-      items.push({
-        label: t("registrationTime"),
-        value: formatDate(history.objectRegistrationTime),
-      });
-    }
-    if (history.registrationCompletionTime) {
-      items.push({
-        label: t("registrationCompletionTime"),
-        value: formatDate(history.registrationCompletionTime),
-      });
-    }
-    if (history.corrected !== null) {
-      items.push({
-        label: t("corrected"),
-        value: formatIndication(history.corrected, t),
-      });
-    }
-    if (history.underReview !== null) {
-      items.push({
-        label: t("underReview"),
-        value: formatIndication(history.underReview, t),
-      });
-    }
-  }
+  const items: Array<HeaderItem> = getRegistrationItems(data, t);
 
   if (data.reportHistory) {
     const report = data.reportHistory;
@@ -491,6 +522,13 @@ function getBHRGTAnalysisInfo(
     items.push(codeItem(t("analysisProcedure"), analysis.analysisProcedure));
   }
 
+  if (analysis.analysisOperator?.chamberOfCommerceNumber) {
+    items.push({
+      label: t("analysisOperator"),
+      value: formatKvkParty(analysis.analysisOperator.chamberOfCommerceNumber),
+    });
+  }
+
   items.push({
     label: t("investigatedIntervals"),
     value: analysis.investigatedInterval.length,
@@ -547,6 +585,11 @@ export function DetailedBoreHeaders({ data }: DetailedBoreHeadersProps) {
       id: "context",
       title: t("surveyContext"),
       items: getSurveyContext(data, t),
+    },
+    {
+      id: "site",
+      title: t("siteCharacteristics"),
+      items: getSiteCharacteristics(data, t),
     },
     {
       id: "intervals",

@@ -3,7 +3,8 @@ import type { TFunction } from "i18next";
 import { useTranslation } from "react-i18next";
 import type { GLDData } from "../../types/bro-data";
 import type { HeaderItem, HeaderSection } from "../../types/header-types";
-import { codeItem, formatDate, formatIndication } from "../../util/format";
+import { formatDate } from "../../util/format";
+import { getRegistrationItems } from "../../util/registration-info";
 import { CardTitle } from "../card";
 import {
   BroIdRow,
@@ -134,46 +135,22 @@ function getObservationInfo(data: GLDData, t: TFunction): Array<HeaderItem> {
     });
   }
 
-  return items;
-}
+  // Distinct air pressure compensation methods across diver measurements
+  const compensationTypes = [
+    ...new Set(
+      observations
+        .map((observation) => observation.airPressureCompensationType)
+        .filter((type): type is string => type !== null)
+        .map((type) => prettifyBroCode(type)),
+    ),
+  ];
+  if (compensationTypes.length > 0) {
+    items.push({
+      label: t("airPressureCompensation"),
+      value: compensationTypes.join(", "),
+    });
+  }
 
-function getGldRegistrationInfo(
-  data: GLDData,
-  t: TFunction,
-): Array<HeaderItem> {
-  const history = data.registrationHistory;
-  if (!history) {
-    return [];
-  }
-
-  const items: Array<HeaderItem> = [];
-  if (history.registrationStatus) {
-    items.push(codeItem(t("registrationStatus"), history.registrationStatus));
-  }
-  if (history.objectRegistrationTime) {
-    items.push({
-      label: t("registrationTime"),
-      value: formatDate(history.objectRegistrationTime),
-    });
-  }
-  if (history.registrationCompletionTime) {
-    items.push({
-      label: t("registrationCompletionTime"),
-      value: formatDate(history.registrationCompletionTime),
-    });
-  }
-  if (history.corrected !== null) {
-    items.push({
-      label: t("corrected"),
-      value: formatIndication(history.corrected, t),
-    });
-  }
-  if (history.underReview !== null) {
-    items.push({
-      label: t("underReview"),
-      value: formatIndication(history.underReview, t),
-    });
-  }
   return items;
 }
 
@@ -211,7 +188,7 @@ export function DetailedGldHeaders({ data }: DetailedGldHeadersProps) {
     {
       id: "registration",
       title: t("registrationInformation"),
-      items: getGldRegistrationInfo(data, t),
+      items: getRegistrationItems(data, t),
     },
   ].filter((section) => section.items.length > 0);
 

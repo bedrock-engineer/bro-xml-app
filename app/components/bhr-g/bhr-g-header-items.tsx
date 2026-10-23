@@ -21,6 +21,8 @@ import {
   uniqueCodes,
 } from "../../util/format";
 import { getLocationItems } from "../../util/location-info";
+import { getRegistrationItems } from "../../util/registration-info";
+import { formatKvkParty } from "../../util/bronhouders";
 import { CardTitle } from "../card";
 import {
   BroIdRow,
@@ -168,6 +170,12 @@ function getBHRGBoringInfo(data: BHRGData, t: TFunction): Array<HeaderItem> {
       value: formatIndication(boring.subsurfaceContaminated, t),
     });
   }
+  if (boring.boringOperator?.chamberOfCommerceNumber) {
+    items.push({
+      label: t("boringOperator"),
+      value: formatKvkParty(boring.boringOperator.chamberOfCommerceNumber),
+    });
+  }
 
   return items;
 }
@@ -230,6 +238,14 @@ function getBHRGDescriptionInfo(
   if (log?.sampleMoistness) {
     items.push(codeItem(t("sampleMoistness"), log.sampleMoistness));
   }
+  if (description?.descriptionOperator?.chamberOfCommerceNumber) {
+    items.push({
+      label: t("descriptionOperator"),
+      value: formatKvkParty(
+        description.descriptionOperator.chamberOfCommerceNumber,
+      ),
+    });
+  }
 
   return items;
 }
@@ -248,6 +264,100 @@ function getBHRGSurveyContext(data: BHRGData, t: TFunction): Array<HeaderItem> {
   }
   if (data.surveyProcedure) {
     items.push(codeItem(t("surveyProcedure"), data.surveyProcedure));
+  }
+  if (data.siteCharacteristicDetermined !== null) {
+    items.push({
+      label: t("siteCharacteristicDetermined"),
+      value: formatIndication(data.siteCharacteristicDetermined, t),
+    });
+  }
+
+  return items;
+}
+
+function getBHRGSiteCharacteristics(
+  data: BHRGData,
+  t: TFunction,
+): Array<HeaderItem> {
+  const items: Array<HeaderItem> = [];
+  const site = data.siteCharacteristic;
+  const mud = data.fluidMudLayer;
+
+  if (site?.soilUse) {
+    items.push(codeItem(t("soilUse"), site.soilUse));
+  }
+  if (site?.positionOnGroundBody) {
+    items.push(codeItem(t("positionOnGroundBody"), site.positionOnGroundBody));
+  }
+  if (site?.temporaryChange) {
+    items.push(codeItem(t("temporaryChange"), site.temporaryChange));
+  }
+  if (site?.landscapeElement) {
+    items.push(codeItem(t("landscapeElement"), site.landscapeElement));
+  }
+  if (site?.hydrologicalSetting) {
+    items.push(codeItem(t("hydrologicalSetting"), site.hydrologicalSetting));
+  }
+  if (site?.currentProcess) {
+    items.push(codeItem(t("currentProcess"), site.currentProcess));
+  }
+  if (mud?.thickness != null) {
+    items.push({
+      label: t("fluidMudLayerThickness"),
+      value: formatMeasure(mud.thickness, 2),
+    });
+  }
+  if (mud?.colour) {
+    items.push(codeItem(t("fluidMudLayerColour"), mud.colour));
+  }
+  if (mud?.upperBoundaryPositioningMethod) {
+    items.push(
+      codeItem(
+        t("fluidMudUpperBoundaryMethod"),
+        mud.upperBoundaryPositioningMethod,
+      ),
+    );
+  }
+  if (mud?.lowerBoundaryPositioningMethod) {
+    items.push(
+      codeItem(
+        t("fluidMudLowerBoundaryMethod"),
+        mud.lowerBoundaryPositioningMethod,
+      ),
+    );
+  }
+
+  return items;
+}
+
+function getBHRGAnalysisInfo(data: BHRGData, t: TFunction): Array<HeaderItem> {
+  const items: Array<HeaderItem> = [];
+  const analysis = data.boreholeSampleAnalysis;
+
+  if (!analysis) {
+    return items;
+  }
+
+  if (analysis.analysisReportDate) {
+    items.push({
+      label: t("analysisReportDate"),
+      value: formatDate(analysis.analysisReportDate),
+    });
+  }
+  if (analysis.analysisProcedure) {
+    items.push(codeItem(t("analysisProcedure"), analysis.analysisProcedure));
+  }
+  if (analysis.analysisOperator?.chamberOfCommerceNumber) {
+    items.push({
+      label: t("analysisOperator"),
+      value: formatKvkParty(analysis.analysisOperator.chamberOfCommerceNumber),
+    });
+  }
+  if (analysis.investigatedInterval.length > 0) {
+    items.push({
+      label: t("investigatedIntervals"),
+      value: analysis.investigatedInterval.length,
+    });
   }
 
   return items;
@@ -277,38 +387,7 @@ function getBHRGRegistrationInfo(
   data: BHRGData,
   t: TFunction,
 ): Array<HeaderItem> {
-  const items: Array<HeaderItem> = [];
-
-  if (data.registrationHistory) {
-    const history = data.registrationHistory;
-    if (history.registrationStatus) {
-      items.push(codeItem(t("registrationStatus"), history.registrationStatus));
-    }
-    if (history.objectRegistrationTime) {
-      items.push({
-        label: t("registrationTime"),
-        value: formatDate(history.objectRegistrationTime),
-      });
-    }
-    if (history.registrationCompletionTime) {
-      items.push({
-        label: t("registrationCompletionTime"),
-        value: formatDate(history.registrationCompletionTime),
-      });
-    }
-    if (history.corrected !== null) {
-      items.push({
-        label: t("corrected"),
-        value: formatIndication(history.corrected, t),
-      });
-    }
-    if (history.underReview !== null) {
-      items.push({
-        label: t("underReview"),
-        value: formatIndication(history.underReview, t),
-      });
-    }
-  }
+  const items: Array<HeaderItem> = getRegistrationItems(data, t);
 
   // BHR-G reports its history as dated events (e.g. "volledig gerapporteerd")
   for (const event of data.reportHistory?.event ?? []) {
@@ -424,6 +503,16 @@ export function DetailedBHRGHeaders({ data }: DetailedBHRGHeadersProps) {
       id: "context",
       title: t("surveyContext"),
       items: getBHRGSurveyContext(data, t),
+    },
+    {
+      id: "site",
+      title: t("siteCharacteristics"),
+      items: getBHRGSiteCharacteristics(data, t),
+    },
+    {
+      id: "analysis",
+      title: t("laboratoryAnalysis"),
+      items: getBHRGAnalysisInfo(data, t),
     },
     {
       id: "intervals",

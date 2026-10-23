@@ -6,6 +6,7 @@ import { Card, CardTitle } from "../card";
 import { PlotDownloadButtons } from "../plot-download-buttons";
 import {
   buildGmwSchematic,
+  ELECTRODE_COLOR,
   PLAIN_TUBE_COLOR,
   SCREEN_COLOR,
   SEDIMENT_SUMP_COLOR,
@@ -50,10 +51,19 @@ export function GmwSchematic({
     };
   }, [data, width, height, t]);
 
+  const hasElectrodes = data.monitoringTube.some((tube) =>
+    tube.geoOhmCable.some((cable) =>
+      cable.electrode.some((electrode) => electrode.electrodePosition !== null),
+    ),
+  );
+
   const legendEntries: Array<{ color: string; label: string }> = [
     { color: PLAIN_TUBE_COLOR, label: t("plainTubePart") },
     { color: SCREEN_COLOR, label: t("screen") },
     { color: SEDIMENT_SUMP_COLOR, label: t("sedimentSump") },
+    ...(hasElectrodes
+      ? [{ color: ELECTRODE_COLOR, label: t("electrodes") }]
+      : []),
   ];
 
   return (

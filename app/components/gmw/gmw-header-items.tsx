@@ -10,12 +10,14 @@ import {
 import type { HeaderItem, HeaderSection } from "../../types/header-types";
 import {
   codeItem,
+  describeCode,
   formatCode,
   formatDate,
   formatIndication,
   formatMeasure,
 } from "../../util/format";
 import { getLocationItems } from "../../util/location-info";
+import { getRegistrationItems } from "../../util/registration-info";
 import { CardTitle } from "../card";
 import {
   BroIdRow,
@@ -90,6 +92,9 @@ export function CompactGmwHeader({ filename, data }: CompactGmwHeaderProps) {
 function getWellInfo(data: GMWData, t: TFunction): Array<HeaderItem> {
   const items: Array<HeaderItem> = [];
 
+  if (data.deliveryContext) {
+    items.push(codeItem(t("deliveryContext"), data.deliveryContext));
+  }
   if (data.constructionStandard) {
     items.push(codeItem(t("constructionStandard"), data.constructionStandard));
   }
@@ -132,6 +137,55 @@ function getWellInfo(data: GMWData, t: TFunction): Array<HeaderItem> {
       value: data.maintenanceResponsibleParty,
     });
   }
+  if (data.removed !== null) {
+    items.push({
+      label: t("wellRemoved"),
+      value: formatIndication(data.removed, t),
+    });
+  }
+  if (data.withPrehistory !== null) {
+    items.push({
+      label: t("withPrehistory"),
+      value: formatIndication(data.withPrehistory, t),
+    });
+  }
+  if (data.isAbroad !== null) {
+    items.push({
+      label: t("isAbroad"),
+      value: formatIndication(data.isAbroad, t),
+    });
+  }
+  if (data.geometricDataPubliclyAvailable !== null) {
+    items.push({
+      label: t("geometricDataPubliclyAvailable"),
+      value: formatIndication(data.geometricDataPubliclyAvailable, t),
+    });
+  }
+
+  // Dated well events (e.g. "buis ingekort", "put verwijderd")
+  for (const event of data.wellHistory?.intermediateEvent ?? []) {
+    if (event.eventName && event.eventDate) {
+      items.push({
+        label: formatCode(event.eventName) ?? event.eventName.code,
+        value: formatDate(event.eventDate),
+        description: describeCode(event.eventName),
+      });
+    }
+  }
+
+  // BRO IDs of surveys performed in this well (CPTs, boreholes)
+  const relatedSurveys = data.survey.flatMap((survey) =>
+    [
+      survey.boreholeResearch?.broId,
+      survey.geotechnicalCPTSurvey?.broId,
+    ].filter((broId): broId is string => broId != null),
+  );
+  if (relatedSurveys.length > 0) {
+    items.push({
+      label: t("relatedSurveys"),
+      value: relatedSurveys.join(", "),
+    });
+  }
 
   return items;
 }
@@ -153,6 +207,31 @@ function describeTube(tube: GMWMonitoringTube, t: TFunction): HeaderItem {
   if (material) {
     parts.push(material);
   }
+  const tubeType = formatCode(tube.tubeType);
+  if (tubeType) {
+    parts.push(tubeType);
+  }
+  const tubeStatus = formatCode(tube.tubeStatus);
+  if (tubeStatus) {
+    parts.push(tubeStatus);
+  }
+  if (tube.tubeInUse === "nee") {
+    parts.push(t("notInUse"));
+  }
+  if (tube.artesianWellCapPresent === "ja") {
+    parts.push(t("artesianWellCap"));
+  }
+  if (tube.sedimentSumpPresent === "ja") {
+    const length = tube.sedimentSump?.sedimentSumpLength;
+    parts.push(
+      length == null
+        ? t("sedimentSumpPart")
+        : `${t("sedimentSumpPart")} ${formatMeasure(length)}`,
+    );
+  }
+  if (tube.numberOfGeoOhmCables !== null && tube.numberOfGeoOhmCables > 0) {
+    parts.push(`${tube.numberOfGeoOhmCables} ${t("geoOhmCables")}`);
+  }
 
   return {
     label: `${t("tube")} ${tube.tubeNumber ?? "?"}`,
@@ -162,46 +241,6 @@ function describeTube(tube: GMWMonitoringTube, t: TFunction): HeaderItem {
 
 function getTubeInfo(data: GMWData, t: TFunction): Array<HeaderItem> {
   return data.monitoringTube.map((tube) => describeTube(tube, t));
-}
-
-function getGmwRegistrationInfo(
-  data: GMWData,
-  t: TFunction,
-): Array<HeaderItem> {
-  const history = data.registrationHistory;
-  if (!history) {
-    return [];
-  }
-
-  const items: Array<HeaderItem> = [];
-  if (history.registrationStatus) {
-    items.push(codeItem(t("registrationStatus"), history.registrationStatus));
-  }
-  if (history.objectRegistrationTime) {
-    items.push({
-      label: t("registrationTime"),
-      value: formatDate(history.objectRegistrationTime),
-    });
-  }
-  if (history.registrationCompletionTime) {
-    items.push({
-      label: t("registrationCompletionTime"),
-      value: formatDate(history.registrationCompletionTime),
-    });
-  }
-  if (history.corrected !== null) {
-    items.push({
-      label: t("corrected"),
-      value: formatIndication(history.corrected, t),
-    });
-  }
-  if (history.underReview !== null) {
-    items.push({
-      label: t("underReview"),
-      value: formatIndication(history.underReview, t),
-    });
-  }
-  return items;
 }
 
 interface DetailedGmwHeadersProps {
@@ -230,7 +269,7 @@ export function DetailedGmwHeaders({ data }: DetailedGmwHeadersProps) {
     {
       id: "registration",
       title: t("registrationInformation"),
-      items: getGmwRegistrationInfo(data, t),
+      items: getRegistrationItems(data, t),
     },
   ].filter((section) => section.items.length > 0);
 

@@ -18,6 +18,7 @@ import {
   formatQualityClass,
 } from "../../util/format";
 import { getLocationItems } from "../../util/location-info";
+import { getRegistrationItems } from "../../util/registration-info";
 import { CardTitle } from "../card";
 import {
   BroIdRow,
@@ -132,6 +133,36 @@ function getCptSurveyInfo(data: CPTData, t: TFunction): Array<HeaderItem> {
       value: formatIndication(survey.dissipationTestPerformed, t),
     });
   }
+  if (survey?.sensorAzimuth != null) {
+    items.push({
+      label: t("sensorAzimuth"),
+      value: formatMeasure(survey.sensorAzimuth),
+    });
+  }
+  if (data.additionalInvestigationPerformed != null) {
+    items.push({
+      label: t("additionalInvestigationPerformed"),
+      value: formatIndication(data.additionalInvestigationPerformed, t),
+    });
+  }
+  if (data.additionalInvestigation?.investigationDate) {
+    items.push({
+      label: t("investigationDate"),
+      value: formatDate(data.additionalInvestigation.investigationDate),
+    });
+  }
+  if (data.additionalInvestigation?.conditions) {
+    items.push({
+      label: t("investigationConditions"),
+      value: data.additionalInvestigation.conditions,
+    });
+  }
+  if (data.additionalInvestigation?.surfaceDescription) {
+    items.push({
+      label: t("surfaceDescription"),
+      value: data.additionalInvestigation.surfaceDescription,
+    });
+  }
 
   return items;
 }
@@ -211,6 +242,8 @@ function getZeroLoadMeasurements(
     "coneResistanceAfter",
     "localFrictionBefore",
     "localFrictionAfter",
+    "electricalConductivityBefore",
+    "electricalConductivityAfter",
     "porePressureU1Before",
     "porePressureU1After",
     "porePressureU2Before",
@@ -273,12 +306,26 @@ function getProcessingInfo(data: CPTData, t: TFunction): Array<HeaderItem> {
 
 function getMeasurementInfo(data: CPTData, t: TFunction): Array<HeaderItem> {
   const measurements = getMeasurements(data);
+  const test = data.conePenetrometerSurvey?.conePenetrationTest;
   const items: Array<HeaderItem> = [
     {
       label: t("numberOfMeasurements"),
       value: measurements.length,
     },
   ];
+
+  if (test?.phenomenonTime) {
+    items.push({
+      label: t("measurementStartTime"),
+      value: formatDate(test.phenomenonTime),
+    });
+  }
+  if (test?.resultTime) {
+    items.push({
+      label: t("resultTime"),
+      value: formatDate(test.resultTime),
+    });
+  }
 
   if (measurements.length > 0) {
     const firstRow = measurements[0];
@@ -315,46 +362,6 @@ function getMeasurementInfo(data: CPTData, t: TFunction): Array<HeaderItem> {
     }
   }
 
-  return items;
-}
-
-function getCptRegistrationInfo(
-  data: CPTData,
-  t: TFunction,
-): Array<HeaderItem> {
-  const history = data.registrationHistory;
-  if (!history) {
-    return [];
-  }
-
-  const items: Array<HeaderItem> = [];
-  if (history.registrationStatus) {
-    items.push(codeItem(t("registrationStatus"), history.registrationStatus));
-  }
-  if (history.objectRegistrationTime) {
-    items.push({
-      label: t("registrationTime"),
-      value: formatDate(history.objectRegistrationTime),
-    });
-  }
-  if (history.registrationCompletionTime) {
-    items.push({
-      label: t("registrationCompletionTime"),
-      value: formatDate(history.registrationCompletionTime),
-    });
-  }
-  if (history.corrected !== null) {
-    items.push({
-      label: t("corrected"),
-      value: formatIndication(history.corrected, t),
-    });
-  }
-  if (history.underReview !== null) {
-    items.push({
-      label: t("underReview"),
-      value: formatIndication(history.underReview, t),
-    });
-  }
   return items;
 }
 
@@ -399,7 +406,7 @@ export function DetailedCptHeaders({ data }: DetailedCptHeadersProps) {
     {
       id: "registration",
       title: t("registrationInformation"),
-      items: getCptRegistrationInfo(data, t),
+      items: getRegistrationItems(data, t),
     },
   ].filter((section) => section.items.length > 0);
 

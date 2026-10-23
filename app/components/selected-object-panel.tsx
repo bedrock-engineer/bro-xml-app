@@ -18,6 +18,7 @@ import {
   DetailedBHRGHeaders,
 } from "./bhr-g/bhr-g-header-items";
 import { BHRGPlot } from "./bhr-g/bhr-g-plot";
+import { BoreIntervalCoverage } from "./bore-interval-coverage";
 import {
   CompactBHRGTHeader,
   DetailedBoreHeaders,
@@ -146,6 +147,7 @@ export const SelectedObjectPanel = memo(function SelectedObjectPanel({
               baseFilename={baseFilename}
             />
           )}
+          <BoreIntervalCoverage data={file} baseFilename={baseFilename} />
           <DetailedBoreHeaders data={file} />
         </>
       )}
@@ -154,6 +156,7 @@ export const SelectedObjectPanel = memo(function SelectedObjectPanel({
         <>
           <CompactBHRGHeader filename={filename} data={file} />
           <BHRGPlot data={file} baseFilename={baseFilename} />
+          <BoreIntervalCoverage data={file} baseFilename={baseFilename} />
           <DetailedBHRGHeaders data={file} />
         </>
       )}
@@ -169,7 +172,10 @@ export const SelectedObjectPanel = memo(function SelectedObjectPanel({
       {isGLDData(file) && (
         <>
           <CompactGldHeader filename={filename} data={file} />
-          <GldChart observations={file.observation} baseFilename={baseFilename} />
+          <GldChart
+            observations={file.observation}
+            baseFilename={baseFilename}
+          />
           <DetailedGldHeaders data={file} />
         </>
       )}

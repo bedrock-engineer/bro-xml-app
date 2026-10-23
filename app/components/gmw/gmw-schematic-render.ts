@@ -12,6 +12,7 @@ export const PLAIN_TUBE_COLOR = "#cbd5e1"; // slate-300
 export const SCREEN_COLOR = "#2563eb"; // blue — the filter, the business end
 export const SEDIMENT_SUMP_COLOR = "#b45309"; // amber-700
 export const GROUND_LEVEL_COLOR = "#78716c"; // stone-500
+export const ELECTRODE_COLOR = "#0f766e"; // teal-700 — geo-ohm electrodes
 
 /** Half-width of a tube column in x-units (columns are one unit apart). */
 const TUBE_HALF_WIDTH = 0.28;
@@ -22,6 +23,13 @@ interface TubeSegment {
   y1: number;
   y2: number;
   color: string;
+  title: string;
+  opacity: number;
+}
+
+interface ElectrodeDot {
+  x: number;
+  y: number;
   title: string;
 }
 
@@ -58,6 +66,13 @@ function segmentTitle(
       `${t("tubeTopDiameter")}: ${formatMeasure(tube.tubeTopDiameter)}`,
     );
   }
+  const status = formatCode(tube.tubeStatus);
+  if (status) {
+    lines.push(`${t("tubeStatus")}: ${status}`);
+  }
+  if (tube.tubeInUse === "nee") {
+    lines.push(t("notInUse"));
+  }
   return lines.join("\n");
 }
 
@@ -76,11 +91,14 @@ export function buildGmwSchematic({
   const tubes = data.monitoringTube;
   const segments: Array<TubeSegment> = [];
   const labels: Array<TubeLabel> = [];
+  const electrodes: Array<ElectrodeDot> = [];
 
   for (const [index, tube] of tubes.entries()) {
     const center = index;
     const x1 = center - TUBE_HALF_WIDTH;
     const x2 = center + TUBE_HALF_WIDTH;
+    // Decommissioned tubes stay visible but fade back.
+    const opacity = tube.tubeInUse === "nee" ? 0.45 : 1;
 
     const tubeTop = tube.tubeTopPosition?.value ?? null;
     const screenTop = tube.screen?.screenTopPosition?.value ?? null;
@@ -96,6 +114,7 @@ export function buildGmwSchematic({
         y2: tubeTop,
         color: PLAIN_TUBE_COLOR,
         title: segmentTitle(tube, t("plainTubePart"), screenTop, tubeTop, t),
+        opacity,
       });
     }
 
@@ -112,6 +131,7 @@ export function buildGmwSchematic({
         y2: screenTop,
         color: SCREEN_COLOR,
         title: segmentTitle(tube, t("screen"), screenBottom, screenTop, t),
+        opacity,
       });
     }
 
@@ -131,16 +151,38 @@ export function buildGmwSchematic({
           screenBottom,
           t,
         ),
+        opacity,
       });
+    }
+
+    // Geo-ohm cable electrodes, marked at their NAP position on the tube.
+    for (const cable of tube.geoOhmCable) {
+      for (const electrode of cable.electrode) {
+        const position = electrode.electrodePosition?.value ?? null;
+        if (position === null) {
+          continue;
+        }
+        const lines = [
+          `${t("tube")} ${tube.tubeNumber ?? "?"} — ${t("electrodes")}`,
+          `${t("geoOhmCables")} ${cable.cableNumber ?? "?"} · #${electrode.electrodeNumber ?? "?"}`,
+          `${position.toFixed(2)} m NAP`,
+        ];
+        const electrodeStatus = formatCode(electrode.electrodeStatus);
+        if (electrodeStatus) {
+          lines.push(electrodeStatus);
+        }
+        electrodes.push({ x: center, y: position, title: lines.join("\n") });
+      }
     }
 
     // Label the column at its highest known point.
     const labelY = tubeTop ?? screenTop ?? screenBottom;
     if (labelY !== null && tube.tubeNumber !== null) {
+      const suffix = tube.tubeInUse === "nee" ? ` (${t("notInUse")})` : "";
       labels.push({
         x: center,
         y: labelY,
-        label: `${t("tube")} ${tube.tubeNumber}`,
+        label: `${t("tube")} ${tube.tubeNumber}${suffix}`,
       });
     }
   }
@@ -152,8 +194,14 @@ export function buildGmwSchematic({
   const groundLevel =
     data.deliveredVerticalPosition?.groundLevelPosition?.value ?? null;
 
-  const lows = segments.map((segment) => segment.y1);
-  const highs = segments.map((segment) => segment.y2);
+  const lows = [
+    ...segments.map((segment) => segment.y1),
+    ...electrodes.map((electrode) => electrode.y),
+  ];
+  const highs = [
+    ...segments.map((segment) => segment.y2),
+    ...electrodes.map((electrode) => electrode.y),
+  ];
   if (groundLevel !== null) {
     highs.push(groundLevel);
     lows.push(groundLevel);
@@ -191,11 +239,26 @@ export function buildGmwSchematic({
         y1: "y1",
         y2: "y2",
         fill: "color",
+        fillOpacity: "opacity",
         stroke: "white",
         strokeWidth: 0.5,
         title: "title",
         tip: true,
       }),
+      ...(electrodes.length === 0
+        ? []
+        : [
+            Plot.dot(electrodes, {
+              x: "x",
+              y: "y",
+              r: 3,
+              fill: ELECTRODE_COLOR,
+              stroke: "white",
+              strokeWidth: 0.75,
+              title: "title",
+              tip: true,
+            }),
+          ]),
       ...(groundLevel === null
         ? []
         : [

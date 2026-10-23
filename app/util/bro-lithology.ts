@@ -9,32 +9,29 @@
  * visual channel beyond colour. Widths follow the BRO admixture grades
  * (zwak/matig/sterk), expressed there as x/60 fractions and reproduced verbatim.
  *
- * Note: this colours by *soil type*, unlike the parser's getSoilColor() which
- * maps an *observed* BRO colour name (e.g. "lichtBruin"). brodata feeds the
- * same table from either soil-name column (geotechnicalSoilName for BHR-GT,
+ * Note: this colours strictly by *soil type*. brodata feeds the same table
+ * from either soil-name column (geotechnicalSoilName for BHR-GT,
  * soilNameNEN5104 for BHR-G), so callers map their layers with
- * bhrgtLithology / bhrgLithology. Soil names absent from the table fall back to their base lithology
- * when the name contains one (e.g. "leemNietGespecificeerd" → leem), else to
- * the observed colour as a single plain band, so nothing regresses.
+ * bhrgtLithology / bhrgLithology. Soil names absent from the table fall back to
+ * their base lithology when the name contains one (e.g. "leemNietGespecificeerd"
+ * → leem), else to a single plain grey band, so nothing regresses.
  */
-import { getSoilColor, type Coded } from "@bedrock-engineer/bro-xml-parser";
 import type { BHRGBoreLayer, BoreLayer } from "../types/bro-data";
 
-/** Default colour when a layer has neither a mapped soil type nor a BRO colour */
+/** Default colour when a layer has neither a mapped soil type nor a
+ *  recognisable base lithology */
 const DEFAULT_LAYER_COLOR = "#b0b0b0";
 
 const SVG_NS = "http://www.w3.org/2000/svg";
 
 /** Minimal layer shape needed to build soil bands, with BRO codes as plain
- *  strings, except the observed colour which stays a {@link Coded} value for
- *  {@link getSoilColor}. Built from BHR-GT / BHR-G layers by {@link bhrgtLithology}
- *  and {@link bhrgLithology}, since the fields sit in different places per bore
+ *  strings. Built from BHR-GT / BHR-G layers by {@link bhrgtLithology} and
+ *  {@link bhrgLithology}, since the fields sit in different places per bore
  *  type. */
 interface LithologyLayer {
   upperBoundary: number;
   lowerBoundary: number;
   soilName: string;
-  color?: Coded | null;
   sandMedianClass?: string | null;
 }
 
@@ -51,7 +48,6 @@ export function bhrgtLithology(layer: BoreLayer): LithologyLayer {
       layer.soil?.soilNameNEN5104?.code ??
       layer.rock?.rockType?.code ??
       NOT_DETERMINED,
-    color: layer.soil?.colour ?? layer.rock?.colour,
     sandMedianClass: layer.soil?.sandMedianClass?.code,
   };
 }
@@ -66,21 +62,8 @@ export function bhrgLithology(layer: BHRGBoreLayer): LithologyLayer {
       layer.soil?.geotechnicalSoilName?.code ??
       layer.soil?.geologicalSoilName?.code ??
       NOT_DETERMINED,
-    color: layer.soil?.colour,
     sandMedianClass: layer.soil?.sandFraction?.sandMedianClass?.code,
   };
-}
-
-/**
- * Observed-colour fill for a layer: the parser maps the BRO colour name
- * (e.g. "lichtBruin") to hex. Used as the fallback fill for soil names not in
- * the composition table.
- */
-function getLayerColor(layer: LithologyLayer): string {
-  if (layer.color) {
-    return getSoilColor(layer.color, DEFAULT_LAYER_COLOR);
-  }
-  return DEFAULT_LAYER_COLOR;
 }
 
 // Base lithology fill colours (brodata get_bro_lithology_properties, RGB→hex).
@@ -401,14 +384,14 @@ function layerBands(layer: LithologyLayer): Array<SoilBand> {
         },
       ];
     }
-    // No recognisable lithology: one plain band in the observed BRO colour.
+    // No recognisable lithology: one plain grey band.
     return [
       {
         x1: 0,
         x2: 1,
         y1,
         y2,
-        color: getLayerColor(layer),
+        color: DEFAULT_LAYER_COLOR,
         legendKey: `other:${soilName}`,
       },
     ];

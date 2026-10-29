@@ -36,6 +36,7 @@ import {
 } from "~/types/bro-route";
 import { broIdPattern } from "~/util/bro-id";
 import { downloadFile } from "~/util/download";
+import { recordLoadedFiles } from "~/util/person-file-stats";
 import { Card } from "./card";
 import { FileTable } from "./file-table";
 import { InstallInstructions } from "./install-instructions";
@@ -76,6 +77,42 @@ function translateError(error: string, t: TFunction): string {
     return t("unknownBROFileType");
   }
   return error;
+}
+
+/**
+ * Stable, low-cardinality label for a parse failure, for analytics: the
+ * BROParseError code (UNSUPPORTED_SCHEMA, INVALID_XML, ...), the app's own
+ * "unknownBROFileType" rejection, or the error's class name as a fallback.
+ */
+function parseErrorCode(reason: unknown): string {
+  if (
+    typeof reason === "object" &&
+    reason !== null &&
+    "code" in reason &&
+    typeof reason.code === "string"
+  ) {
+    return reason.code;
+  }
+  if (reason instanceof Error) {
+    return reason.message === "unknownBROFileType"
+      ? reason.message
+      : reason.name;
+  }
+  return "unknown";
+}
+
+/** Where a loaded file came from, judged by its name in the file table. */
+function downloadSource(filename: string): "registry" | "sample" | "upload" {
+  if (broIdPattern.test(filename)) {
+    return "registry";
+  }
+  return filename.startsWith("example_") ? "sample" : "upload";
+}
+
+/** Lower-cased extension of a filename, or "none" when it has no extension. */
+function fileExtension(filename: string): string {
+  const match = /\.([^.]+)$/.exec(filename);
+  return match?.[1]?.toLowerCase() ?? "none";
 }
 
 /**
@@ -135,6 +172,12 @@ export function App({ routeObject }: AppProps) {
       sessionFilesStore.set(routeObject.broId, { data: routeObject.data });
     }
   }, [routeObject]);
+
+  // Person-level usage summary (max files at once, file types ever seen).
+  // Keyed on the loaded set so uploads, samples, and route loads all count.
+  useEffect(() => {
+    recordLoadedFiles(posthog, Object.values(broData));
+  }, [broData, posthog]);
 
   // Selection is derived: the URL names the selected registry object; with
   // no object in the URL the upload selection applies. A failed route load
@@ -259,11 +302,20 @@ export function App({ routeObject }: AppProps) {
           result.reason instanceof Error
             ? result.reason.message
             : String(result.reason),
+        errorCode: parseErrorCode(result.reason),
       }));
 
     const entries = Object.fromEntries(
       successful.map(({ filename, data, xml }) => [filename, { data, xml }]),
     ) as Record<string, SessionFile>;
+
+    for (const { name, errorCode } of failed) {
+      posthog.capture("file_upload_failed", {
+        source: "sample",
+        error_code: errorCode,
+        file_extension: fileExtension(name),
+      });
+    }
 
     posthog.capture("files_processed", {
       source: "sample",
@@ -282,7 +334,10 @@ export function App({ routeObject }: AppProps) {
     });
   }
 
-  async function handleFiles(fileList: FileList | Array<File> | null) {
+  async function handleFiles(
+    fileList: FileList | Array<File> | null,
+    method: "drop" | "picker",
+  ) {
     const files = [...(fileList ?? [])];
 
     if (files.length > 0) {
@@ -313,6 +368,8 @@ export function App({ routeObject }: AppProps) {
             result.reason instanceof Error
               ? result.reason.message
               : String(result.reason),
+          errorCode: parseErrorCode(result.reason),
+          sizeBytes: file.size,
         }));
 
       // A File is already a Blob, so the upload itself is the download source
@@ -323,8 +380,20 @@ export function App({ routeObject }: AppProps) {
         ]),
       ) as Record<string, SessionFile>;
 
+      // One event per failure (unlike files_processed, which is per batch)
+      // so the error code and file shape can be broken down directly.
+      for (const { name, errorCode, sizeBytes } of failed) {
+        posthog.capture("file_upload_failed", {
+          source: "upload",
+          error_code: errorCode,
+          file_extension: fileExtension(name),
+          file_size_bytes: sizeBytes,
+        });
+      }
+
       posthog.capture("files_processed", {
         source: "upload",
+        upload_method: method,
         file_count: files.length,
         successful_file_count: parsed.length,
         failed_file_count: failed.length,
@@ -355,7 +424,7 @@ export function App({ routeObject }: AppProps) {
           <UploadCard
             isPending={isPending}
             onFiles={(files) => {
-              handleFiles(files).catch((error: unknown) => {
+              handleFiles(files, "picker").catch((error: unknown) => {
                 console.error(error);
               });
             }}
@@ -387,11 +456,17 @@ export function App({ routeObject }: AppProps) {
             selectedFileName={selectedFileName}
             onSelectionChange={selectFile}
             onFileDrop={(files) => {
-              handleFiles(files).catch((error: unknown) => {
+              handleFiles(files, "drop").catch((error: unknown) => {
                 console.error(error);
               });
             }}
             onFileDownload={(filename) => {
+              const downloaded = broData[filename];
+              posthog.capture("xml_downloaded", {
+                file_type: downloaded ? getFileType(downloaded) : undefined,
+                source: downloadSource(filename),
+              });
+
               const xml = sessionFiles[filename]?.xml;
               if (xml) {
                 downloadFile(

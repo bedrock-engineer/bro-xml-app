@@ -1,3 +1,4 @@
+import { usePostHog } from "@posthog/react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { ToggleButton, ToggleButtonGroup } from "react-aria-components";
@@ -52,6 +53,7 @@ export function BHRGTPlot({
 }: BhrgtPlotProps) {
   const { t } = useTranslation();
   const [napMode, setNapMode] = useState(false);
+  const posthog = usePostHog();
   const [tableLayout, setTableLayout] = useState<DetailsTableLayout>("scaled");
   const { logs, activeLogIndex, setLogIndex, depthRange } =
     useLogSelection(data);
@@ -144,7 +146,13 @@ export function BHRGTPlot({
             disallowEmptySelection
             selectedKeys={[tableLayout]}
             onSelectionChange={(keys) => {
-              setTableLayout(keys.has("rows") ? "rows" : "scaled");
+              const layout = keys.has("rows") ? "rows" : "scaled";
+              posthog.capture("chart_option_changed", {
+                chart: "bhr_gt",
+                option: "table_layout",
+                value: layout,
+              });
+              setTableLayout(layout);
             }}
             className="inline-flex overflow-hidden rounded border border-gray-300 text-xs"
           >
@@ -170,6 +178,11 @@ export function BHRGTPlot({
               disallowEmptySelection
               selectedKeys={[napMode ? "nap" : "mv"]}
               onSelectionChange={(keys) => {
+                posthog.capture("chart_option_changed", {
+                  chart: "bhr_gt",
+                  option: "vertical_reference",
+                  value: keys.has("nap") ? "nap" : "mv",
+                });
                 setNapMode(keys.has("nap"));
               }}
               className="inline-flex overflow-hidden rounded border border-gray-300 text-xs"
@@ -192,7 +205,18 @@ export function BHRGTPlot({
         </div>
       </div>
 
-      <LogSelector logs={logs} value={activeLogIndex} onChange={setLogIndex} />
+      <LogSelector
+        logs={logs}
+        value={activeLogIndex}
+        onChange={(index) => {
+          posthog.capture("chart_option_changed", {
+            chart: "bhr_gt",
+            option: "description_log",
+            value: index,
+          });
+          setLogIndex(index);
+        }}
+      />
 
       <div className="flex flex-wrap items-start justify-center gap-2">
         {/* Spacer matches the table's header band so the chart's flush plot

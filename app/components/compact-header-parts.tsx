@@ -25,7 +25,9 @@ export function CompactHeaderWrapper({
     <div className="bg-white border border-gray-300 rounded-sm p-4 mb-6">
       <div className="font-bold text-lg text-gray-900 flex items-center gap-1 mb-3">
         {testId ?? t("unknownTest")}
-        {testId && <CopyButton value={testId} label={t("copyTestId")} />}
+        {testId && (
+          <CopyButton value={testId} label={t("copyTestId")} field="test_id" />
+        )}
       </div>
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 text-sm">
         {children}
@@ -51,6 +53,8 @@ interface HeaderRowProps {
   value: string | number | null | undefined;
   copyable?: boolean;
   copyLabel?: string;
+  /** Analytics name for the copy button; required when copyable. */
+  copyField?: string;
 }
 
 export function HeaderRow({
@@ -58,6 +62,7 @@ export function HeaderRow({
   value,
   copyable,
   copyLabel,
+  copyField = "other",
 }: HeaderRowProps) {
   if (value === null || value === undefined) {
     return null;
@@ -68,7 +73,13 @@ export function HeaderRow({
       <dt className="text-gray-500">{label}</dt>
       <dd className={copyable ? "flex items-center gap-1" : undefined}>
         {value}
-        {copyable && <CopyButton value={value} label={copyLabel ?? label} />}
+        {copyable && (
+          <CopyButton
+            value={value}
+            label={copyLabel ?? label}
+            field={copyField}
+          />
+        )}
       </dd>
     </>
   );
@@ -110,7 +121,7 @@ export function BroIdRow({ broId }: BroIdRowProps) {
       <dt className="text-gray-500">BRO ID</dt>
       <dd className="flex items-center gap-1">
         {broId}
-        <CopyButton value={broId} label={t("copyBroId")} />
+        <CopyButton value={broId} label={t("copyBroId")} field="bro_id" />
       </dd>
     </>
   );
@@ -223,7 +234,11 @@ export function LocationDisplay({ location }: LocationDisplayProps) {
         </div>
         <div className="flex items-center gap-1">
           {originalCoords}
-          <CopyButton value={originalCoords} label={t("copyCoordinates")} />
+          <CopyButton
+            value={originalCoords}
+            label={t("copyCoordinates")}
+            field="coordinates"
+          />
         </div>
 
         {wgs84 && (
@@ -237,6 +252,7 @@ export function LocationDisplay({ location }: LocationDisplayProps) {
               <CopyButton
                 value={`${wgs84.lat.toFixed(6)}, ${wgs84.lon.toFixed(6)}`}
                 label={t("copyWgs84")}
+                field="coordinates_wgs84"
               />
             </div>
           </>
@@ -287,6 +303,7 @@ export function WaterLevelRow({ level }: WaterLevelRowProps) {
         <CopyButton
           value={level.value.toFixed(2)}
           label={t("copyWaterLevel")}
+          field="water_level"
         />
       </dd>
     </>

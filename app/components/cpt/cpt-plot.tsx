@@ -1,4 +1,5 @@
 import * as Plot from "@observablehq/plot";
+import { usePostHog } from "@posthog/react";
 import { useEffect, useRef, useState } from "react";
 import {
   Button,
@@ -53,6 +54,7 @@ export function CptPlots({
   baseFilename,
 }: CptPlotsProps) {
   const { t } = useTranslation();
+  const posthog = usePostHog();
   const [selectedAxes, setSelectedAxes] = useState([initialXAxis.key]);
   // Sticky so the preference (e.g. plotting against NAP elevation) carries
   // over to the next CPT, also after clearing files or reloading the page.
@@ -81,6 +83,11 @@ export function CptPlots({
           <RadioButtonGroup
             value={showClassic ? "classic" : "columns"}
             onChange={(v) => {
+              posthog.capture("chart_option_changed", {
+                chart: "cpt",
+                option: "chart_type",
+                value: v,
+              });
               setShowClassic(v === "classic");
             }}
             label={t("chartType")}
@@ -94,6 +101,11 @@ export function CptPlots({
           <RadioButtonGroup
             value={fixedDomains ? "fixed" : "auto"}
             onChange={(v) => {
+              posthog.capture("chart_option_changed", {
+                chart: "cpt",
+                option: "axis_ranges",
+                value: v,
+              });
               setFixedDomains(v === "fixed");
             }}
             label={t("axisRanges")}
@@ -108,6 +120,11 @@ export function CptPlots({
         <CheckboxGroup
           value={selectedAxes}
           onChange={(v) => {
+            posthog.capture("chart_option_changed", {
+              chart: "cpt",
+              option: "columns",
+              value: v,
+            });
             setSelectedAxes(v as Array<keyof CPTChartRow>);
           }}
           isDisabled={showClassic}
@@ -143,6 +160,11 @@ export function CptPlots({
             <Select
               value={currentYAxis.key}
               onChange={(key) => {
+                posthog.capture("chart_option_changed", {
+                  chart: "cpt",
+                  option: "y_axis",
+                  value: key,
+                });
                 setSelectedYAxis(key as keyof CPTChartRow);
               }}
               className="w-full max-w-2xs"

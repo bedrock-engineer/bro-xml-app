@@ -1,4 +1,5 @@
 import * as Plot from "@observablehq/plot";
+import { usePostHog } from "@posthog/react";
 import { useEffect, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import type { BHRGBoreLayer, BHRGData } from "../../types/bro-data";
@@ -47,6 +48,7 @@ export function BHRGPlot({
 }: BHRGPlotProps) {
   const { t } = useTranslation();
   const containerRef = useRef<HTMLDivElement>(null);
+  const posthog = usePostHog();
   const { logs, activeLogIndex, setLogIndex, depthRange } =
     useLogSelection(data);
   const layers = getLayers(data, activeLogIndex);
@@ -197,7 +199,18 @@ export function BHRGPlot({
     <Card>
       <CardTitle>{t("geologicalBoreLog")}</CardTitle>
 
-      <LogSelector logs={logs} value={activeLogIndex} onChange={setLogIndex} />
+      <LogSelector
+        logs={logs}
+        value={activeLogIndex}
+        onChange={(index) => {
+          posthog.capture("chart_option_changed", {
+            chart: "bhr_g",
+            option: "description_log",
+            value: index,
+          });
+          setLogIndex(index);
+        }}
+      />
 
       <div className="flex justify-center">
         <div id={id} ref={containerRef}></div>

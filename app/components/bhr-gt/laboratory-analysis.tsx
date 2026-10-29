@@ -2,6 +2,7 @@ import type {
   BoreholeSampleAnalysis,
   InvestigatedInterval,
 } from "@bedrock-engineer/bro-xml-parser";
+import { usePostHog } from "@posthog/react";
 import type { TFunction } from "i18next";
 import { useState } from "react";
 import {
@@ -43,6 +44,7 @@ export function LaboratoryAnalysis({
   baseFilename,
 }: LaboratoryAnalysisProps) {
   const { t } = useTranslation();
+  const posthog = usePostHog();
   const [selectedInterval, setSelectedInterval] = useState(0);
 
   const intervals = analysis.investigatedInterval;
@@ -89,6 +91,11 @@ export function LaboratoryAnalysis({
         <Select
           value={selectedInterval}
           onChange={(key) => {
+            posthog.capture("chart_option_changed", {
+              chart: "bhr_gt_lab",
+              option: "interval",
+              value: key,
+            });
             setSelectedInterval(key as number);
           }}
           className="w-full max-w-md"

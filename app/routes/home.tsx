@@ -6,6 +6,7 @@ import { sessionFilesStore } from "~/state/session-files";
 import {
     type BroRouteErrorData,
     captureObjectLoaded,
+    captureObjectLoadFailed,
     type RouteObjectResult,
     resolveFlight,
 } from "~/types/bro-route";
@@ -183,13 +184,16 @@ export async function clientLoader({
     }
     if (isRouteErrorResponse(error)) {
       const payload = error.data as BroRouteErrorData | null;
+      const kind = payload?.kind ?? "error";
+      captureObjectLoadFailed(broId, kind);
       return {
         object: {
           broId,
-          error: { kind: payload?.kind ?? "error", reason: payload?.reason },
+          error: { kind, reason: payload?.reason },
         },
       };
     }
+    captureObjectLoadFailed(broId, "error");
     return { object: { broId, error: { kind: "error" } } };
   }
 }

@@ -51,6 +51,7 @@ export function CompactGldHeader({ filename, data }: CompactGldHeaderProps) {
           value={data.monitoringPoint?.broId}
           copyable={data.monitoringPoint?.broId != null}
           copyLabel={t("copyBroId")}
+          copyField="monitoring_well_bro_id"
         />
         <HeaderRow
           label={t("monitoringTube")}

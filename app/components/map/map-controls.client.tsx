@@ -279,6 +279,9 @@ export function SearchBox({ mapRef, onSearchBroId }: SearchBoxProps) {
 
       const map = mapRef.current;
       if (!coords || !map) {
+        posthog.capture("map_bro_id_not_found", {
+          object_type: selectedBroId.replace(/\d+$/, ""),
+        });
         setNotFoundBroId(selectedBroId);
         return;
       }
@@ -464,6 +467,11 @@ export function MapLayersPanel({
   const { t } = useTranslation();
   const posthog = usePostHog();
 
+  const toggleLayer = (layer: BROLocationLayer, visible: boolean) => {
+    posthog.capture("layer_toggled", { layer, visible });
+    onVisibilityChange(layer, visible);
+  };
+
   return (
     <div className="rounded-sm border border-gray-300 bg-white/90 px-2 py-1.5 text-xs space-y-1">
       <LayerToggle
@@ -472,7 +480,7 @@ export function MapLayersPanel({
         label={t("mapLegendCpt")}
         checked={visibility.cpt}
         onChange={(checked) => {
-          onVisibilityChange("cpt", checked);
+          toggleLayer("cpt", checked);
         }}
       />
       <LayerToggle
@@ -480,7 +488,7 @@ export function MapLayersPanel({
         label={t("mapLegendBhrgt")}
         checked={visibility.bhrgt}
         onChange={(checked) => {
-          onVisibilityChange("bhrgt", checked);
+          toggleLayer("bhrgt", checked);
         }}
       />
       <LayerToggle
@@ -488,7 +496,7 @@ export function MapLayersPanel({
         label={t("mapLegendBhrg")}
         checked={visibility.bhrg}
         onChange={(checked) => {
-          onVisibilityChange("bhrg", checked);
+          toggleLayer("bhrg", checked);
         }}
       />
 

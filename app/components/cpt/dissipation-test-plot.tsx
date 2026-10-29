@@ -3,6 +3,7 @@ import type {
   DissipationTest,
 } from "@bedrock-engineer/bro-xml-parser";
 import * as Plot from "@observablehq/plot";
+import { usePostHog } from "@posthog/react";
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { createWatermarkMark } from "~/util/plot-config";
@@ -93,6 +94,7 @@ function getXScaleConfig(scale: TimeScale, label: string): Plot.ScaleOptions {
 function DissipationPlot({ plotId, test }: DissipationPlotProps) {
   const { t } = useTranslation();
   const containerRef = useRef<HTMLDivElement>(null);
+  const posthog = usePostHog();
   const [timeScale, setTimeScale] = useState<TimeScale>("log");
 
   useEffect(() => {
@@ -179,7 +181,14 @@ function DissipationPlot({ plotId, test }: DissipationPlotProps) {
     <div>
       <RadioButtonGroup
         value={timeScale}
-        onChange={setTimeScale}
+        onChange={(scale) => {
+          posthog.capture("chart_option_changed", {
+            chart: "cpt_dissipation",
+            option: "time_scale",
+            value: scale,
+          });
+          setTimeScale(scale);
+        }}
         label={t("timeScale")}
         options={options}
         className="mb-3 text-sm text-gray-700"

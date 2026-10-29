@@ -1,3 +1,4 @@
+import { usePostHog } from "@posthog/react";
 import {
   Button,
   Disclosure,
@@ -12,10 +13,22 @@ interface HeaderSectionsProps {
 }
 
 export function HeaderSections({ sections }: HeaderSectionsProps) {
+  const posthog = usePostHog();
+
   return (
     <div className="grid grid-cols-2 gap-4  items-start">
       {sections.map((section) => (
-        <Disclosure key={section.id} className="border border-gray-200 rounded">
+        <Disclosure
+          key={section.id}
+          className="border border-gray-200 rounded"
+          onExpandedChange={(expanded) => {
+            if (expanded) {
+              posthog.capture("metadata_section_expanded", {
+                section: section.id,
+              });
+            }
+          }}
+        >
           <Heading>
             <Button
               slot="trigger"

@@ -66,16 +66,41 @@ export function rememberLoadSource(
   loadSources.set(broId, source);
 }
 
-/** Capture a completed load. Called from the clientLoader: once per load. */
-export function captureObjectLoaded(data: BROData, broId: string): void {
+function takeLoadSource(broId: string): "map" | "route" | "search" {
   const source = loadSources.get(broId) ?? "route";
   loadSources.delete(broId);
+  return source;
+}
+
+/** Capture a completed load. Called from the clientLoader: once per load. */
+export function captureObjectLoaded(data: BROData, broId: string): void {
+  const source = takeLoadSource(broId);
   // Dynamic import keeps posthog-js (a browser library) out of the server
   // bundle; it resolves to the singleton entry.client.tsx initialized.
   void import("posthog-js").then(({ default: posthog }) => {
     posthog.capture("bro_location_loaded", {
       file_type: getFileType(data),
       source,
+    });
+  });
+}
+
+/**
+ * Capture a failed load (the registry-side twin of file_upload_failed).
+ * Called from the clientLoader's catch, once per failed load.
+ */
+export function captureObjectLoadFailed(
+  broId: string,
+  kind: RouteObjectError["kind"],
+): void {
+  const source = takeLoadSource(broId);
+  void import("posthog-js").then(({ default: posthog }) => {
+    posthog.capture("bro_location_load_failed", {
+      kind,
+      source,
+      // The domain prefix only (CPT, BHR, GMW, GLD): low cardinality, and
+      // enough to see which object types fail.
+      object_type: broId.replace(/\d+$/, ""),
     });
   });
 }

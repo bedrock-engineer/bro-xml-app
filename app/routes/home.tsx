@@ -1,6 +1,5 @@
 import { useTranslation } from "react-i18next";
 import { data, isRouteErrorResponse, Link, redirect } from "react-router";
-import { localeCookie } from "~/middleware/i18next";
 import { type BROFileType, getFileType, parseBRO } from "~/types/bro-data";
 import { sessionFilesStore } from "~/state/session-files";
 import {
@@ -196,17 +195,6 @@ export async function clientLoader({
     captureObjectLoadFailed(broId, "error");
     return { object: { broId, error: { kind: "error" } } };
   }
-}
-
-export async function action({ request }: Route.ActionArgs) {
-  const formData = await request.formData();
-  const newLang = formData.get("lang") as string;
-
-  return redirect("/", {
-    headers: {
-      "Set-Cookie": await localeCookie.serialize(newLang),
-    },
-  });
 }
 
 export function meta({ matches, loaderData }: Route.MetaArgs) {

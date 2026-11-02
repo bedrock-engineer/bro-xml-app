@@ -2,6 +2,7 @@ import { useTranslation } from "react-i18next";
 import { Link, redirect, useFetcher, useSearchParams } from "react-router";
 import { Button, TextArea, Label, Input } from "react-aria-components";
 import type { Route } from "./+types/feedback";
+import { readFormData } from "~/util/form-data";
 import { Card } from "../components/card";
 
 export const meta: Route.MetaFunction = ({ matches }) => {
@@ -18,11 +19,7 @@ export const meta: Route.MetaFunction = ({ matches }) => {
 };
 
 export async function action({ request, context }: Route.ActionArgs) {
-  if (request.method !== "POST") {
-    throw new Error("Invalid request method");
-  }
-
-  const formData = await request.formData();
+  const formData = await readFormData(request);
   const field = (name: string) => {
     const value = formData.get(name);
     return typeof value === "string" ? value : "";

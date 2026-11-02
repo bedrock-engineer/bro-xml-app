@@ -55,6 +55,20 @@ if (posthogToken && posthogHost) {
 // Register service worker for offline support
 registerSW({ immediate: true });
 
+// A deploy renames the hashed chunks, so a tab opened before it fails to
+// lazy-load the old ones ("Failed to fetch dynamically imported module").
+// Reloading picks up the new HTML; the session flag stops a reload loop when
+// the chunk is really gone.
+const PRELOAD_RELOAD_KEY = "chunk-preload-reloaded";
+globalThis.addEventListener("vite:preloadError", (event) => {
+  if (sessionStorage.getItem(PRELOAD_RELOAD_KEY) === location.href) {
+    return;
+  }
+  event.preventDefault();
+  sessionStorage.setItem(PRELOAD_RELOAD_KEY, location.href);
+  location.reload();
+});
+
 async function main() {
   await i18next
     .use(initReactI18next)

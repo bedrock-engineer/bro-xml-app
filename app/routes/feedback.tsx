@@ -4,6 +4,7 @@ import { Button, TextArea, Label, Input } from "react-aria-components";
 import type { Route } from "./+types/feedback";
 import { readFormData } from "~/util/form-data";
 import { Card } from "../components/card";
+import { PageShell } from "../components/page-shell";
 
 export const meta: Route.MetaFunction = ({ matches }) => {
   const parentData = matches[0].loaderData as { locale?: string } | undefined;
@@ -67,185 +68,143 @@ export default function FeedbackPage() {
 
   if (isSuccess) {
     return (
-      <div className="pancake">
-        <header className="mb-6 border-b border-gray-300 py-4 px-2">
-          <div
-            style={{ maxWidth: "clamp(360px, 100%, 1800px)" }}
-            className="mx-auto"
-          >
+      <PageShell>
+        <Card>
+          <div className="text-center py-8">
+            <div className="text-5xl mb-4">&#10003;</div>
+            <h1 className="text-2xl font-bold mb-4">{t("feedbackThankYou")}</h1>
+            <p className="text-gray-600 mb-6">{t("feedbackThankYouMessage")}</p>
             <Link
               to="/"
-              className="text-2xl flex gap-2 items-center hover:opacity-80"
+              className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
             >
-              <img src="/bedrock.svg" width={30} alt="Bedrock logo" />{" "}
-              {t("appTitle")}
+              {t("backToViewer")}
             </Link>
           </div>
-        </header>
-
-        <main className="max-w-2xl mx-auto px-4 py-8">
-          <Card>
-            <div className="text-center py-8">
-              <div className="text-5xl mb-4">&#10003;</div>
-              <h1 className="text-2xl font-bold mb-4">
-                {t("feedbackThankYou")}
-              </h1>
-              <p className="text-gray-600 mb-6">
-                {t("feedbackThankYouMessage")}
-              </p>
-              <Link
-                to="/"
-                className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
-              >
-                {t("backToViewer")}
-              </Link>
-            </div>
-          </Card>
-        </main>
-      </div>
+        </Card>
+      </PageShell>
     );
   }
 
   return (
-    <div className="pancake">
-      <header className="mb-6 border-b border-gray-300 py-4 px-2">
-        <div
-          style={{ maxWidth: "clamp(360px, 100%, 1800px)" }}
-          className="mx-auto"
-        >
-          <Link
-            to="/"
-            className="text-2xl flex gap-2 items-center hover:opacity-80"
-          >
-            <img src="/bedrock.svg" width={30} alt="Bedrock logo" />{" "}
-            {t("appTitle")}
-          </Link>
-        </div>
-      </header>
+    <PageShell>
+      <h1 className="text-3xl font-bold mb-2">{t("feedbackTitle")}</h1>
+      <p className="text-gray-600 mb-8">{t("feedbackSubtitle")}</p>
 
-      <main className="max-w-2xl mx-auto px-4 py-8">
-        <h1 className="text-3xl font-bold mb-2">{t("feedbackTitle")}</h1>
-        <p className="text-gray-600 mb-8">{t("feedbackSubtitle")}</p>
+      <fetcher.Form method="post" className="space-y-6">
+        <Card>
+          <div className="space-y-6">
+            {/* Question 1: Current tools */}
+            <div>
+              <Label className="block text-sm font-medium text-gray-700 mb-2">
+                {t("feedbackQ1")} <span className="text-red-500">*</span>
+              </Label>
+              <TextArea
+                name="currentTools"
+                required
+                className="w-full p-3 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none resize-y min-h-24"
+                placeholder={t("feedbackQ1Placeholder")}
+              />
+            </div>
 
-        <fetcher.Form method="post" className="space-y-6">
-          <Card>
-            <div className="space-y-6">
-              {/* Question 1: Current tools */}
-              <div>
-                <Label className="block text-sm font-medium text-gray-700 mb-2">
-                  {t("feedbackQ1")} <span className="text-red-500">*</span>
-                </Label>
-                <TextArea
-                  name="currentTools"
-                  required
-                  className="w-full p-3 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none resize-y min-h-24"
-                  placeholder={t("feedbackQ1Placeholder")}
-                />
-              </div>
+            {/* Question 2: Improvements */}
+            <div>
+              <Label className="block text-sm font-medium text-gray-700 mb-2">
+                {t("feedbackQ2")} <span className="text-red-500">*</span>
+              </Label>
+              <TextArea
+                name="improvements"
+                required
+                className="w-full p-3 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none resize-y min-h-24"
+                placeholder={t("feedbackQ2Placeholder")}
+              />
+            </div>
 
-              {/* Question 2: Improvements */}
-              <div>
-                <Label className="block text-sm font-medium text-gray-700 mb-2">
-                  {t("feedbackQ2")} <span className="text-red-500">*</span>
-                </Label>
-                <TextArea
-                  name="improvements"
-                  required
-                  className="w-full p-3 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none resize-y min-h-24"
-                  placeholder={t("feedbackQ2Placeholder")}
-                />
-              </div>
-
-              {/* Question 3: Interest in custom tools */}
-              <div>
-                <Label className="block text-sm font-medium text-gray-700 mb-2">
-                  {t("feedbackQ3")} <span className="text-red-500">*</span>
-                </Label>
-                <div className="space-y-2">
-                  <label className="flex items-center gap-2 cursor-pointer">
-                    <input
-                      type="radio"
-                      name="interestedInCustomTools"
-                      value="yes"
-                      required
-                      className="w-4 h-4 text-blue-600"
-                    />
-                    <span>{t("feedbackQ3Yes")}</span>
-                  </label>
-                  <label className="flex items-center gap-2 cursor-pointer">
-                    <input
-                      type="radio"
-                      name="interestedInCustomTools"
-                      value="maybe"
-                      className="w-4 h-4 text-blue-600"
-                    />
-                    <span>{t("feedbackQ3Maybe")}</span>
-                  </label>
-                  <label className="flex items-center gap-2 cursor-pointer">
-                    <input
-                      type="radio"
-                      name="interestedInCustomTools"
-                      value="no"
-                      className="w-4 h-4 text-blue-600"
-                    />
-                    <span>{t("feedbackQ3No")}</span>
-                  </label>
-                </div>
-              </div>
-
-              {/* Email capture */}
-              <div>
-                <Label className="block text-sm font-medium text-gray-700 mb-2">
-                  {t("feedbackEmail")}
-                </Label>
-                <Input
-                  type="email"
-                  name="email"
-                  className="w-full p-3 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
-                  placeholder={t("feedbackEmailPlaceholder")}
-                />
-                <p className="text-xs text-gray-500 mt-1">
-                  {t("feedbackEmailNote")}
-                </p>
-              </div>
-
-              {/* Additional comments */}
-              <div>
-                <Label className="block text-sm font-medium text-gray-700 mb-2">
-                  {t("feedbackAdditional")}
-                </Label>
-                <TextArea
-                  name="additionalComments"
-                  className="w-full p-3 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none resize-y min-h-20"
-                  placeholder={t("feedbackAdditionalPlaceholder")}
-                />
+            {/* Question 3: Interest in custom tools */}
+            <div>
+              <Label className="block text-sm font-medium text-gray-700 mb-2">
+                {t("feedbackQ3")} <span className="text-red-500">*</span>
+              </Label>
+              <div className="space-y-2">
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="radio"
+                    name="interestedInCustomTools"
+                    value="yes"
+                    required
+                    className="w-4 h-4 text-blue-600"
+                  />
+                  <span>{t("feedbackQ3Yes")}</span>
+                </label>
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="radio"
+                    name="interestedInCustomTools"
+                    value="maybe"
+                    className="w-4 h-4 text-blue-600"
+                  />
+                  <span>{t("feedbackQ3Maybe")}</span>
+                </label>
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="radio"
+                    name="interestedInCustomTools"
+                    value="no"
+                    className="w-4 h-4 text-blue-600"
+                  />
+                  <span>{t("feedbackQ3No")}</span>
+                </label>
               </div>
             </div>
-          </Card>
 
-          <div className="flex gap-4">
-            <Button
-              type="submit"
-              isDisabled={fetcher.state === "submitting"}
-              className="px-6 py-3 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {fetcher.state === "submitting"
-                ? t("feedbackSubmitting")
-                : t("feedbackSubmit")}
-            </Button>
-            <Link
-              to="/"
-              className="px-6 py-3 border border-gray-300 text-gray-700 rounded hover:bg-gray-50 transition-colors"
-            >
-              {t("cancel")}
-            </Link>
+            {/* Email capture */}
+            <div>
+              <Label className="block text-sm font-medium text-gray-700 mb-2">
+                {t("feedbackEmail")}
+              </Label>
+              <Input
+                type="email"
+                name="email"
+                className="w-full p-3 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+                placeholder={t("feedbackEmailPlaceholder")}
+              />
+              <p className="text-xs text-gray-500 mt-1">
+                {t("feedbackEmailNote")}
+              </p>
+            </div>
+
+            {/* Additional comments */}
+            <div>
+              <Label className="block text-sm font-medium text-gray-700 mb-2">
+                {t("feedbackAdditional")}
+              </Label>
+              <TextArea
+                name="additionalComments"
+                className="w-full p-3 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none resize-y min-h-20"
+                placeholder={t("feedbackAdditionalPlaceholder")}
+              />
+            </div>
           </div>
-        </fetcher.Form>
-      </main>
+        </Card>
 
-      <footer className="mt-8 py-6 border-t border-gray-300 text-center text-sm text-gray-500">
-        <p>{t("disclaimer")}</p>
-      </footer>
-    </div>
+        <div className="flex gap-4">
+          <Button
+            type="submit"
+            isDisabled={fetcher.state === "submitting"}
+            className="px-6 py-3 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {fetcher.state === "submitting"
+              ? t("feedbackSubmitting")
+              : t("feedbackSubmit")}
+          </Button>
+          <Link
+            to="/"
+            className="px-6 py-3 border border-gray-300 text-gray-700 rounded hover:bg-gray-50 transition-colors"
+          >
+            {t("cancel")}
+          </Link>
+        </div>
+      </fetcher.Form>
+    </PageShell>
   );
 }

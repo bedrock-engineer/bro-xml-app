@@ -670,9 +670,11 @@ export default {
     infoPageTitle: "About BRO XML Viewer",
     whatIsBroViewer: "What is BRO XML Viewer?",
     whatIsBroViewerDescription:
-      "BRO XML Viewer is a free tool to view and analyze geotechnical data from the Dutch Basisregistratie Ondergrond (BRO). Upload your BRO XML files and instantly visualize:",
-    featureCpt: "CPT (Cone Penetration Test) data with interactive plots",
-    featureBhrGt: "BHR-GT (Geotechnical borehole) data with soil profiles",
+      "BRO XML Viewer is a free tool to view and analyze geotechnical and geological data from the Dutch Basisregistratie Ondergrond (BRO). It supports:",
+    featureCpt:
+      "CPT (Cone Penetration Test) data with interactive plots, including dissipation tests",
+    featureBhrGt:
+      "BHR-GT (Geotechnical borehole) data with soil profiles and layer descriptions",
     featureBhrG: "BHR-G (Geological borehole) data",
     featureGmw:
       "GMW (Groundwater monitoring well) data with a well schematic of the monitoring tubes",
@@ -680,22 +682,38 @@ export default {
       "GLD (Groundwater level data) with an interactive groundwater level time series chart",
     featureLab:
       "Geotechnical borehole sample analyses (BHR-GT-BMA) including Atterberg limits, triaxial tests, and more",
-    bmaTitle: "Supported geotechnical borehole sample analyses (BHR-GT-BMA)",
-    bmaDescription:
-      "The BRO registers laboratory tests on borehole samples as geotechnische boormonsteranalyse (BHR-GT-BMA), part of the geotechnical borehole survey (BHR-GT). This viewer visualizes the following BHR-GT-BMA tests:",
-    bmaFeedbackPrompt:
-      "Do you have requests or suggestions, for example for better charts or tables? Let us know via",
+    loadDataTitle: "Two ways to load data",
+    loadDataUpload:
+      "Upload or drag and drop BRO XML files, as many at once as you like.",
+    loadDataBroId:
+      "Open any registered object straight from the BRO by its ID, for example",
+    loadDataBroIdSuffix:
+      ", or search the map for an address, place or BRO ID. GLD dossiers can only be opened from a file.",
+    moreFeaturesTitle: "And more",
+    featureMap:
+      "A map of all registered CPT, BHR-GT and BHR-G locations in the Netherlands, with your loaded objects on top",
+    featureExport:
+      "Export plots as SVG or PNG, locations as GeoJSON, and download the original BRO XML of any object",
     otherBroTypesNote:
       "Other BRO data types are not yet supported. Contributions are welcome!",
     privacyTitle: "Privacy & Security",
     privacyDescription: "Your data stays private:",
     privacyBullet1:
-      "All processing happens in your browser - files are never uploaded to any server",
+      "Uploaded files are processed entirely in your browser and never sent to a server",
+    privacyBullet3:
+      "When you open an object by BRO ID, our server fetches the public registry data from the BRO and caches it briefly. This is public data and is not linked to you",
+    privacyBullet4:
+      "We use PostHog for anonymous usage statistics and error reporting. Cookies are only set if you accept them in the cookie banner; otherwise nothing is stored on your device",
     privacyBullet2: "Can be installed and used offline after the first load",
     aboutBro: "What is the BRO?",
     aboutBroDescription:
       "The Basisregistratie Ondergrond (BRO) is the Dutch national registry for subsurface data. It contains geotechnical and geological data from soil investigations, making it a valuable resource for construction, infrastructure, and environmental projects in the Netherlands.",
     visitBroLoket: "Visit BRO Loket",
+    getBroXmlTitle: "How to get BRO XML files",
+    getBroXmlLoket:
+      "Search for objects on BRO Loket and download them as XML. The viewer reads those files as they are.",
+    getBroXmlDirect:
+      "Or skip the download: paste a BRO ID into the search box on the map, or open it by URL, and the viewer fetches the object for you.",
     aboutBedrock: "About Bedrock.engineer",
     aboutBedrockDescription:
       "Bedrock.engineer builds tools and software for geotechnical engineers. We specialize in:",

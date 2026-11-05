@@ -670,10 +670,11 @@ export default {
     infoPageTitle: "Over BRO XML Viewer",
     whatIsBroViewer: "Wat is BRO XML Viewer?",
     whatIsBroViewerDescription:
-      "BRO XML Viewer is een gratis tool om geotechnische en geologische gegevens uit de Basisregistratie Ondergrond (BRO) te bekijken en analyseren. Upload je BRO XML-bestanden en visualiseer direct:",
+      "BRO XML Viewer is een gratis tool om geotechnische en geologische gegevens uit de Basisregistratie Ondergrond (BRO) te bekijken en analyseren. Ondersteund worden:",
     featureCpt:
-      "CPT (Cone Penetration Test) gegevens met interactieve grafieken",
-    featureBhrGt: "BHR-GT (Geotechnische boringen) met grondprofielen",
+      "CPT (sonderingen) met interactieve grafieken, inclusief dissipatietests",
+    featureBhrGt:
+      "BHR-GT (Geotechnische boringen) met grondprofielen en laagbeschrijvingen",
     featureBhrG: "BHR-G (Geologische boringen)",
     featureGmw:
       "GMW (Grondwatermonitoringput) gegevens met een putschema van de monitoringbuizen",
@@ -681,22 +682,38 @@ export default {
       "GLD (Grondwaterstandonderzoek) met een interactieve grondwaterstand-tijdreeksgrafiek",
     featureLab:
       "Geotechnische boormonsteranalyses (BHR-GT-BMA) inclusief Atterberg grenzen, triaxiaalproeven en meer",
-    bmaTitle: "Ondersteunde geotechnische boormonsteranalyses (BHR-GT-BMA)",
-    bmaDescription:
-      "In de BRO worden laboratoriumproeven op boormonsters geregistreerd als geotechnische boormonsteranalyse (BHR-GT-BMA), onderdeel van het geotechnisch booronderzoek (BHR-GT). Deze viewer visualiseert de volgende BHR-GT-BMA proeven:",
-    bmaFeedbackPrompt:
-      "Heb je verzoeken of suggesties, bijvoorbeeld voor betere grafieken of tabellen? Laat het ons weten via",
+    loadDataTitle: "Twee manieren om gegevens te laden",
+    loadDataUpload:
+      "Upload of sleep BRO XML-bestanden, zoveel tegelijk als je wilt.",
+    loadDataBroId:
+      "Open elk geregistreerd object rechtstreeks uit de BRO via het BRO-ID, bijvoorbeeld",
+    loadDataBroIdSuffix:
+      ", of zoek op de kaart naar een adres, plaats of BRO-ID. GLD-dossiers kunnen alleen vanuit een bestand worden geopend.",
+    moreFeaturesTitle: "En verder",
+    featureMap:
+      "Een kaart met alle geregistreerde CPT-, BHR-GT- en BHR-G-locaties in Nederland, met je geladen objecten erbovenop",
+    featureExport:
+      "Exporteer grafieken als SVG of PNG, locaties als GeoJSON, en download de originele BRO XML van elk object",
     otherBroTypesNote:
       "Andere BRO-gegevenstypes worden nog niet ondersteund. Bijdragen zijn welkom!",
     privacyTitle: "Privacy & Veiligheid",
     privacyDescription: "Je gegevens blijven privé:",
     privacyBullet1:
-      "Alle verwerking gebeurt in je browser, bestanden worden nooit naar een server geüpload",
+      "Geüploade bestanden worden volledig in je browser verwerkt en nooit naar een server gestuurd",
+    privacyBullet3:
+      "Open je een object via een BRO-ID, dan haalt onze server de openbare registergegevens op bij de BRO en bewaart die kort in een cache. Dit zijn openbare gegevens die niet aan jou gekoppeld zijn",
+    privacyBullet4:
+      "We gebruiken PostHog voor anonieme gebruiksstatistieken en foutrapportage. Cookies worden alleen geplaatst als je die accepteert in de cookiebanner; anders wordt er niets op je apparaat opgeslagen",
     privacyBullet2: "Kan geinstalleerd worden en offline gebruikt worden",
     aboutBro: "Wat is de BRO?",
     aboutBroDescription:
       "De Basisregistratie Ondergrond (BRO) is het Nederlandse nationale register voor ondergrondgegevens. Het bevat geotechnische en geologische gegevens van grondonderzoeken, een waardevolle bron voor bouw-, infrastructuur- en milieuprojecten in Nederland.",
     visitBroLoket: "Bezoek BRO Loket",
+    getBroXmlTitle: "Hoe kom je aan BRO XML-bestanden?",
+    getBroXmlLoket:
+      "Zoek objecten op in het BRO Loket en download ze als XML. De viewer leest die bestanden ongewijzigd in.",
+    getBroXmlDirect:
+      "Of sla het downloaden over: plak een BRO-ID in het zoekveld op de kaart, of open het via de URL, en de viewer haalt het object zelf op.",
     aboutBedrock: "Over Bedrock.engineer",
     aboutBedrockDescription:
       "Bedrock.engineer bouwt tools en software voor geotechnisch ingenieurs. Wij zijn gespecialiseerd in:",

@@ -2,6 +2,7 @@ import { useTranslation } from "react-i18next";
 import { Link } from "react-router";
 import type { Route } from "./+types/info";
 import { Card } from "../components/card";
+import { PageShell } from "../components/page-shell";
 
 export const meta: Route.MetaFunction = ({ matches }) => {
   const parentData = matches[0].loaderData as { locale?: string } | undefined;
@@ -22,147 +23,158 @@ export default function InfoPage() {
   const { t } = useTranslation();
 
   return (
-    <div className="pancake">
-      <header className="mb-6 border-b border-gray-300 py-4 px-2">
-        <div
-          style={{ maxWidth: "clamp(360px, 100%, 1800px)" }}
-          className="mx-auto"
-        >
-          <Link
-            to="/"
-            className="text-2xl flex gap-2 items-center hover:opacity-80"
-          >
-            <img src="/bedrock.svg" width={30} alt="Bedrock.engineer logo" />{" "}
-            {t("appTitle")}
-          </Link>
-        </div>
-      </header>
+    <PageShell width="3xl">
+      <h1 className="text-3xl mb-8">{t("infoPageTitle")}</h1>
 
-      <main className="max-w-3xl mx-auto px-4 py-8">
-        <h1 className="text-3xl mb-8">{t("infoPageTitle")}</h1>
+      <div className="space-y-8">
+        <Card>
+          <h2 className="text-xl font-medium mb-4">{t("whatIsBroViewer")}</h2>
+          <p className="text-gray-700 mb-4">
+            {t("whatIsBroViewerDescription")}
+          </p>
+          <ul className="list-disc list-inside space-y-2 text-gray-700">
+            <li>
+              <a href="https://basisregistratieondergrond.nl/inhoud-bro/registratieobjecten/bodem-grondonderzoek/geotechnisch-sondeeronderzoek-cpt/">
+                {t("featureCpt")}
+              </a>
+            </li>
 
-        <div className="space-y-8">
-          <Card>
-            <h2 className="text-xl font-medium mb-4">{t("whatIsBroViewer")}</h2>
-            <p className="text-gray-700 mb-4">
-              {t("whatIsBroViewerDescription")}
-            </p>
-            <ul className="list-disc list-inside space-y-2 text-gray-700">
-              <li>{t("featureCpt")}</li>
+            <li>
+              <a href="https://basisregistratieondergrond.nl/inhoud-bro/registratieobjecten/bodem-grondonderzoek/booronderzoek-bhr/geotechnisch-booronderzoek-bhr-gt/">
+                {t("featureBhrGt")}
+              </a>
+            </li>
 
-              <li>{t("featureBhrGt")}</li>
+            <li>
+              <a href="https://basisregistratieondergrond.nl/inhoud-bro/registratieobjecten/bodem-grondonderzoek/booronderzoek-bhr/geotechnisch-booronderzoek-bhr-gt#hb5f1738c-99a2-4abb-b7d1-07b33d853fe7">
+                {t("featureLab")}
+              </a>
+            </li>
 
-              <li>{t("featureLab")}</li>
+            <li>
+              <a href="https://basisregistratieondergrond.nl/inhoud-bro/registratieobjecten/bodem-grondonderzoek/booronderzoek-bhr/geologisch-booronderzoek-bhr/">
+                {t("featureBhrG")}
+              </a>
+            </li>
 
-              <li>{t("featureBhrG")}</li>
+            <li>
+              <a href="https://basisregistratieondergrond.nl/inhoud-bro/registratieobjecten/grondwatermonitoring/grondwatermonitoringput-gmw/">
+                {t("featureGmw")}
+              </a>
+            </li>
 
-              <li>{t("featureGmw")}</li>
+            <li>
+              <a href="https://basisregistratieondergrond.nl/inhoud-bro/registratieobjecten/grondwatermonitoring/grondwaterstandonderzoek-gld/">
+                {t("featureGld")}
+              </a>
+            </li>
+          </ul>
+          <p className="text-gray-500 text-sm mt-4 italic">
+            {t("otherBroTypesNote")}
+          </p>
 
-              <li>{t("featureGld")}</li>
-            </ul>
-            <p className="text-gray-500 text-sm mt-4 italic">
-              {t("otherBroTypesNote")}
-            </p>
-          </Card>
-
-          <Card>
-            <h2 className="text-xl font-medium mb-4">{t("bmaTitle")}</h2>
-
-            <p className="text-gray-700 mb-4">{t("bmaDescription")}</p>
-
-            <p>
-              {t("bmaFeedbackPrompt")}{" "}
-              <Link to="/feedback" className="text-blue-500 hover:underline">
-                {t("giveFeedback")}
+          <h3 className="text-lg font-medium mt-6 mb-2">
+            {t("loadDataTitle")}
+          </h3>
+          <ul className="list-disc list-inside space-y-2 text-gray-700">
+            <li>{t("loadDataUpload")}</li>
+            <li>
+              {t("loadDataBroId")}{" "}
+              <Link
+                to="/CPT000000000029"
+                className="text-blue-500 hover:underline font-mono"
+              >
+                CPT000000000029
               </Link>
-              .
-            </p>
+              {t("loadDataBroIdSuffix")}
+            </li>
+          </ul>
 
-            <ul className="list-disc list-inside space-y-2 text-gray-700">
-              <li>basisparameter</li>
-              <li>korrelgrootteverdeling</li>
-              <li>maximaleSchuifsterkte</li>
-              <li>schuifspanningsverloopBelasting</li>
-              <li>zetting</li>
-              <li>consistentie</li>
-              <li>consistentieKorrelverdeling</li>
-              <li>schuifspanningsverloopHorVervorming</li>
-              <li>waterdoorlatendheid</li>
-              <li>schuifspanningsverloopBelastingPlus</li>
-              <li>schuifsterktePlus</li>
-              <li>schuifspanningsverloopHorVervormingPlus</li>
-            </ul>
-          </Card>
+          <h3 className="text-lg font-medium mt-6 mb-2">
+            {t("moreFeaturesTitle")}
+          </h3>
+          <ul className="list-disc list-inside space-y-2 text-gray-700">
+            <li>{t("featureMap")}</li>
+            <li>{t("featureExport")}</li>
+          </ul>
+        </Card>
 
-          <Card>
-            <h2 className="text-xl font-medium mb-4">{t("privacyTitle")}</h2>
-            <p className="text-gray-700 mb-4">{t("privacyDescription")}</p>
-            <ul className="list-disc list-inside space-y-2 text-gray-700">
-              <li>{t("privacyBullet1")}</li>
+        <Card>
+          <h2 className="text-xl font-medium mb-4">{t("privacyTitle")}</h2>
+          <p className="text-gray-700 mb-4">{t("privacyDescription")}</p>
+          <ul className="list-disc list-inside space-y-2 text-gray-700">
+            <li>{t("privacyBullet1")}</li>
 
-              <li>{t("privacyBullet2")}</li>
-            </ul>
-          </Card>
+            <li>{t("privacyBullet3")}</li>
 
-          <Card>
-            <h2 className="text-xl font-medium mb-4">{t("aboutBro")}</h2>
+            <li>{t("privacyBullet4")}</li>
 
-            <p className="text-gray-700 mb-4">{t("aboutBroDescription")}</p>
+            <li>{t("privacyBullet2")}</li>
+          </ul>
+        </Card>
 
-            <a
-              href="https://www.broloket.nl"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-blue-500 hover:underline"
-            >
-              {t("visitBroLoket")}
-            </a>
-          </Card>
+        <Card>
+          <h2 className="text-xl font-medium mb-4">{t("aboutBro")}</h2>
 
-          <Card>
-            <h2 className="text-xl font-medium mb-4">{t("aboutBedrock")}</h2>
+          <p className="text-gray-700 mb-4">{t("aboutBroDescription")}</p>
 
-            <p className="text-gray-700 mb-4">{t("aboutBedrockDescription")}</p>
+          <h3 className="text-lg font-medium mt-6 mb-2">
+            {t("getBroXmlTitle")}
+          </h3>
+          <ul className="list-disc list-inside space-y-2 text-gray-700 mb-4">
+            <li>{t("getBroXmlLoket")}</li>
+            <li>{t("getBroXmlDirect")}</li>
+          </ul>
 
-            <ul className="list-disc list-inside space-y-2 text-gray-700 mb-4">
-              <li>{t("customWebApps")}</li>
-
-              <li>{t("bimCadIntegrations")}</li>
-
-              <li>{t("pythonAutomation")}</li>
-            </ul>
-
-            <a
-              href="https://bedrock.engineer"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-blue-500 hover:underline"
-            >
-              Bedrock.engineer
-            </a>
-          </Card>
-        </div>
-
-        <div className="mt-8 flex gap-4">
-          <Link
-            to="/"
-            className="px-4 py-2 bg-green-800 text-white rounded-sm hover:bg-green-900 transition-colors"
+          <a
+            href="https://www.broloket.nl"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-blue-500 hover:underline"
           >
-            {t("backToViewer")}
-          </Link>
+            {t("visitBroLoket")}
+          </a>
+        </Card>
 
-          <Link
-            to="/feedback"
-            className="px-4 py-2 border border-green-700 text-green-700 rounded-sm hover:bg-green-50 transition-colors"
+        <Card>
+          <h2 className="text-xl font-medium mb-4">{t("aboutBedrock")}</h2>
+
+          <p className="text-gray-700 mb-4">{t("aboutBedrockDescription")}</p>
+
+          <ul className="list-disc list-inside space-y-2 text-gray-700 mb-4">
+            <li>{t("customWebApps")}</li>
+
+            <li>{t("bimCadIntegrations")}</li>
+
+            <li>{t("pythonAutomation")}</li>
+          </ul>
+
+          <a
+            href="https://bedrock.engineer"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-blue-500 hover:underline"
           >
-            {t("giveFeedback")}
-          </Link>
-        </div>
-      </main>
+            Bedrock.engineer
+          </a>
+        </Card>
+      </div>
 
-      <footer className="mt-8 py-6 border-t border-gray-300 text-center text-sm text-gray-500">
-        <p>{t("disclaimer")}</p>
-      </footer>
-    </div>
+      <div className="mt-8 flex gap-4">
+        <Link
+          to="/"
+          className="px-4 py-2 bg-green-800 text-white rounded-sm hover:bg-green-900 transition-colors"
+        >
+          {t("backToViewer")}
+        </Link>
+
+        <Link
+          to="/feedback"
+          className="px-4 py-2 border border-green-700 text-green-700 rounded-sm hover:bg-green-50 transition-colors"
+        >
+          {t("giveFeedback")}
+        </Link>
+      </div>
+    </PageShell>
   );
 }

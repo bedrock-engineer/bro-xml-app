@@ -137,9 +137,9 @@ export function BHRGTPlot({
 
   return (
     <Card>
-      <div className="flex items-center justify-between gap-2">
+      <div className="flex flex-wrap items-center justify-between gap-2">
         <CardTitle>{t("boreLog")}</CardTitle>
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           <ToggleButtonGroup
             aria-label={t("tableLayout")}
             selectionMode="single"
@@ -232,14 +232,18 @@ export function BHRGTPlot({
           <div id={id} ref={containerRef}></div>
         </div>
 
-        <BhrgtDetailsTable
-          layers={layers}
-          height={height}
-          depthRange={depthRange}
-          surfaceNap={surfaceNap}
-          napMode={napMode}
-          layout={tableLayout}
-        />
+        {/* On narrow screens the table scrolls sideways within its own box
+            rather than widening the page. */}
+        <div className="scroll-fade-x max-w-full">
+          <BhrgtDetailsTable
+            layers={layers}
+            height={height}
+            depthRange={depthRange}
+            surfaceNap={surfaceNap}
+            napMode={napMode}
+            layout={tableLayout}
+          />
+        </div>
       </div>
 
       {/* Soil type legend */}

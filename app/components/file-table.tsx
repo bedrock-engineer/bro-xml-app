@@ -246,7 +246,7 @@ export function FileTable({
                     onPress={() => {
                       onFileDownload(row.filename);
                     }}
-                    className="p-1 hover:bg-gray-200 rounded text-gray-500 hover:text-gray-700"
+                    className="hit-area p-1 hover:bg-gray-200 rounded text-gray-500 hover:text-gray-700"
                     aria-label={t("downloadXmlFile")}
                   >
                     <DownloadIcon size={14} />
@@ -256,7 +256,7 @@ export function FileTable({
                     onPress={() => {
                       onFileRemove(row.filename);
                     }}
-                    className="p-1 hover:bg-gray-200 rounded text-gray-500 hover:text-gray-700"
+                    className="hit-area p-1 hover:bg-gray-200 rounded text-gray-500 hover:text-gray-700"
                     aria-label={t("removeFile")}
                   >
                     <XIcon size={14} />

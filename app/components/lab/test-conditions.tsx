@@ -98,7 +98,7 @@ export function TestConditions({ rows }: TestConditionsProps) {
       <summary className="cursor-pointer text-gray-500 hover:text-gray-700 select-none">
         {t("testConditions")} ({filled.length})
       </summary>
-      <dl className="mt-2 grid grid-cols-[auto_1fr] gap-x-4 gap-y-1 pl-4">
+      <dl className="mt-2 grid grid-cols-[auto_minmax(0,1fr)] gap-x-4 gap-y-1 pl-4">
         <ConditionRows rows={filled} />
       </dl>
     </details>

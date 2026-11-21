@@ -16,7 +16,7 @@ export function HeaderSections({ sections }: HeaderSectionsProps) {
   const posthog = usePostHog();
 
   return (
-    <div className="grid grid-cols-2 gap-4  items-start">
+    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 items-start">
       {sections.map((section) => (
         <Disclosure
           key={section.id}
@@ -47,7 +47,7 @@ export function HeaderSections({ sections }: HeaderSectionsProps) {
               {section.items.map((item, index) => (
                 <div
                   key={index}
-                  className="grid grid-cols-[200px_1fr] gap-4 text-sm"
+                  className="grid grid-cols-1 gap-1 sm:grid-cols-[200px_1fr] sm:gap-4 text-sm"
                 >
                   <dt className="text-gray-600">{item.label}</dt>
                   <dd className="text-gray-900 font-mono text-xs">

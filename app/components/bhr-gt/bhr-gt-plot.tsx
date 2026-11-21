@@ -234,7 +234,7 @@ export function BHRGTPlot({
 
         {/* On narrow screens the table scrolls sideways within its own box
             rather than widening the page. */}
-        <div className="max-w-full overflow-x-auto">
+        <div className="scroll-fade-x max-w-full">
           <BhrgtDetailsTable
             layers={layers}
             height={height}

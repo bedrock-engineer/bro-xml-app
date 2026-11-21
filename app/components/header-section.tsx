@@ -50,7 +50,7 @@ export function HeaderSections({ sections }: HeaderSectionsProps) {
                   className="grid grid-cols-1 gap-1 sm:grid-cols-[200px_1fr] sm:gap-4 text-sm"
                 >
                   <dt className="text-gray-600">{item.label}</dt>
-                  <dd className="text-gray-900 font-mono text-xs wrap-break-word">
+                  <dd className="text-gray-900 font-mono text-xs">
                     <CodeTooltip description={item.description}>
                       {item.value}
                     </CodeTooltip>

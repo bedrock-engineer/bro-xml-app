@@ -42,7 +42,7 @@ interface HeaderColumnProps {
 
 export function HeaderColumn({ children }: HeaderColumnProps) {
   return (
-    <dl className="grid grid-cols-[auto_minmax(0,1fr)] wrap-break-word gap-x-3 gap-y-1 items-baseline">
+    <dl className="grid grid-cols-[auto_minmax(0,1fr)] gap-x-3 gap-y-1 items-baseline">
       {children}
     </dl>
   );

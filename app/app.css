@@ -58,7 +58,9 @@ body {
   max-width: clamp(360px, 100%, 1800px);
   margin-inline: auto;
   display: grid;
-  grid-template-columns: 1fr;
+  /* minmax(0, …) lets the column shrink below its content's width, so wide
+     tables and plots scroll inside their own box instead of widening the page */
+  grid-template-columns: minmax(0, 1fr);
   width: 100%;
   column-gap: 16px;
 
@@ -111,7 +113,7 @@ body {
   border-radius: var(--radius-sm);
   transition: all;
   max-height: 80svh;
-  overflow-block: auto;
+  overflow: auto;
 
   &[data-drop-target] {
     border-color: var(--color-blue-400);

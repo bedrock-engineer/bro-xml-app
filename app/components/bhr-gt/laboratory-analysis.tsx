@@ -60,7 +60,7 @@ export function LaboratoryAnalysis({
 
       {/* Analysis metadata */}
       <div className="mb-4 p-3 bg-gray-50 rounded text-sm">
-        <dl className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-1">
+        <dl className="grid grid-cols-[auto_minmax(0,1fr)] wrap-break-word gap-x-4 gap-y-1">
           {analysis.analysisReportDate && (
             <>
               <dt className="text-gray-500">{t("analysisReportDate")}</dt>
@@ -158,7 +158,7 @@ function IntervalDetails({
           {t("interval")}: {interval.beginDepth?.value.toFixed(2) ?? "–"} -{" "}
           {formatMeasure(interval.endDepth, 2) ?? "–"}
         </h4>
-        <dl className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-1">
+        <dl className="grid grid-cols-[auto_minmax(0,1fr)] wrap-break-word gap-x-4 gap-y-1">
           {interval.sampleQuality && (
             <>
               <dt className="text-gray-500">{t("sampleQuality")}</dt>

@@ -177,7 +177,7 @@ export function TriaxialTestsDisplay({
                 </span>
               </div>
 
-              <dl className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-1">
+              <dl className="grid grid-cols-[auto_minmax(0,1fr)] wrap-break-word gap-x-4 gap-y-1">
                 <ConditionRows
                   rows={[
                     measureRow(t("specimenDiameter"), test.beginDiameter),

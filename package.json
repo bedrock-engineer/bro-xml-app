@@ -31,7 +31,7 @@
     "@bedrock-engineer/bro-xml-parser": "^0.11.0",
     "@observablehq/plot": "^0.6.17",
     "@posthog/react": "^1.11.2",
-    "@react-router/node": "^8.5.0",
+    "@react-router/node": "^8.5.3",
     "@sentry/cloudflare": "^10.72.0",
     "@sentry/react-router": "^10.72.0",
     "@xmldom/xmldom": "^0.9.12",
@@ -53,7 +53,7 @@
     "react-dom": "^19.3.1",
     "react-error-boundary": "^6.1.6",
     "react-i18next": "^17.0.15",
-    "react-router": "^8.5.0",
+    "react-router": "^8.5.3",
     "remix-i18next": "^8.0.0",
     "svg-crowbar": "^0.7.0",
     "xpath": "^0.0.35"
@@ -61,7 +61,7 @@
   "devDependencies": {
     "@cloudflare/vite-plugin": "^1.64.0",
     "@eslint/js": "^9.39.1",
-    "@react-router/dev": "^8.5.0",
+    "@react-router/dev": "^8.5.3",
     "@tailwindcss/vite": "^4.3.1",
     "@types/d3-array": "^3.2.1",
     "@types/d3-scale": "^4.0.9",
